@@ -1313,8 +1313,6 @@
      </widget>
     </item>
    </layout>
-   <zorder></zorder>
-   <zorder>stackedWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

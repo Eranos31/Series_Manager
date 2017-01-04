@@ -7,7 +7,7 @@ Log::Log() {
 
 Log::Log(QString nom) {
     nomFichier = nom;
-    QFile file("Log/" + nomFichier + ".log");
+    QFile file("Log/" + nomFichier + "_" + QDate::currentDate().toString("yyyy_MM_dd") + ".log");
     if(!file.exists()){
         if(file.open(QIODevice::WriteOnly|QIODevice::Text)){
             QTextStream flux(&file);
@@ -35,10 +35,37 @@ Log::Log(QString nom) {
 }
 
 void Log::ecrire(QString text) {
-    QFile file("Log/" + nomFichier + ".log");
+    bool nouveau = false;
+    QFile file("Log/" + nomFichier + "_" + QDate::currentDate().toString("yyyy_MM_dd") + ".log");
+
+    if(!file.exists()) {
+        nouveau = true;
+    }
+
     if(file.open(QIODevice::WriteOnly|QIODevice::Append|QIODevice::Text)){
         QTextStream flux(&file);
         QDateTime date = QDateTime::currentDateTime();
+        if(nouveau) {
+            flux << "---------------------------------------------" << endl;
+            flux << "-                                           -" << endl;
+            flux << "-  #### ##### ####   ###  #####  ####       -" << endl;
+            flux << "- #     #     #   #   #   #     #           -" << endl;
+            flux << "- #     #     #   #   #   #     #           -" << endl;
+            flux << "-  ###  ####  ####    #   ####   ###        -" << endl;
+            flux << "-     # #     # #     #   #         #       -" << endl;
+            flux << "-     # #     #  #    #   #         #       -" << endl;
+            flux << "- ####  ##### #   #  ###  ##### ####        -" << endl;
+            flux << "-                                           -" << endl;
+            flux << "- #   #  ###  #   #  ###   ###  ##### ####  -" << endl;
+            flux << "- ## ## #   # #   # #   # #   # #     #   # -" << endl;
+            flux << "- # # # #   # ##  # #   # #     #     #   # -" << endl;
+            flux << "- # # # ##### # # # ##### #     ####  ####  -" << endl;
+            flux << "- #   # #   # #  ## #   # #  ## #     # #   -" << endl;
+            flux << "- #   # #   # #   # #   # #   # #     #  #  -" << endl;
+            flux << "- #   # #   # #   # #   #  ###  ##### #   # -" << endl;
+            flux << "-                                           -" << endl;
+            flux << "---------------------------------------------" << endl << "" << endl;
+        }
         flux << "[" << date.toString() << "] " << text << endl;
     }
 }

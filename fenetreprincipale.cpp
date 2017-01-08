@@ -709,6 +709,7 @@ void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
         if(!ui->pageConfigurationBoutonAccueil->isVisible()) {
             initialisation();
         }
+        dossierSerie =  ui->pageConfigurationLineDossierSerie->text();
         ui->stackedWidget->setCurrentWidget(ui->pagePrincipale);
     } else {
         QMessageBox::warning(this, "Attention", "Veuillez remplir toutes les informations demandées !");

@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
+    <width>436</width>
     <height>449</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Series Manager 2.0</string>
+   <string>Series Manager 2.1</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_8">
@@ -1432,17 +1432,13 @@
      </widget>
     </item>
    </layout>
-   <zorder>stackedWidget</zorder>
-   <zorder>horizontalLayoutWidget</zorder>
-   <zorder>formLayoutWidget</zorder>
-   <zorder>formLayoutWidget_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>586</width>
+     <width>436</width>
      <height>21</height>
     </rect>
    </property>

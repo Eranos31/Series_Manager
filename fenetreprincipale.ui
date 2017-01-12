@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>437</width>
-    <height>419</height>
+    <width>586</width>
+    <height>449</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,82 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_8">
     <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <layout class="QFormLayout" name="formLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="pagePrincipaleLabelDossierSerie">
+          <property name="maximumSize">
+           <size>
+            <width>70</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Dossier Série</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="pagePrincipaleLabelDossierSerie_2">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QFormLayout" name="formLayout_3">
+        <item row="0" column="0">
+         <widget class="QLabel" name="pagePrincipaleLabelInternet">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Internet</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="pagePrincipaleLabelInternet_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -39,6 +115,9 @@
                 <width>40</width>
                 <height>40</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Retourne à l'écran principal</string>
               </property>
               <property name="text">
                <string/>
@@ -148,6 +227,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pageConfigurationBoutonParcourir">
+                <property name="toolTip">
+                 <string>Ouvre un explorateur pour choisir le dossier de série</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -239,6 +321,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="pageConfigurationBoutonTerminer">
+            <property name="toolTip">
+             <string>Valide les paramètres</string>
+            </property>
             <property name="styleSheet">
              <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
             </property>
@@ -327,8 +412,11 @@
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>40</height>
+                  <height>50</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>Ouvre tous les liens t411</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
@@ -345,34 +433,6 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pagePrincipaleBoutonDossierSerie">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>Dossier</string>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>32</width>
-                  <height>32</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item>
                <widget class="QPushButton" name="pagePrincipaleBoutonWiki">
                 <property name="minimumSize">
                  <size>
@@ -383,14 +443,81 @@
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>40</height>
+                  <height>50</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>Lien Wikipédia</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
                 <property name="text">
-                 <string>Wikipédia</string>
+                 <string/>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pagePrincipaleBoutonDossierSerie">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Ouvre le dossier de téléchargement</string>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pagePrincipaleBoutonDeplacerFichier">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Déplace les fichiers téléchargés</string>
+                </property>
+                <property name="text">
+                 <string/>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -406,6 +533,9 @@
              <layout class="QVBoxLayout" name="pagePrincipaleVLayoutBoutonLateral">
               <item>
                <widget class="QPushButton" name="pagePrincipaleBoutonVosSeries">
+                <property name="toolTip">
+                 <string>Affiche la liste de toutes les séries</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -422,6 +552,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pagePrincipaleBoutonAjouter">
+                <property name="toolTip">
+                 <string>Permet d'ajouter une série</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -438,6 +571,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pagePrincipaleBoutonModifier">
+                <property name="toolTip">
+                 <string>Permet de modifier une série</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -454,6 +590,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pagePrincipaleBoutonSupprimer">
+                <property name="toolTip">
+                 <string>Permet de supprimer une série</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -497,74 +636,6 @@
               </widget>
              </widget>
             </item>
-            <item row="2" column="1">
-             <layout class="QFormLayout" name="pagePrincipaleFLayoutIndicateur">
-              <item row="0" column="0">
-               <widget class="QLabel" name="pagePrincipaleLabelDossierSerie">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Dossier Série</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLabel" name="pagePrincipaleLabelDossierSerie_2">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="pagePrincipaleLabelInternet">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Internet</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="pagePrincipaleLabelInternet_2">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
            </layout>
           </item>
          </layout>
@@ -584,6 +655,9 @@
                 <width>40</width>
                 <height>40</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Retourne à l'écran principal</string>
               </property>
               <property name="text">
                <string/>
@@ -653,6 +727,9 @@
                 <width>40</width>
                 <height>40</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Retourne à l'écran principal</string>
               </property>
               <property name="text">
                <string/>
@@ -843,6 +920,9 @@
                   <height>16777215</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Ouvre un lien vers Wikipédia</string>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -919,6 +999,9 @@
            <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutBoutonInferieur">
             <item>
              <widget class="QPushButton" name="pageAjoutModifBoutonValider">
+              <property name="toolTip">
+               <string>Ajoute la série</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
               </property>
@@ -946,6 +1029,9 @@
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="toolTip">
+               <string>Ouvre le dossier de la série</string>
+              </property>
               <property name="text">
                <string>Dossier</string>
               </property>
@@ -964,6 +1050,9 @@
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="toolTip">
+               <string>Ouvre le lien Wikipédia de la série</string>
+              </property>
               <property name="text">
                <string>Wikipédia</string>
               </property>
@@ -977,6 +1066,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="pageAjoutModifBoutonRetour">
+              <property name="toolTip">
+               <string>Retour à l'écran principal</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
               </property>
@@ -1010,6 +1102,9 @@
                 <width>40</width>
                 <height>40</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Retourne à l'écran principal</string>
               </property>
               <property name="text">
                <string/>
@@ -1058,6 +1153,9 @@
              <layout class="QVBoxLayout" name="pageListeModificationVLayoutBoutonLateral">
               <item>
                <widget class="QPushButton" name="pageListeModificationBoutonModifier">
+                <property name="toolTip">
+                 <string>Affiche l'écran de modification de la série</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -1077,6 +1175,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pageListeModificationBoutonRetour">
+                <property name="toolTip">
+                 <string>Retourne à l'écran principal</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -1112,6 +1213,9 @@
                 <width>40</width>
                 <height>40</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Retourne à l'écran principal</string>
               </property>
               <property name="text">
                <string/>
@@ -1151,6 +1255,9 @@
              <layout class="QVBoxLayout" name="pageListeSupprimerVLayoutBoutonLateral">
               <item>
                <widget class="QPushButton" name="pageListeSupprimerBoutonSupprimer">
+                <property name="toolTip">
+                 <string>Supprime la série sélectionnée</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -1170,6 +1277,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pageListeSupprimerBoutonRetour">
+                <property name="toolTip">
+                 <string>Retourne à l'écran principal</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
                 </property>
@@ -1205,6 +1315,9 @@
                 <width>40</width>
                 <height>40</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Retourne à l'écran principal</string>
               </property>
               <property name="text">
                <string/>
@@ -1264,6 +1377,9 @@
            <layout class="QHBoxLayout" name="pageReporterHLayoutBoutonInferieur">
             <item>
              <widget class="QPushButton" name="pageReporterButtonValider">
+              <property name="toolTip">
+               <string>Reporte la série du nombre de semaine sélectionnée</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
               </property>
@@ -1283,6 +1399,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="pageReporterButtonRetour">
+              <property name="toolTip">
+               <string>Retourne à l'écran principal</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
               </property>
@@ -1313,13 +1432,17 @@
      </widget>
     </item>
    </layout>
+   <zorder>stackedWidget</zorder>
+   <zorder>horizontalLayoutWidget</zorder>
+   <zorder>formLayoutWidget</zorder>
+   <zorder>formLayoutWidget_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>437</width>
+     <width>586</width>
      <height>21</height>
     </rect>
    </property>

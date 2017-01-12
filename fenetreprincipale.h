@@ -39,6 +39,7 @@ private slots:
     void chargementConfiguration();
     void majEpisode();
     void verificationSerieTerminer();
+    void nettoyerDossierTelechargement();
     void resizeEvent(QResizeEvent *);
     void moveEvent(QMoveEvent *);
     // MENU
@@ -65,6 +66,8 @@ private slots:
     void on_pagePrincipaleBoutonSupprimer_clicked();
     void on_pagePrincipaleBoutonUrl_clicked();
     void on_pagePrincipaleBoutonDossierSerie_clicked();
+    void on_pagePrincipaleBoutonWiki_clicked();
+    void on_pagePrincipaleBoutonDeplacerFichier_clicked();
     // PAGE TOUTES LES SERIES
     void on_pageVosSeriesBoutonAccueil_clicked();
     void on_pageVosSeriesComboBox_currentIndexChanged(const QString &arg1);
@@ -93,8 +96,6 @@ private slots:
     void on_pageReporterButtonRetour_clicked();
     void on_pageReporterSpinBox_valueChanged(int nbSemaines);
 
-    void on_pagePrincipaleBoutonWiki_clicked();
-
 private:
     Ui::FenetrePrincipale *ui;
     BaseDeDonnees *bdd;
@@ -121,6 +122,7 @@ private:
     QIcon i_exit = QIcon("./images/exit.png");
     QPixmap i_feuRouge = QPixmap("./images/FeuRouge.ico");
     QPixmap i_feuVert = QPixmap("./images/FeuVert.ico");
+    QIcon i_deplacement = QIcon("./images/deplacement.png");
 };
 
 #endif // FENETREPRINCIPALE_H

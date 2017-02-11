@@ -888,24 +888,22 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
     if(QDir(dossierSerie + "/_Telechargement").entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() != 0) {
         if(!listeGlobal.isEmpty()) {
             log->ecrire("Déplacement des fichiers téléchargés");
-            for(int i = 0; i < listeGlobal.count(); i++) {
-                QMap<QString,QString> list = listeGlobal.value(i);
-                if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() &&
-                   methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() &&
-                   methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
-                    foreach (QFileInfo info, QDir(dossierSerie + "/_Telechargement").entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
-                       if(info.fileName().contains(list["NOM"], Qt::CaseInsensitive) || info.fileName().contains(QString(list["NOM"]).replace(" ", "."), Qt::CaseInsensitive)) {
-                            fichierTotal++;
+            foreach (QFileInfo info, QDir(dossierSerie + "/_Telechargement").entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
+                for(int i = 0; i < listeGlobal.count(); i++) {
+                    QMap<QString,QString> list = listeGlobal.value(i);
+                    if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
+                        if(info.fileName().contains(list["NOM"], Qt::CaseInsensitive) || info.fileName().contains(QString(list["NOM"]).replace(" ", "."), Qt::CaseInsensitive)) {
+                             fichierTotal++;
 
-                            QFile fichier (info.absoluteFilePath());
+                             QFile fichier (info.absoluteFilePath());
 
-                            if(fichier.rename(dossierSerie + "\\" + list["NOM"] + "\\Saison " + list["SAISON"] + "\\" + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix())) {
-                                log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "\\" + list["NOM"] + "\\Saison " + list["SAISON"] + "\\" + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
-                                fichierDeplace++;
-                            } else {
-                                log->ecrire("\tLe fichier " + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix() + "n'a pas été déplacé");
-                            }
-                        }
+                             if(fichier.rename(dossierSerie + "\\" + list["NOM"] + "\\Saison " + list["SAISON"] + "\\" + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix())) {
+                                 log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "\\" + list["NOM"] + "\\Saison " + list["SAISON"] + "\\" + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
+                                 fichierDeplace++;
+                             } else {
+                                 log->ecrire("\tLe fichier " + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix() + "n'a pas été déplacé");
+                             }
+                         }
                     }
                 }
             }

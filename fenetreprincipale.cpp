@@ -278,6 +278,7 @@ void FenetrePrincipale::refresh() {
 
             if(nom != "") {
                 ui->pageAjoutModifComboNom->addItem(nom);
+                listeSerie.append(nom);
             }
         }
     }
@@ -822,31 +823,6 @@ void FenetrePrincipale::on_pagePrincipaleBoutonUrl_clicked() {
 }
 
 void FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() {
-    /*bool b = false;
-    if(this->listeQuoti.isEmpty()){
-        QMessageBox::information(this, "Erreur", "Il n'y a pas de série à regarder !");
-    } else {
-        bool trouve = false;
-
-        for (int i = 0; i < listeQuoti.count(); ++i) {
-            QMap<QString,QString> list = listeQuoti.value(i);
-
-            if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() &&
-               methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() &&
-               methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
-                b = QDesktopServices::openUrl(QUrl::fromLocalFile(dossierSerie + "/" + list["NOM"] + "/Saison " + list["SAISON"]));
-                trouve = true;
-            }
-        }
-
-        if(!b) {
-            QMessageBox::information(this,"Attention", "Les dossier n'ont pas pu être ouvert");
-        }
-
-        if(!trouve) {
-            QMessageBox::information(this, "Erreur", "Il n'y a pas de série à regarder !");
-        }
-    }*/
     log->ecrire("FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() : Début de l'ouverture du dossier de téléchargement");
     if(QDesktopServices::openUrl(QUrl::fromLocalFile(dossierSerie + "/_Telechargement"))) {
         log->ecrire("\tOuverture du dossier de téléchargement");
@@ -889,21 +865,30 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
         if(!listeGlobal.isEmpty()) {
             log->ecrire("Déplacement des fichiers téléchargés");
             foreach (QFileInfo info, QDir(dossierSerie + "/_Telechargement").entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
-                for(int i = 0; i < listeGlobal.count(); i++) {
-                    QMap<QString,QString> list = listeGlobal.value(i);
-                    if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
-                        if(info.fileName().contains(list["NOM"], Qt::CaseInsensitive) || info.fileName().contains(QString(list["NOM"]).replace(" ", "."), Qt::CaseInsensitive)) {
-                             fichierTotal++;
+                for(int i = 0; i < listeSerie.count(); i++) {
 
-                             QFile fichier (info.absoluteFilePath());
+                    if(info.fileName().contains(listeSerie.at(i), Qt::CaseInsensitive) || info.fileName().contains(QString(listeSerie.at(i)).replace(" ", "."), Qt::CaseInsensitive)) {
+                        fichierTotal++;
 
-                             if(fichier.rename(dossierSerie + "\\" + list["NOM"] + "\\Saison " + list["SAISON"] + "\\" + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix())) {
-                                 log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "\\" + list["NOM"] + "\\Saison " + list["SAISON"] + "\\" + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
-                                 fichierDeplace++;
-                             } else {
-                                 log->ecrire("\tLe fichier " + list["NOM"] + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix() + "n'a pas été déplacé");
-                             }
-                         }
+                        QFile fichier (info.absoluteFilePath());
+                        QString saison = info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}")) + 1, 2);
+                        QFile *newFichier = new QFile(dossierSerie + "\\" + listeSerie.at(i) + "\\Saison " + saison + "\\" + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
+
+                        if(newFichier->exists()) {
+                            if(methodeDiverses.msgBoxQuestion("Le fichier " + newFichier->fileName() + " existe déjà voulez vous le remplacer ?\nSi vous cliquer sur non le fichier sera supprimé") == 0) {
+                                newFichier->remove();
+                            } else {
+                                fichier.remove();
+                                continue;
+                            }
+                        }
+
+                        if(fichier.rename(dossierSerie + "\\" + listeSerie.at(i) + "\\Saison " + saison + "\\" + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix())) {
+                            log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "\\" + listeSerie.at(i) + "\\Saison " + saison + "\\" + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
+                            fichierDeplace++;
+                        } else {
+                            log->ecrire("\tLe fichier " + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix() + "n'a pas été déplacé");
+                        }
                     }
                 }
             }
@@ -915,14 +900,15 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
                 } else if (fichierDeplace > 1) {
                     QMessageBox::information(this, "Fichiers déplacés", "Les " + QString::number(fichierTotal) + " fichiers ont été déplacés");
                     log->ecrire("Les " + QString::number(fichierTotal) + " fichiers ont été déplacés");
+                } else  if(fichierDeplace == 0){
+                    QMessageBox::information(this, "Fichiers déplacés", "Il n'y a pas de fichier à déplacer");
                 }
-            } else {
-                QMessageBox::warning(this, "Attention", "Tout les fichiers n'ont pas été déplacés !");
-                log->ecrire("Tout les fichiers n'ont pas été déplacés !");
+
+                nettoyerDossierTelechargement();
             }
 
             log->ecrire("FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() : Fin du déplacement des dossiers du dossier de téléchargement");
-            nettoyerDossierTelechargement();
+
         }
     } else {
         QMessageBox::information(this, "Information", "Il n'y a pas de fichiers à déplacer");

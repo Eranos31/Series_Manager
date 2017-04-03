@@ -102,6 +102,7 @@ private:
     MethodeDiverses methodeDiverses;
     QList<QMap<QString, QString> > listeQuoti;
     QList<QMap<QString, QString> > listeGlobal;
+    QList<QString> listeSerie;
     QString dossierSerie;
     Log* log;
     // IMAGE

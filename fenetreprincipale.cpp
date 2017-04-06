@@ -268,6 +268,7 @@ void FenetrePrincipale::refresh() {
     ui->pageAjoutModifComboNom->setEditable(true);
     ui->pageAjoutModifComboNom->addItem("");
 
+    listeSerie.clear();
     foreach (QFileInfo file, QDir(dossierSerie).entryInfoList()) {
         if(file.isDir()) {
             QString nom;
@@ -608,6 +609,7 @@ void FenetrePrincipale::on_menuFichierAjouter_triggered() {
     ui->pageAjoutModifLabelDateProchain->setVisible(false);
     ui->pageAjoutModificationLabelProchain->setVisible(false);
     ui->pageAjoutModifLineDateProchain->setVisible(false);
+    ui->pageAjoutModifLineWiki->setText("");
 }
 
 void FenetrePrincipale::on_menuFichierModifier_triggered() {
@@ -887,7 +889,7 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
                             log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "\\" + listeSerie.at(i) + "\\Saison " + saison + "\\" + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
                             fichierDeplace++;
                         } else {
-                            log->ecrire("\tLe fichier " + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix() + "n'a pas été déplacé");
+                            log->ecrire("\tLe fichier " + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix() + " n'a pas été déplacé");
                         }
                     }
                 }

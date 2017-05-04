@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
-    <height>449</height>
+    <width>466</width>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -121,6 +121,10 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -330,6 +334,10 @@
             <property name="text">
              <string>Terminer</string>
             </property>
+            <property name="icon">
+             <iconset resource="ressource.qrc">
+              <normaloff>:/images/valider.png</normaloff>:/images/valider.png</iconset>
+            </property>
             <property name="default">
              <bool>true</bool>
             </property>
@@ -361,6 +369,10 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/actualiser.png</normaloff>:/images/actualiser.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -424,6 +436,10 @@
                 <property name="text">
                  <string/>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/t411.png</normaloff>:/images/t411.png</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>48</width>
@@ -455,6 +471,10 @@
                 <property name="text">
                  <string/>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/wiki.png</normaloff>:/images/wiki.png</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>32</width>
@@ -485,6 +505,10 @@
                 </property>
                 <property name="text">
                  <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/dossier.png</normaloff>:/images/dossier.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -519,6 +543,10 @@
                 <property name="text">
                  <string/>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/deplacement.png</normaloff>:/images/deplacement.png</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>32</width>
@@ -542,6 +570,10 @@
                 <property name="text">
                  <string>Vos séries</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/pellicule.gif</normaloff>:/images/pellicule.gif</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>32</width>
@@ -560,6 +592,10 @@
                 </property>
                 <property name="text">
                  <string>Ajouter</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/ajouter.png</normaloff>:/images/ajouter.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -580,6 +616,10 @@
                 <property name="text">
                  <string>Modifier</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/modifier.png</normaloff>:/images/modifier.png</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>32</width>
@@ -599,6 +639,10 @@
                 <property name="text">
                  <string>Supprimer</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>32</width>
@@ -612,7 +656,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="pagePrincipaleTabWidget">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="pagePrincipaleTabWidgetTabAuj">
                <attribute name="title">
@@ -661,6 +705,10 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -733,6 +781,10 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -927,8 +979,8 @@
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset>
-                  <normaloff>../build-Series_Manager-Desktop_Qt_5_7_0_MinGW_32bit-Debug/images/wiki.png</normaloff>../build-Series_Manager-Desktop_Qt_5_7_0_MinGW_32bit-Debug/images/wiki.png</iconset>
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/wiki.png</normaloff>:/images/wiki.png</iconset>
                 </property>
                </widget>
               </item>
@@ -1008,6 +1060,10 @@
               <property name="text">
                <string>Ajouter</string>
               </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/ajouter.png</normaloff>:/images/ajouter.png</iconset>
+              </property>
               <property name="iconSize">
                <size>
                 <width>32</width>
@@ -1035,6 +1091,10 @@
               <property name="text">
                <string>Dossier</string>
               </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/dossier.png</normaloff>:/images/dossier.png</iconset>
+              </property>
               <property name="iconSize">
                <size>
                 <width>32</width>
@@ -1056,6 +1116,10 @@
               <property name="text">
                <string>Wikipédia</string>
               </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/wiki.png</normaloff>:/images/wiki.png</iconset>
+              </property>
               <property name="iconSize">
                <size>
                 <width>32</width>
@@ -1074,6 +1138,10 @@
               </property>
               <property name="text">
                <string>Retour</string>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/retour.png</normaloff>:/images/retour.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -1108,6 +1176,10 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -1162,6 +1234,10 @@
                 <property name="text">
                  <string>Modifier</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/modifier.png</normaloff>:/images/modifier.png</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>32</width>
@@ -1183,6 +1259,10 @@
                 </property>
                 <property name="text">
                  <string>Retour</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/retour.png</normaloff>:/images/retour.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -1219,6 +1299,10 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -1264,6 +1348,10 @@
                 <property name="text">
                  <string>Supprimer</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
+                </property>
                 <property name="iconSize">
                  <size>
                   <width>32</width>
@@ -1285,6 +1373,10 @@
                 </property>
                 <property name="text">
                  <string>Retour</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/retour.png</normaloff>:/images/retour.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -1321,6 +1413,10 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -1386,6 +1482,10 @@
               <property name="text">
                <string>Valider</string>
               </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/valider.png</normaloff>:/images/valider.png</iconset>
+              </property>
               <property name="iconSize">
                <size>
                 <width>32</width>
@@ -1408,6 +1508,10 @@
               <property name="text">
                <string>Retour</string>
               </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/retour.png</normaloff>:/images/retour.png</iconset>
+              </property>
               <property name="iconSize">
                <size>
                 <width>32</width>
@@ -1429,6 +1533,47 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageHistorique">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="pageHistoriqueBoutonAccueil">
+            <property name="maximumSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="ressource.qrc">
+              <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="pageHistoriqueTitre">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Historique&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="pageHistoriqueTableWidget"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1438,7 +1583,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>436</width>
+     <width>466</width>
      <height>21</height>
     </rect>
    </property>
@@ -1447,6 +1592,7 @@
      <string>Fichier</string>
     </property>
     <addaction name="menuFichierAccueil"/>
+    <addaction name="menuFichierHistorique"/>
     <addaction name="menuFichierToutes_les_s_ries"/>
     <addaction name="separator"/>
     <addaction name="menuFichierAjouter"/>
@@ -1462,6 +1608,10 @@
     <widget class="QMenu" name="menuDossier">
      <property name="title">
       <string>Dossier</string>
+     </property>
+     <property name="icon">
+      <iconset resource="ressource.qrc">
+       <normaloff>:/images/dossier.png</normaloff>:/images/dossier.png</iconset>
      </property>
      <addaction name="menuOptionsDossier_de_lien"/>
      <addaction name="menuOptionsDossier_de_log"/>
@@ -1491,46 +1641,82 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="menuFichierAjouter">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/ajouter.png</normaloff>:/images/ajouter.png</iconset>
+   </property>
    <property name="text">
     <string>Ajouter</string>
    </property>
   </action>
   <action name="menuFichierModifier">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/modifier.png</normaloff>:/images/modifier.png</iconset>
+   </property>
    <property name="text">
     <string>Modifier</string>
    </property>
   </action>
   <action name="menuFichierSupprimer">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
+   </property>
    <property name="text">
     <string>Supprimer</string>
    </property>
   </action>
   <action name="menuFichierQuitter">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+   </property>
    <property name="text">
     <string>Quitter</string>
    </property>
   </action>
   <action name="menuFichierAccueil">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
+   </property>
    <property name="text">
     <string>Accueil</string>
    </property>
   </action>
   <action name="menuFichierToutes_les_s_ries">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/pellicule.gif</normaloff>:/images/pellicule.gif</iconset>
+   </property>
    <property name="text">
     <string>Toutes les séries</string>
    </property>
   </action>
   <action name="menuOptionsActualiser">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/actualiser.png</normaloff>:/images/actualiser.png</iconset>
+   </property>
    <property name="text">
     <string>Actualiser</string>
    </property>
   </action>
   <action name="menuOptionsParam_tres">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/engrenage.png</normaloff>:/images/engrenage.png</iconset>
+   </property>
    <property name="text">
     <string>Paramètres</string>
    </property>
   </action>
   <action name="menuAideA_Propos">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/interrogation.gif</normaloff>:/images/interrogation.gif</iconset>
+   </property>
    <property name="text">
     <string>A Propos</string>
    </property>
@@ -1545,9 +1731,16 @@
     <string>Dossier de log</string>
    </property>
   </action>
+  <action name="menuFichierHistorique">
+   <property name="text">
+    <string>Historique</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="ressource.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

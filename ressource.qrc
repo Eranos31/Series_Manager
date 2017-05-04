@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/accueil.png</file>
+        <file>images/actualiser.png</file>
+        <file>images/ajouter.png</file>
+        <file>images/annuler.png</file>
+        <file>images/deplacement.png</file>
+        <file>images/deplacement_old.jpg</file>
+        <file>images/dossier.png</file>
+        <file>images/engrenage.png</file>
+        <file>images/exit.png</file>
+        <file>images/FeuRouge.ico</file>
+        <file>images/FeuVert.ico</file>
+        <file>images/interrogation.gif</file>
+        <file>images/loupe.png</file>
+        <file>images/modifier.png</file>
+        <file>images/pellicule.gif</file>
+        <file>images/reporter.png</file>
+        <file>images/retour.png</file>
+        <file>images/SeriesManager.ico</file>
+        <file>images/SeriesManager.png</file>
+        <file>images/t411.png</file>
+        <file>images/valider.png</file>
+        <file>images/wiki.png</file>
+    </qresource>
+</RCC>

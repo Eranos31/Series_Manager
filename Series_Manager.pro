@@ -31,3 +31,6 @@ OTHER_FILES += TODO.txt\
                myapp.rc
 
 RC_FILE = myapp.rc
+
+RESOURCES += \
+    ressource.qrc

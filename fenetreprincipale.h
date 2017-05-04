@@ -106,24 +106,25 @@ private:
     QString dossierSerie;
     Log* log;
     // IMAGE
-    QPixmap i_seriesManager = QPixmap("./images/SeriesManager.png");
-    QIcon i_valider = QIcon("./images/valider.png");
-    QIcon i_modifier = QIcon("./images/modifier.png");
-    QIcon i_pellicule = QIcon("./images/pellicule.gif");
-    QIcon i_accueil = QIcon("./images/accueil.png");
-    QIcon i_annuler = QIcon("./images/annuler.png");
-    QIcon i_t411 = QIcon("./images/t411.png");
-    QIcon i_reporter = QIcon("./images/reporter.png");
-    QIcon i_retour = QIcon("./images/retour.png");
-    QIcon i_dossier = QIcon("./images/dossier.png");
-    QIcon i_actualiser = QIcon("./images/actualiser.png");
-    QIcon i_engrenage = QIcon("./images/engrenage.png");
-    QIcon i_interrogation = QIcon("./images/interrogation.gif");
-    QIcon i_wiki = QIcon("./images/wiki.png");
-    QIcon i_exit = QIcon("./images/exit.png");
-    QPixmap i_feuRouge = QPixmap("./images/FeuRouge.ico");
-    QPixmap i_feuVert = QPixmap("./images/FeuVert.ico");
-    QIcon i_deplacement = QIcon("./images/deplacement.png");
+    QPixmap i_seriesManager = QPixmap(":/images/SeriesManager.png");
+    QIcon i_ajouter = QIcon(":/images/ajouter.png");//
+    QIcon i_valider = QIcon(":/images/valider.png");
+    QIcon i_modifier = QIcon(":/images/modifier.png");
+    QIcon i_pellicule = QIcon(":/images/pellicule.gif");
+    QIcon i_accueil = QIcon(":/images/accueil.png");//
+    QIcon i_annuler = QIcon(":/images/annuler.png");//
+    QIcon i_t411 = QIcon(":/images/t411.png");
+    QIcon i_reporter = QIcon(":/images/reporter.png");
+    QIcon i_retour = QIcon(":/images/retour.png");
+    QIcon i_dossier = QIcon(":/images/dossier.png");//
+    QIcon i_actualiser = QIcon(":/images/actualiser.png");//
+    QIcon i_engrenage = QIcon(":/images/engrenage.png");//
+    QIcon i_interrogation = QIcon(":/images/interrogation.gif");
+    QIcon i_wiki = QIcon(":/images/wiki.png");
+    QIcon i_exit = QIcon(":/images/exit.png");//
+    QPixmap i_feuRouge = QPixmap(":/images/FeuRouge.ico");
+    QPixmap i_feuVert = QPixmap(":/images/FeuVert.ico");
+    QIcon i_deplacement = QIcon(":/images/deplacement.png");//
 };
 
 #endif // FENETREPRINCIPALE_H

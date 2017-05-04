@@ -35,7 +35,6 @@ private slots:
     void on_bouton_wiki_clicked(QString nom);
     void on_bouton_reporter_clicked(QString nom);
     void majIndicateur();
-    void colorisation();
     void chargementConfiguration();
     void majEpisode();
     void verificationSerieTerminer();

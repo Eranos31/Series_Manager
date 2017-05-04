@@ -8,8 +8,6 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
 
     log = new Log();
 
-    //colorisation();
-
     QDir dir;
     QFile file("config.ini");
     QSettings settings ("config.ini", QSettings::IniFormat);
@@ -269,7 +267,7 @@ void FenetrePrincipale::refresh() {
         indice++;
     }
 
-    log->ecrire("\Actualisation du tableau de l'historique");
+    log->ecrire("\tActualisation du tableau de l'historique");
 
     // Dimensionner les colonnes
     ui->pagePrincipaleTableWidgetDisplay->resizeColumnToContents(0);
@@ -425,67 +423,6 @@ void FenetrePrincipale::majIndicateur() {
     } else {
         ui->pagePrincipaleLabelInternet_2->setPixmap(i_feuRouge);
     }
-}
-
-void FenetrePrincipale::colorisation() {
-    log->ecrire("FenetrePrincipale::colorisation() : Début de la colorisation de l'application");
-    // bleu clair RGB 98, 206, 245| #5CCEF5
-    // Noir RGB 0, 0, 0
-    //qApp->setStyleSheet("FenetrePrincipale {background-color: #0000CC}");
-
-    // Mettre les images sur les boutons
-    // Menu Fichier
-    ui->menuFichierAccueil->setIcon(i_accueil);
-    ui->menuFichierAjouter->setIcon(i_valider);
-    ui->menuFichierModifier->setIcon(i_modifier);
-    ui->menuFichierSupprimer->setIcon(i_annuler);
-    ui->menuFichierToutes_les_s_ries->setIcon(i_pellicule);
-    ui->menuFichierQuitter->setIcon(i_exit);
-    // Menu Options
-    ui->menuOptionsActualiser->setIcon(i_actualiser);
-    ui->menuOptionsParam_tres->setIcon(i_engrenage);
-    ui->menuOptionsDossier_de_lien->setIcon(i_dossier);
-    ui->menuOptionsDossier_de_log->setIcon(i_dossier);
-    // Menu Aide
-    ui->menuAideA_Propos->setIcon(i_interrogation);
-    // Page Configuration
-    ui->pageConfigurationBoutonAccueil->setIcon(i_accueil);
-    ui->pageConfigurationBoutonTerminer->setIcon(i_valider);
-    // Page Principale
-    ui->pagePrincipaleBoutonActualiser->setIcon(i_actualiser);
-    ui->pagePrincipaleBoutonAjouter->setIcon(i_valider);
-    ui->pagePrincipaleBoutonDossierSerie->setIcon(i_dossier);
-    ui->pagePrincipaleBoutonModifier->setIcon(i_modifier);
-    ui->pagePrincipaleBoutonSupprimer->setIcon(i_annuler);
-    ui->pagePrincipaleBoutonUrl->setIcon(i_t411);
-    ui->pagePrincipaleBoutonWiki->setIcon(i_wiki);
-    ui->pagePrincipaleBoutonVosSeries->setIcon(i_pellicule);
-    ui->pagePrincipaleBoutonDeplacerFichier->setIcon(i_deplacement);
-    // Page Vos Series
-    ui->pageVosSeriesBoutonAccueil->setIcon(i_accueil);
-    // Page Ajout Modification
-    ui->pageAjoutModifBoutonAccueil->setIcon(i_accueil);
-    ui->pageAjoutModifBoutonValider->setIcon(i_valider);
-    ui->pageAjoutModifBoutonDossier->setIcon(i_dossier);
-    ui->pageAjoutModifBoutonRetour->setIcon(i_retour);
-    ui->pageAjoutModifBoutonWiki->setIcon(i_wiki);
-    ui->pageAjoutModifButtonWiki->setIcon(i_wiki);
-    // Page Liste Modification
-    ui->pageListeModificationBoutonAccueil->setIcon(i_accueil);
-    ui->pageListeModificationBoutonModifier->setIcon(i_modifier);
-    ui->pageListeModificationBoutonRetour->setIcon(i_retour);
-    // Page Liste Supprimer
-    ui->pageListeSupprimerBoutonAccueil->setIcon(i_accueil);
-    ui->pageListeSupprimerBoutonRetour->setIcon(i_retour);
-    ui->pageListeSupprimerBoutonSupprimer->setIcon(i_annuler);
-    // Page Reporter
-    ui->pageReporterBoutonAccueil->setIcon(i_accueil);
-    ui->pageReporterButtonRetour->setIcon(i_retour);
-    ui->pageReporterButtonValider->setIcon(i_valider);
-    // Page Historique
-    ui->pageHistoriqueBoutonAccueil->setIcon(i_accueil);
-
-    log->ecrire("FenetrePrincipale::colorisation() : Fin de la colorisation de l'application");
 }
 
 void FenetrePrincipale::chargementConfiguration() {

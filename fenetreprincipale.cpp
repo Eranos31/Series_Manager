@@ -180,7 +180,7 @@ void FenetrePrincipale::refresh() {
     list.append("Episode");
     list.append("T411");
     list.append("Wiki");
-    ui->pagePrincipaleTableWidgetDisplay_2->setHorizontalHeaderLabels(QStringList(liste));
+    ui->pagePrincipaleTableWidgetDisplay_2->setHorizontalHeaderLabels(QStringList(list));
 
     indice = 0;
 

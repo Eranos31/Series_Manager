@@ -1605,21 +1605,10 @@
     <property name="title">
      <string>Options</string>
     </property>
-    <widget class="QMenu" name="menuDossier">
-     <property name="title">
-      <string>Dossier</string>
-     </property>
-     <property name="icon">
-      <iconset resource="ressource.qrc">
-       <normaloff>:/images/dossier.png</normaloff>:/images/dossier.png</iconset>
-     </property>
-     <addaction name="menuOptionsDossier_de_lien"/>
-     <addaction name="menuOptionsDossier_de_log"/>
-    </widget>
     <addaction name="menuOptionsActualiser"/>
     <addaction name="menuOptionsParam_tres"/>
     <addaction name="separator"/>
-    <addaction name="menuDossier"/>
+    <addaction name="menuOptionsDossier_de_log"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -1721,19 +1710,18 @@
     <string>A Propos</string>
    </property>
   </action>
-  <action name="menuOptionsDossier_de_lien">
-   <property name="text">
-    <string>Dossier de lien</string>
-   </property>
-  </action>
-  <action name="menuOptionsDossier_de_log">
-   <property name="text">
-    <string>Dossier de log</string>
-   </property>
-  </action>
   <action name="menuFichierHistorique">
    <property name="text">
     <string>Historique</string>
+   </property>
+  </action>
+  <action name="menuOptionsDossier_de_log">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/dossier.png</normaloff>:/images/dossier.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dossier de log</string>
    </property>
   </action>
  </widget>

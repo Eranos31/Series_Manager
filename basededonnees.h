@@ -23,6 +23,8 @@ public:
     void supprimer(QString nom, bool msgBox);
     QList<QMap<QString, QString> > requeteListe(QString requete);
     QMap<QString, QString> requete(QString requete);
+    bool requeteInsertUpdate(QString requete);
+    QList<QMap<QString, QString> > requeteHistorique();
     QDate derniereOuvertureBDD();
     void majDerniereOuvertureBDD();
 private:

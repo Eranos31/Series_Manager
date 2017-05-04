@@ -234,6 +234,43 @@ void FenetrePrincipale::refresh() {
 
     log->ecrire("\tActualisation de l'onglet Hier");
 
+    // Refresh de l'historique
+    ui->pageHistoriqueTableWidget->clear();
+    ui->pageHistoriqueTableWidget->setColumnCount(5);
+    ui->pageHistoriqueTableWidget->setRowCount(0);
+    QList<QString> listeEnteteHisto;
+    listeEnteteHisto.append("Nom");
+    listeEnteteHisto.append("Saison");
+    listeEnteteHisto.append("Episode");
+    listeEnteteHisto.append("Date épisode");
+    listeEnteteHisto.append("URL");
+    ui->pageHistoriqueTableWidget->setHorizontalHeaderLabels(QStringList(listeEnteteHisto));
+
+    indice = 0;
+
+    QList<QMap<QString, QString> > listeHistorique = this->bdd->requeteHistorique();
+    for(int i = 0; i < listeHistorique.count(); i++) {
+        QMap<QString, QString> map = listeHistorique.value(i);
+
+        QSignalMapper* mapper = new QSignalMapper();
+        QPushButton* url = new QPushButton(i_t411, "");
+        url->setToolTip("Ouvre le lien t411 de " + map["NOM"] + "pour l'épisode donné");
+        mapper->setMapping(url, map["URL"]);
+        QObject::connect(mapper, SIGNAL(mapped(QString)), this, SLOT(on_bouton_wiki_clicked(QString)));
+        QObject::connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
+
+        ui->pageHistoriqueTableWidget->setRowCount(indice+1);
+        ui->pageHistoriqueTableWidget->setItem(indice, 0, methodeDiverses.itemForTableWidget(map["NOM"], false));
+        ui->pageHistoriqueTableWidget->setItem(indice, 1, methodeDiverses.itemForTableWidget(map["SAISON"], true));
+        ui->pageHistoriqueTableWidget->setItem(indice, 2, methodeDiverses.itemForTableWidget(map["EPISODE"], true));
+        ui->pageHistoriqueTableWidget->setItem(indice, 3, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(map["DATEAJOUT"]).toString("dd/MM/yy"), true));
+        ui->pageHistoriqueTableWidget->setCellWidget(indice, 4, url);
+
+        indice++;
+    }
+
+    log->ecrire("\Actualisation du tableau de l'historique");
+
     // Dimensionner les colonnes
     ui->pagePrincipaleTableWidgetDisplay->resizeColumnToContents(0);
     ui->pagePrincipaleTableWidgetDisplay->resizeColumnToContents(1);
@@ -247,6 +284,9 @@ void FenetrePrincipale::refresh() {
     ui->pagePrincipaleTableWidgetDisplay_2->resizeColumnToContents(2);
     ui->pagePrincipaleTableWidgetDisplay_2->setColumnWidth(3, 52);
     ui->pagePrincipaleTableWidgetDisplay_2->setColumnWidth(4, 52);
+
+    ui->pageHistoriqueTableWidget->resizeColumnsToContents();
+    ui->pageHistoriqueTableWidget->setColumnWidth(4, 52);
 
     log->ecrire("\tDimensionnement des colonnes des tableaux");
 
@@ -442,6 +482,8 @@ void FenetrePrincipale::colorisation() {
     ui->pageReporterBoutonAccueil->setIcon(i_accueil);
     ui->pageReporterButtonRetour->setIcon(i_retour);
     ui->pageReporterButtonValider->setIcon(i_valider);
+    // Page Historique
+    ui->pageHistoriqueBoutonAccueil->setIcon(i_accueil);
 
     log->ecrire("FenetrePrincipale::colorisation() : Fin de la colorisation de l'application");
 }
@@ -504,19 +546,8 @@ void FenetrePrincipale::majEpisode() {
                         log->ecrire("\tMise à jour de " + list["NOM"]);
                         bdd->modifier(list["NOM"], list["SAISON"].toInt(), list["NBEPISODE"].toInt(), list["EPISODECOURANT"].toInt() + 1, dateDerniereOuverture.dayOfWeek(), methodeDiverses.stringToDate(list["DATESORTIE"]), list["WIKI"], dateDerniereOuverture, false);
 
-                        QDir dir;
-                        dir.mkdir("Lien/" + dateDerniereOuverture.toString("yyyy_MM_dd"));
-
-                        QFile file("Lien/" + dateDerniereOuverture.toString("yyyy_MM_dd") + "/" + list["NOM"] + " S" + list["SAISON"] + "E" + list["EPISODECOURANT"] + ".url");
-
-                        if(!file.exists()) {
-                            if(file.open(QIODevice::WriteOnly|QIODevice::Text)) {
-                                log->ecrire("\t\tCréation du raccourci internet de " + list["NOM"]);
-                                QTextStream flux(&file);
-                                flux << "[InternetShortcut]" << endl;
-                                flux <<"URL=" + url + list["NOM"].replace(" ", "+") + "+S" + list["SAISON"] + "E" + list["EPISODECOURANT"] + sousTitres + qualite + "&order=added&type=desc" << endl;
-                            }
-                        }
+                        this->bdd->requeteInsertUpdate("INSERT INTO HISTORIQUE (NOM, SAISON, EPISODE, DATEAJOUT, URL)"
+                                                       "VALUES ('" + list["NOM"] + "', '" + list["SAISON"] + "', '" + list["EPISODECOURANT"] + "', '" + dateDerniereOuverture.toString("yyyy-MM-dd") + "', '" + url + QString(list["NOM"]).replace(" ", "+") + "+S" + list["SAISON"] + "E" + list["EPISODECOURANT"] + sousTitres + qualite + "&order=added&type=desc')");
                     }
                 }
             }
@@ -579,6 +610,11 @@ void FenetrePrincipale::moveEvent(QMoveEvent *) {
 void FenetrePrincipale::on_menuFichierAccueil_triggered() {
     ui->stackedWidget->setCurrentWidget(ui->pagePrincipale);
 }
+
+void FenetrePrincipale::on_menuFichierHistorique_triggered() {
+    ui->stackedWidget->setCurrentWidget(ui->pageHistorique);
+}
+
 
 void FenetrePrincipale::on_menuFichierToutes_les_s_ries_triggered() {
     if(listeGlobal.count() != 0) {
@@ -676,10 +712,6 @@ void FenetrePrincipale::on_menuOptionsParam_tres_triggered() {
     ui->pageConfigLineEditExtension->setReadOnly(true);
 }
 
-void FenetrePrincipale::on_menuOptionsDossier_de_lien_triggered() {
-    QDesktopServices::openUrl(QUrl::fromLocalFile("./Lien"));
-}
-
 void FenetrePrincipale::on_menuOptionsDossier_de_log_triggered() {
     QDesktopServices::openUrl(QUrl::fromLocalFile("./Log"));
 }
@@ -763,6 +795,14 @@ void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
 *                   PAGE PRINCIPALE                     *
 *                                                       *
 \*******************************************************/
+
+void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index) {
+    // TODO Acceder a l'écran de modification
+}
+
+void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index) {
+    // TODO Acceder a l'écran de modification
+}
 
 void FenetrePrincipale::on_pagePrincipaleBoutonActualiser_clicked() {
     on_menuOptionsActualiser_triggered();
@@ -1191,4 +1231,14 @@ void FenetrePrincipale::on_pageReporterButtonRetour_clicked() {
 
 void FenetrePrincipale::on_pageReporterSpinBox_valueChanged(int nbSemaines) {
     ui->pageReporterDate->setText(methodeDiverses.formatDate(QDate::currentDate().addDays(7 * nbSemaines)));
+}
+
+/*******************************************************\
+*                                                       *
+*                   PAGE HISTORIQUE                     *
+*                                                       *
+\*******************************************************/
+
+void FenetrePrincipale::on_pageHistoriqueBoutonAccueil_clicked() {
+    on_menuFichierAccueil_triggered();
 }

@@ -51,6 +51,22 @@ BaseDeDonnees::BaseDeDonnees() {
                 log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur l'ajout de la date du jour dans la table DATEOUVERTURE : " + query.lastError().text());
                 QMessageBox::critical(NULL, "ERREUR", "Erreur sur l'ajout de la date du jour dans la table DATEOUVERTURE : " + query.lastError().text());
             }
+
+            query.prepare("CREATE TABLE HISTORIQUE"
+                          "("
+                          "NOM TEXT NOT NULL,"
+                          "SAISON TEXT NOT NULL,"
+                          "EPISODE TEXT NOT NULL,"
+                          "DATEAJOUT DATE NOT NULL,"
+                          "URL TEXT NOT NULL"
+                          ")");
+
+            if(query.exec()) {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table HISTORIQUE réussie");
+            } else {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table HISTORIQUE : " + query.lastError().text());
+                QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table HISTORIQUE : " + query.lastError().text());
+            }
         } else {
             log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR BDD non ouverte : " + db.lastError().text());
             QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
@@ -317,6 +333,63 @@ QMap<QString, QString> BaseDeDonnees::requete(QString requete) {
 
     db.close();
     log->ecrire("BaseDeDonnees::requete() : Fermeture de la base de donnée");
+    return liste;
+}
+
+bool BaseDeDonnees::requeteInsertUpdate(QString requete) {
+    bool resultat;
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Ouverture de la base de donnée");
+
+        QSqlQuery query(db);
+        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Requete SQL :  : " + requete);
+        if(query.exec(requete)) {
+            resultat = true;
+        } else {
+            log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Erreur d'éxecution de la requête : " + query.lastError().text());
+            QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
+            resultat = false;
+        }
+    } else {
+        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+        resultat = false;
+    }
+
+    db.close();
+    log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Fermeture de la base de donnée");
+    return resultat;
+}
+
+QList<QMap<QString, QString> > BaseDeDonnees::requeteHistorique() {
+    QList<QMap<QString, QString> > liste;
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteHistorique() : Ouverture de la base de donnée");
+
+        QSqlQuery query(db);
+        query.prepare("SELECT NOM, SAISON, EPISODE, DATEAJOUT, URL FROM HISTORIQUE ORDER BY DATEAJOUT DESC");
+        log->ecrire("BaseDeDonnees::requeteHistorique() : Requete SQL : SELECT NOM, SAISON, EPISODE, URL FROM HISTORIQUE ORDER BY DATEAJOUT DESC");
+        if(query.exec()) {
+            while(query.next()) {
+                QMap<QString, QString> sousListe;
+                sousListe["NOM"] = query.value(0).toString();
+                sousListe["SAISON"] = query.value(1).toString();
+                sousListe["EPISODE"] = query.value(2).toString();
+                sousListe["DATEAJOUT"] = query.value(3).toString();
+                sousListe["URL"] = query.value(4).toString();
+                liste.append(sousListe);
+            }
+        } else {
+            log->ecrire("BaseDeDonnees::requeteHistorique() : Erreur d'éxecution de la requête : " + query.lastError().text());
+            QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
+        }
+    } else {
+        log->ecrire("BaseDeDonnees::requeteHistorique() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
+
+    db.close();
+    log->ecrire("BaseDeDonnees::requeteHistorique() : Fermeture de la base de donnée");
     return liste;
 }
 

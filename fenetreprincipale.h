@@ -44,6 +44,7 @@ private slots:
     void moveEvent(QMoveEvent *);
     // MENU
     void on_menuFichierAccueil_triggered();
+    void on_menuFichierHistorique_triggered();
     void on_menuFichierToutes_les_s_ries_triggered();
     void on_menuFichierAjouter_triggered();
     void on_menuFichierModifier_triggered();
@@ -51,7 +52,6 @@ private slots:
     void on_menuFichierQuitter_triggered();
     void on_menuOptionsActualiser_triggered();
     void on_menuOptionsParam_tres_triggered();
-    void on_menuOptionsDossier_de_lien_triggered();
     void on_menuOptionsDossier_de_log_triggered();
     void on_menuAideA_Propos_triggered();
     // PAGE CONFIGURATION
@@ -59,6 +59,8 @@ private slots:
     void on_pageConfigurationBoutonParcourir_clicked();
     void on_pageConfigurationBoutonTerminer_clicked();
     // PAGE PRINCIPALE
+    void on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index);
+    void on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index);
     void on_pagePrincipaleBoutonActualiser_clicked();
     void on_pagePrincipaleBoutonVosSeries_clicked();
     void on_pagePrincipaleBoutonAjouter_clicked();
@@ -95,6 +97,8 @@ private slots:
     void on_pageReporterButtonValider_clicked();
     void on_pageReporterButtonRetour_clicked();
     void on_pageReporterSpinBox_valueChanged(int nbSemaines);
+    // PAGE HISTORIQUE
+    void on_pageHistoriqueBoutonAccueil_clicked();
 
 private:
     Ui::FenetrePrincipale *ui;

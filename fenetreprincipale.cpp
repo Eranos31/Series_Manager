@@ -8,7 +8,7 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
 
     log = new Log();
 
-    colorisation();
+    //colorisation();
 
     QDir dir;
     QFile file("config.ini");

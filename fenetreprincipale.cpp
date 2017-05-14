@@ -24,10 +24,6 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
         dir.mkdir("Log");
     }
 
-    if(!QDir("Lien").exists()) {
-        dir.mkdir("Lien");
-    }
-
     if(file.exists()) {
         if(getConfig("Configuration/Chemin") == "") {
             premiereConnexion();
@@ -337,11 +333,6 @@ void FenetrePrincipale::initialisation() {
     ui->pagePrincipaleTabWidget->setCurrentWidget(ui->pagePrincipaleTabWidgetTabAuj);
     // Rafraichis les listes
     refresh();
-    // Crée le dossier de reception des téléchargement s'il n'existe pas
-    if(!QDir(getConfig("Configuration/Telechargement")).exists()) {
-        QDir dir;
-        dir.mkdir(getConfig("Configuration/Telechargement"));
-    }
     log->ecrire("FenetrePrincipale::initialisation() : Fin de l'initialisation");
 }
 
@@ -712,7 +703,7 @@ void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
         setConfig("Configuration/Extension", ui->pageConfigLineEditExtension_2->text());
         setConfig("Configuration/Qualite", qualite);
         setConfig("Configuration/Chemin", ui->pageConfigurationLineDossierSerie->text());
-        setConfig("Configuration/Telechargement", ui->pageConfigurationLineDossierTelechargement->text().replace(ui->pageConfigurationLineDossierSerie->text(),""));
+        setConfig("Configuration/Telechargement", ui->pageConfigurationLineDossierTelechargement->text());
         setConfig("Configuration/ListeSerie", "Toutes");
         setConfig("Configuration/Sous-Titres", sousTitres);
         setConfig("Taille/Width", QString::number(this->geometry().width()));

@@ -57,8 +57,21 @@ BaseDeDonnees::BaseDeDonnees() {
                           "NOM TEXT NOT NULL,"
                           "SAISON TEXT NOT NULL,"
                           "EPISODE TEXT NOT NULL,"
-                          "DATEAJOUT DATE NOT NULL,"
-                          "URL TEXT NOT NULL"
+                          "DATEAJOUT DATE NOT NULL"
+                          ")");
+
+            if(query.exec()) {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table HISTORIQUE réussie");
+            } else {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table HISTORIQUE : " + query.lastError().text());
+                QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table HISTORIQUE : " + query.lastError().text());
+            }
+
+            query.prepare("CREATE TABLE VERSION"
+                          "("
+                          "NUMERO TEXT NOT NULL,"
+                          "DATE DATE NOT NULL,"
+                          "HEURE TEXT NOT NULL"
                           ")");
 
             if(query.exec()) {
@@ -304,6 +317,35 @@ QList<QMap<QString, QString> > BaseDeDonnees::requeteListe(QString requete) {
     return liste;
 }
 
+QList<QMap<QString, QString> > BaseDeDonnees::requeteListeHier(QString requete) {
+    QList<QMap<QString, QString> > liste;
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteListeHier() : Ouverture de la base de donnée");
+
+        QSqlQuery query(db);
+        log->ecrire("BaseDeDonnees::requeteListeHier() : Requete SQL : " + requete);
+        if(query.exec(requete)) {
+            while(query.next()) {
+                QMap<QString, QString> sousListe;
+                sousListe["NOM"] = query.value(0).toString();
+                sousListe["SAISON"] = query.value(1).toString();
+                sousListe["EPISODE"] = query.value(2).toString();
+                liste.append(sousListe);
+            }
+        } else {
+            log->ecrire("BaseDeDonnees::requeteListeHier() : Erreur d'éxecution de la requête : " + query.lastError().text());
+            QMessageBox::critical(NULL, "ERREUR", "Erreur d'éxecution de la requête : " + query.lastError().text());
+        }
+    } else {
+        log->ecrire("BaseDeDonnees::requeteListeHier() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
+
+    db.close();
+    log->ecrire("BaseDeDonnees::requeteListeHier() : Fermeture de la base de données");
+    return liste;
+}
+
 QMap<QString, QString> BaseDeDonnees::requete(QString requete) {
     QMap<QString, QString> liste;
     if(db.open()) {
@@ -342,7 +384,7 @@ bool BaseDeDonnees::requeteInsertUpdate(QString requete) {
         log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Ouverture de la base de donnée");
 
         QSqlQuery query(db);
-        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Requete SQL :  : " + requete);
+        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Requete SQL : " + requete);
         if(query.exec(requete)) {
             resultat = true;
         } else {
@@ -367,9 +409,9 @@ QList<QMap<QString, QString> > BaseDeDonnees::requeteHistorique() {
         log->ecrire("BaseDeDonnees::requeteHistorique() : Ouverture de la base de donnée");
 
         QSqlQuery query(db);
-        query.prepare("SELECT NOM, SAISON, EPISODE, DATEAJOUT, URL FROM HISTORIQUE ORDER BY DATEAJOUT DESC");
-        log->ecrire("BaseDeDonnees::requeteHistorique() : Requete SQL : SELECT NOM, SAISON, EPISODE, URL FROM HISTORIQUE ORDER BY DATEAJOUT DESC");
-        if(query.exec()) {
+        QString requete = "SELECT NOM, SAISON, EPISODE, DATEAJOUT FROM HISTORIQUE ORDER BY DATEAJOUT DESC";
+        log->ecrire("BaseDeDonnees::requeteHistorique() : Requete SQL : " + requete);
+        if(query.exec(requete)) {
             while(query.next()) {
                 QMap<QString, QString> sousListe;
                 sousListe["NOM"] = query.value(0).toString();
@@ -398,17 +440,12 @@ QDate BaseDeDonnees::derniereOuvertureBDD() {
         log->ecrire("BaseDeDonnees::derniereOuvertureBDD() : Ouverture de la base de donnée");
 
         QSqlQuery query(db);
-        query.prepare("SELECT * FROM DATEOUVERTURE");
-        log->ecrire("BaseDeDonnees::derniereOuvertureBDD() : Requete SQL :  : SELECT * FROM DATEOUVERTURE");
-        if(query.exec()) {
+        QString requete = "SELECT * FROM DATEOUVERTURE";
+        log->ecrire("BaseDeDonnees::derniereOuvertureBDD() : Requete SQL : " + requete);
+        if(query.exec(requete)) {
             query.next();
             if(query.value(0).toString().contains(QRegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))) {
-                QString res = query.value(0).toString();
-                QStringList list = res.split("-");
-                QString a = list.at(0);
-                QString m = list.at(1);
-                QString j = list.at(2);
-                return QDate(a.toInt(), m.toInt(), j.toInt());
+                return methodeDiverses.stringToDate(query.value(0).toString());
             } else {
                 log->ecrire("BaseDeDonnees::derniereOuvertureBDD() : Il y a eu un problème sur la date de dernière ouverture de la base de donnée. Ajout de la date de la veille.");
                 QMessageBox::warning(NULL, "Atttention", "Il y a eu un problème sur la date de dernière ouverture de la base de donnée.\n"
@@ -446,11 +483,11 @@ QDate BaseDeDonnees::derniereOuvertureBDD() {
 
 void BaseDeDonnees::majDerniereOuvertureBDD() {
     if(db.open()) {
-        log->ecrire("BaseDeDonnees::derniereOuvertureBDD() : Ouverture de la base de donnée");
+        log->ecrire("BaseDeDonnees::majDerniereOuvertureBDD() : Ouverture de la base de donnée");
         QSqlQuery query(db);
-        query.prepare("UPDATE DATEOUVERTURE SET DERNIEREOUVERTURE = '" + QDate::currentDate().toString("yyyy-MM-dd") + "'");
-        log->ecrire("BaseDeDonnees::majDerniereOuvertureBDD() : Requete SQL : UPDATE DATEOUVERTURE SET DERNIEREOUVERTURE = '" + QDate::currentDate().toString("yyyy-MM-dd") + "'");
-        if(query.exec()) {
+        QString requete = "UPDATE DATEOUVERTURE SET DERNIEREOUVERTURE = '" + QDate::currentDate().toString("yyyy-MM-dd") + "'";
+        log->ecrire("BaseDeDonnees::majDerniereOuvertureBDD() : Requete SQL : " + requete);
+        if(query.exec(requete)) {
             log->ecrire("BaseDeDonnees::majDerniereOuvertureBDD() : La date d'ouverture de la BDD a été mise à jour");
         } else {
             log->ecrire("BaseDeDonnees::majDerniereOuvertureBDD() : ERREUR la date d'ouverture de la BDD n'a pas été mise à jour");
@@ -462,4 +499,53 @@ void BaseDeDonnees::majDerniereOuvertureBDD() {
     }
     db.close();
     log->ecrire("BaseDeDonnees::derniereOuvertureBDD() : Fermeture de la base de donnée");
+}
+
+QMap<QString, QString> BaseDeDonnees::requeteVersion() {
+    QMap<QString, QString> map;
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteVersion() : Ouverture de la base de donnée");
+        QSqlQuery query(db);
+        QString requete = "SELECT NUMERO, DATE, HEURE FROM VERSION";
+        log->ecrire("BaseDeDonnees::requeteUneColonne() : Requete SQL : " + requete);
+        if(query.exec(requete)) {
+            log->ecrire("BaseDeDonnees::requeteVersion() : Les informations de la version de l'appli ont été récupéré");
+            query.next();
+            map["NUMERO"] = query.value(0).toString();
+            map["DATE"] = query.value(1).toString();
+            map["HEURE"] = query.value(2).toString();
+        } else {
+            log->ecrire("BaseDeDonnees::requeteVersion() : ERREUR Les informations de la version de l'appli n'ont pas été récupéré");
+            QMessageBox::critical(NULL, "Erreur", "Les informations de la version de l'appli n'ont pas été récupéré");
+        }
+    } else {
+        log->ecrire("BaseDeDonnees::requeteVersion() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
+    db.close();
+    log->ecrire("BaseDeDonnees::requeteUneColonne() : Fermeture de la base de donnée");
+    return map;
+}
+
+QString BaseDeDonnees::requeteUneColonne(QString requete) {
+    QString resultat;
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteUneColonne() : Ouverture de la base de donnée");
+        QSqlQuery query(db);
+        log->ecrire("BaseDeDonnees::requeteUneColonne() : Requete SQL : " + requete);
+        if(query.exec(requete)) {
+            log->ecrire("BaseDeDonnees::requeteUneColonne() : La colonne a été récupéré");
+            query.next();
+            resultat = query.value(0).toString();
+        } else {
+            log->ecrire("BaseDeDonnees::requeteUneColonne() : ERREUR La colonne n'a pas été récupéré");
+            QMessageBox::critical(NULL, "Erreur", "La colonne n'a pas été récupéré");
+        }
+    } else {
+        log->ecrire("BaseDeDonnees::requeteUneColonne() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
+    db.close();
+    log->ecrire("BaseDeDonnees::requeteUneColonne() : Fermeture de la base de donnée");
+    return resultat;
 }

@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>464</height>
+    <width>505</width>
+    <height>498</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Series Manager 2.1</string>
+   <string>Series Manager 2.2</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_8">
@@ -214,7 +214,7 @@
               </item>
              </layout>
             </item>
-            <item row="3" column="0">
+            <item row="4" column="0">
              <widget class="QLabel" name="pageConfigurationLabelDossierSerie">
               <property name="styleSheet">
                <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
@@ -224,10 +224,14 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
+            <item row="4" column="1">
              <layout class="QHBoxLayout" name="pageConfigHLayoutDossierSerie">
               <item>
-               <widget class="QLineEdit" name="pageConfigurationLineDossierSerie"/>
+               <widget class="QLineEdit" name="pageConfigurationLineDossierSerie">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pageConfigurationBoutonParcourir">
@@ -244,7 +248,7 @@
               </item>
              </layout>
             </item>
-            <item row="4" column="1">
+            <item row="5" column="1">
              <widget class="QLabel" name="pageConfigurationLabelExemple">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -317,6 +321,40 @@
                 <attribute name="buttonGroup">
                  <string notr="true">buttonGroup</string>
                 </attribute>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="pageConfigurationLabelDossierTelechargement">
+              <property name="styleSheet">
+               <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+              </property>
+              <property name="text">
+               <string>Dossier téléchargement :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="pageConfigHLayoutDossierSerie_2">
+              <item>
+               <widget class="QLineEdit" name="pageConfigurationLineDossierTelechargement">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pageConfigurationBoutonParcourir_2">
+                <property name="toolTip">
+                 <string>Ouvre un explorateur pour choisir le dossier de série</string>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>Parcourir</string>
+                </property>
                </widget>
               </item>
              </layout>
@@ -417,7 +455,7 @@
                <widget class="QPushButton" name="pagePrincipaleBoutonUrl">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>0</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -452,7 +490,7 @@
                <widget class="QPushButton" name="pagePrincipaleBoutonWiki">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>0</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -1045,6 +1083,13 @@
               </item>
              </layout>
             </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="pageAjoutModifLabelRetour">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
@@ -1583,7 +1628,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>466</width>
+     <width>505</width>
      <height>21</height>
     </rect>
    </property>

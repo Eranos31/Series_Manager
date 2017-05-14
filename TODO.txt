@@ -1,0 +1,2 @@
+- Ajouter la possibilité d'avoir une fiche Série.
+Elle permettra de conserver certaines informations (exple : lien wiki, saison précedente, lien ancien episode, etc).

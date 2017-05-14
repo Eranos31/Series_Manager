@@ -39,6 +39,9 @@ private slots:
     void majEpisode();
     void verificationSerieTerminer();
     void nettoyerDossierTelechargement();
+    QString getConfig(QString config);
+    int getConfig(QString config, int valeur);
+    void setConfig(QString config, QString valeur);
     void resizeEvent(QResizeEvent *);
     void moveEvent(QMoveEvent *);
     // MENU
@@ -56,6 +59,7 @@ private slots:
     // PAGE CONFIGURATION
     void on_pageConfigurationBoutonAccueil_clicked();
     void on_pageConfigurationBoutonParcourir_clicked();
+    void on_pageConfigurationBoutonParcourir_2_clicked();
     void on_pageConfigurationBoutonTerminer_clicked();
     // PAGE PRINCIPALE
     void on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index);
@@ -71,6 +75,7 @@ private slots:
     void on_pagePrincipaleBoutonDeplacerFichier_clicked();
     // PAGE TOUTES LES SERIES
     void on_pageVosSeriesBoutonAccueil_clicked();
+    void on_pageVosSeriesDisplay_doubleClicked(const QModelIndex &index);
     void on_pageVosSeriesComboBox_currentIndexChanged(const QString &arg1);
     // PAGE AJOUT MODIFICATION
     void on_pageAjoutModifBoutonAccueil_clicked();
@@ -108,6 +113,9 @@ private:
     QList<QString> listeSerie;
     QString dossierSerie;
     Log* log;
+    QString version;
+    QDate dateVersion;
+    QString heureVersion;
     // IMAGE
     QPixmap i_seriesManager = QPixmap(":/images/SeriesManager.png");
     QIcon i_ajouter = QIcon(":/images/ajouter.png");//

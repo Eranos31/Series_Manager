@@ -955,7 +955,7 @@ void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex 
                                               "FROM SERIE "
                                               "WHERE NOM = '" + serie + "'"
                                               "ORDER BY NOM");
-    if(liste.count() != 0)
+    if(liste.count() != 0) {
         ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
         ui->pageAjoutModifTitre->setText("Modifier série");
         ui->pageAjoutModifBoutonValider->setText("Modifier");

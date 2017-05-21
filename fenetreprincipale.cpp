@@ -733,26 +733,24 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const 
                                               "FROM SERIE "
                                               "WHERE NOM = '" + serie + "'"
                                               "ORDER BY NOM");
-    if(liste.count() != 0) {
-        ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
-        ui->pageAjoutModifTitre->setText("Modifier série");
-        ui->pageAjoutModifBoutonValider->setText("Modifier");
-        ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
-        ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
-        ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
-        ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
-        if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
-            ui->pageAjoutModifLineDateSortie->setEnabled(false);
-            ui->pageAjoutModifLineDateProchain->setEnabled(true);
-        } else {
-            ui->pageAjoutModifLineDateSortie->setEnabled(true);
-            ui->pageAjoutModifLineDateProchain->setEnabled(false);
-        }
-        ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
-        ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
-        ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
-        ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
+    ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
+    ui->pageAjoutModifTitre->setText("Modifier série");
+    ui->pageAjoutModifBoutonValider->setText("Modifier");
+    ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
+    ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
+    ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
+    ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
+    if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
+        ui->pageAjoutModifLineDateSortie->setEnabled(false);
+        ui->pageAjoutModifLineDateProchain->setEnabled(true);
+    } else {
+        ui->pageAjoutModifLineDateSortie->setEnabled(true);
+        ui->pageAjoutModifLineDateProchain->setEnabled(false);
     }
+    ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
+    ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
+    ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
+    ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
 }
 
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index) {
@@ -762,26 +760,24 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(cons
                                               "FROM SERIE "
                                               "WHERE NOM = '" + serie + "'"
                                               "ORDER BY NOM");
-    if(liste.count() != 0) {
-        ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
-        ui->pageAjoutModifTitre->setText("Modifier série");
-        ui->pageAjoutModifBoutonValider->setText("Modifier");
-        ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
-        ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
-        ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
-        ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
-        if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
-            ui->pageAjoutModifLineDateSortie->setEnabled(false);
-            ui->pageAjoutModifLineDateProchain->setEnabled(true);
-        } else {
-            ui->pageAjoutModifLineDateSortie->setEnabled(true);
-            ui->pageAjoutModifLineDateProchain->setEnabled(false);
-        }
-        ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
-        ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
-        ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
-        ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
+    ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
+    ui->pageAjoutModifTitre->setText("Modifier série");
+    ui->pageAjoutModifBoutonValider->setText("Modifier");
+    ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
+    ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
+    ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
+    ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
+    if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
+        ui->pageAjoutModifLineDateSortie->setEnabled(false);
+        ui->pageAjoutModifLineDateProchain->setEnabled(true);
+    } else {
+        ui->pageAjoutModifLineDateSortie->setEnabled(true);
+        ui->pageAjoutModifLineDateProchain->setEnabled(false);
     }
+    ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
+    ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
+    ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
+    ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
 }
 
 void FenetrePrincipale::on_pagePrincipaleBoutonActualiser_clicked() {
@@ -955,26 +951,24 @@ void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex 
                                               "FROM SERIE "
                                               "WHERE NOM = '" + serie + "'"
                                               "ORDER BY NOM");
-    if(liste.count() != 0)
-        ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
-        ui->pageAjoutModifTitre->setText("Modifier série");
-        ui->pageAjoutModifBoutonValider->setText("Modifier");
-        ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
-        ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
-        ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
-        ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
-        if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
-            ui->pageAjoutModifLineDateSortie->setEnabled(false);
-            ui->pageAjoutModifLineDateProchain->setEnabled(true);
-        } else {
-            ui->pageAjoutModifLineDateSortie->setEnabled(true);
-            ui->pageAjoutModifLineDateProchain->setEnabled(false);
-        }
-        ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
-        ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
-        ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
-        ui->pageAjoutModifLabelRetour->setText("pageVosSeries");
+    ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
+    ui->pageAjoutModifTitre->setText("Modifier série");
+    ui->pageAjoutModifBoutonValider->setText("Modifier");
+    ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
+    ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
+    ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
+    ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
+    if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
+        ui->pageAjoutModifLineDateSortie->setEnabled(false);
+        ui->pageAjoutModifLineDateProchain->setEnabled(true);
+    } else {
+        ui->pageAjoutModifLineDateSortie->setEnabled(true);
+        ui->pageAjoutModifLineDateProchain->setEnabled(false);
     }
+    ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
+    ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
+    ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
+    ui->pageAjoutModifLabelRetour->setText("pageVosSeries");
 }
 
 void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QString &arg1) {

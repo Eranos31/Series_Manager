@@ -665,6 +665,52 @@ void FenetrePrincipale::on_menuAideA_Propos_triggered() {
 
 /*******************************************************\
 *                                                       *
+*                       TOOLBAR                         *
+*                                                       *
+\*******************************************************/
+
+void FenetrePrincipale::on_toolBarAccueil_triggered() {
+    if(ui->stackedWidget->currentWidget() != ui->pagePrincipale) {
+        on_menuFichierAccueil_triggered();
+    }
+}
+
+void FenetrePrincipale::on_toolBarParam_tres_triggered() {
+    on_menuOptionsParam_tres_triggered();
+}
+
+void FenetrePrincipale::on_toolBarActualiser_triggered() {
+    on_menuOptionsActualiser_triggered();
+}
+
+void FenetrePrincipale::on_toolBarQuitter_triggered() {
+    on_menuFichierQuitter_triggered();
+}
+
+void FenetrePrincipale::on_toolBarAjouter_triggered() {
+    if(ui->stackedWidget->currentWidget() != ui->pageAjoutModification && ui->pageAjoutModifTitre->text() != "Ajouter série") {
+        on_menuFichierAjouter_triggered();
+    }
+}
+
+void FenetrePrincipale::on_toolBarModifier_triggered() {
+    if(ui->stackedWidget->currentWidget() != ui->pageListeModification) {
+        on_menuFichierModifier_triggered();
+    }
+}
+
+void FenetrePrincipale::on_toolBarSupprimer_triggered() {
+    if(ui->stackedWidget->currentWidget() != ui->pageListeSupprimer) {
+        on_menuFichierSupprimer_triggered();
+    }
+}
+
+void FenetrePrincipale::on_toolBarDeplcerFichiers_triggered() {
+    on_pagePrincipaleBoutonDeplacerFichier_clicked();
+}
+
+/*******************************************************\
+*                                                       *
 *                  PAGE CONFIGURATION                   *
 *                                                       *
 \*******************************************************/
@@ -881,8 +927,6 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
 
     int fichierTotal = 0;
     int fichierDeplace = 0;
-
-    QString st = getConfig("Configuration/Telechargement");
 
     if(QDir(getConfig("Configuration/Telechargement")).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() != 0) {
         if(!listeGlobal.isEmpty()) {

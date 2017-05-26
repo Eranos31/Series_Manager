@@ -56,6 +56,15 @@ private slots:
     void on_menuOptionsParam_tres_triggered();
     void on_menuOptionsDossier_de_log_triggered();
     void on_menuAideA_Propos_triggered();
+    // TOOLBAR
+    void on_toolBarAccueil_triggered();
+    void on_toolBarParam_tres_triggered();
+    void on_toolBarActualiser_triggered();
+    void on_toolBarQuitter_triggered();
+    void on_toolBarAjouter_triggered();
+    void on_toolBarModifier_triggered();
+    void on_toolBarSupprimer_triggered();
+    void on_toolBarDeplcerFichiers_triggered();
     // PAGE CONFIGURATION
     void on_pageConfigurationBoutonAccueil_clicked();
     void on_pageConfigurationBoutonParcourir_clicked();

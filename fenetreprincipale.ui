@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>505</width>
-    <height>498</height>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1666,12 +1666,29 @@
    <addaction name="menu"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>22</height>
+    </size>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="toolBarAccueil"/>
+   <addaction name="separator"/>
+   <addaction name="toolBarParam_tres"/>
+   <addaction name="toolBarActualiser"/>
+   <addaction name="toolBarQuitter"/>
+   <addaction name="separator"/>
+   <addaction name="toolBarAjouter"/>
+   <addaction name="toolBarModifier"/>
+   <addaction name="toolBarSupprimer"/>
+   <addaction name="separator"/>
+   <addaction name="toolBarDeplcerFichiers"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="menuFichierAjouter">
@@ -1682,6 +1699,9 @@
    <property name="text">
     <string>Ajouter</string>
    </property>
+   <property name="toolTip">
+    <string>Ajouter une série</string>
+   </property>
   </action>
   <action name="menuFichierModifier">
    <property name="icon">
@@ -1690,6 +1710,9 @@
    </property>
    <property name="text">
     <string>Modifier</string>
+   </property>
+   <property name="toolTip">
+    <string>Modifier une série</string>
    </property>
   </action>
   <action name="menuFichierSupprimer">
@@ -1700,6 +1723,12 @@
    <property name="text">
     <string>Supprimer</string>
    </property>
+   <property name="iconText">
+    <string>Supprimer une série</string>
+   </property>
+   <property name="toolTip">
+    <string>Supprimer une série</string>
+   </property>
   </action>
   <action name="menuFichierQuitter">
    <property name="icon">
@@ -1708,6 +1737,9 @@
    </property>
    <property name="text">
     <string>Quitter</string>
+   </property>
+   <property name="toolTip">
+    <string>Quitter Series Manager</string>
    </property>
   </action>
   <action name="menuFichierAccueil">
@@ -1718,6 +1750,9 @@
    <property name="text">
     <string>Accueil</string>
    </property>
+   <property name="toolTip">
+    <string>Retour à la page principale</string>
+   </property>
   </action>
   <action name="menuFichierToutes_les_s_ries">
    <property name="icon">
@@ -1725,6 +1760,9 @@
      <normaloff>:/images/pellicule.gif</normaloff>:/images/pellicule.gif</iconset>
    </property>
    <property name="text">
+    <string>Toutes les séries</string>
+   </property>
+   <property name="toolTip">
     <string>Toutes les séries</string>
    </property>
   </action>
@@ -1736,6 +1774,9 @@
    <property name="text">
     <string>Actualiser</string>
    </property>
+   <property name="toolTip">
+    <string>Actualiser</string>
+   </property>
   </action>
   <action name="menuOptionsParam_tres">
    <property name="icon">
@@ -1743,6 +1784,9 @@
      <normaloff>:/images/engrenage.png</normaloff>:/images/engrenage.png</iconset>
    </property>
    <property name="text">
+    <string>Paramètres</string>
+   </property>
+   <property name="toolTip">
     <string>Paramètres</string>
    </property>
   </action>
@@ -1754,9 +1798,15 @@
    <property name="text">
     <string>A Propos</string>
    </property>
+   <property name="toolTip">
+    <string>A Propos</string>
+   </property>
   </action>
   <action name="menuFichierHistorique">
    <property name="text">
+    <string>Historique</string>
+   </property>
+   <property name="toolTip">
     <string>Historique</string>
    </property>
   </action>
@@ -1767,6 +1817,105 @@
    </property>
    <property name="text">
     <string>Dossier de log</string>
+   </property>
+   <property name="toolTip">
+    <string>Dossier de log</string>
+   </property>
+  </action>
+  <action name="toolBarAjouter">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/ajouter.png</normaloff>:/images/ajouter.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Ajouter une série</string>
+   </property>
+  </action>
+  <action name="toolBarAccueil">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Retour à la page principale</string>
+   </property>
+  </action>
+  <action name="toolBarModifier">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/modifier.png</normaloff>:/images/modifier.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Modifier une série</string>
+   </property>
+  </action>
+  <action name="toolBarSupprimer">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Supprimer une série</string>
+   </property>
+  </action>
+  <action name="toolBarActualiser">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/actualiser.png</normaloff>:/images/actualiser.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Actualiser</string>
+   </property>
+  </action>
+  <action name="toolBarDeplcerFichiers">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/deplacement.png</normaloff>:/images/deplacement.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Deplacer les fichiers du dossier de téléchagement</string>
+   </property>
+  </action>
+  <action name="toolBarQuitter">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Quitter Series Manager</string>
+   </property>
+  </action>
+  <action name="toolBarParam_tres">
+   <property name="icon">
+    <iconset resource="ressource.qrc">
+     <normaloff>:/images/engrenage.png</normaloff>:/images/engrenage.png</iconset>
+   </property>
+   <property name="toolTip">
+    <string>Paramètres</string>
    </property>
   </action>
  </widget>

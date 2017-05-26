@@ -66,14 +66,12 @@ private slots:
     void on_toolBarSupprimer_triggered();
     void on_toolBarDeplcerFichiers_triggered();
     // PAGE CONFIGURATION
-    void on_pageConfigurationBoutonAccueil_clicked();
     void on_pageConfigurationBoutonParcourir_clicked();
     void on_pageConfigurationBoutonParcourir_2_clicked();
     void on_pageConfigurationBoutonTerminer_clicked();
     // PAGE PRINCIPALE
     void on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index);
-    void on_pagePrincipaleBoutonActualiser_clicked();
     void on_pagePrincipaleBoutonVosSeries_clicked();
     void on_pagePrincipaleBoutonAjouter_clicked();
     void on_pagePrincipaleBoutonModifier_clicked();
@@ -83,11 +81,9 @@ private slots:
     void on_pagePrincipaleBoutonWiki_clicked();
     void on_pagePrincipaleBoutonDeplacerFichier_clicked();
     // PAGE TOUTES LES SERIES
-    void on_pageVosSeriesBoutonAccueil_clicked();
     void on_pageVosSeriesDisplay_doubleClicked(const QModelIndex &index);
     void on_pageVosSeriesComboBox_currentIndexChanged(const QString &arg1);
     // PAGE AJOUT MODIFICATION
-    void on_pageAjoutModifBoutonAccueil_clicked();
     void on_pageAjoutModifLineDateSortie_userDateChanged(const QDate &date);
     void on_pageAjoutModifButtonWiki_clicked();
     void on_pageAjoutModifBoutonValider_clicked();
@@ -96,22 +92,17 @@ private slots:
     void on_pageAjoutModifBoutonWiki_clicked();
     void on_pageAjoutModifLineDateProchain_userDateChanged(const QDate &date);
     // PAGE LISTE MODIFICATION
-    void on_pageListeModificationBoutonAccueil_clicked();
     void on_pageListeModificationBoutonModifier_clicked();
     void on_pageListeModificationBoutonRetour_clicked();
     void on_pageListeModificationDisplay_doubleClicked(const QModelIndex &index);
     // PAGE LISTE SUPPRESSION
-    void on_pageListeSupprimerBoutonAccueil_clicked();
     void on_pageListeSupprimerBoutonSupprimer_clicked();
     void on_pageListeSupprimerBoutonRetour_clicked();
     void on_pageListeSupprimerDisplay_doubleClicked(const QModelIndex &index);
     // PAGE REPORTER
-    void on_pageReporterBoutonAccueil_clicked();
     void on_pageReporterButtonValider_clicked();
     void on_pageReporterButtonRetour_clicked();
     void on_pageReporterSpinBox_valueChanged(int nbSemaines);
-    // PAGE HISTORIQUE
-    void on_pageHistoriqueBoutonAccueil_clicked();
 
 private:
     Ui::FenetrePrincipale *ui;

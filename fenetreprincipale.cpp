@@ -42,7 +42,7 @@ FenetrePrincipale::~FenetrePrincipale() {
 void FenetrePrincipale::premiereConnexion() {
     log->ecrire("FenetrePrincipale::premiereConnexion() : Début du paramétrage de première connexion");
     ui->menuBar->setVisible(false);
-    ui->pageConfigurationBoutonAccueil->setVisible(false);
+    ui->mainToolBar->setVisible(false);
     ui->pageConfigLineEditExtension->setReadOnly(true);
     ui->pageConfigLineEditExtension->setText("https://www.t411.");
     ui->pageConfigurationRadioToutes->setChecked(true);
@@ -637,7 +637,7 @@ void FenetrePrincipale::on_menuOptionsParam_tres_triggered() {
     ui->pageConfigLineEditExtension_2->setText(getConfig("Configuration/Extension"));
     ui->pageConfigurationLineDossierSerie->setText(getConfig("Configuration/Chemin"));
     ui->pageConfigurationLineDossierTelechargement->setText(getConfig("Configuration/Telechargement"));
-    ui->pageConfigurationBoutonAccueil->setVisible(true);
+    ui->mainToolBar->setVisible(true);
     ui->stackedWidget->setCurrentWidget(ui->pageConfig);
     ui->pageConfigurationLabelConsigne->setText("");
     ui->pageConfigLineEditExtension->setReadOnly(true);
@@ -715,10 +715,6 @@ void FenetrePrincipale::on_toolBarDeplcerFichiers_triggered() {
 *                                                       *
 \*******************************************************/
 
-void FenetrePrincipale::on_pageConfigurationBoutonAccueil_clicked() {
-    on_menuFichierAccueil_triggered();
-}
-
 void FenetrePrincipale::on_pageConfigurationBoutonParcourir_clicked() {
     ui->pageConfigurationLineDossierSerie->setText(QFileDialog::getExistingDirectory(this, tr("Choisir un dossier"), "Ordinateur", QFileDialog::ShowDirsOnly));
 }
@@ -756,7 +752,7 @@ void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
         setConfig("Taille/Height", QString::number(this->geometry().height()));
         setConfig("Position/X_position", QString::number(this->geometry().x()));
         setConfig("Position/Y_position", QString::number(this->geometry().y()));
-        if(!ui->pageConfigurationBoutonAccueil->isVisible()) {
+        if(!ui->mainToolBar->isVisible()) {
             initialisation();
         }
         dossierSerie =  ui->pageConfigurationLineDossierSerie->text();
@@ -828,10 +824,6 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(cons
         ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
         ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
     }
-}
-
-void FenetrePrincipale::on_pagePrincipaleBoutonActualiser_clicked() {
-    on_menuOptionsActualiser_triggered();
 }
 
 void FenetrePrincipale::on_pagePrincipaleBoutonVosSeries_clicked() {
@@ -988,10 +980,6 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
 *                                                       *
 \*******************************************************/
 
-void FenetrePrincipale::on_pageVosSeriesBoutonAccueil_clicked() {
-    on_menuFichierAccueil_triggered();
-}
-
 void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex &index) {
     QString serie = ui->pageVosSeriesDisplay->item(ui->pageVosSeriesDisplay->currentRow(), 0)->text();
     serie.replace("'", "''");
@@ -1103,10 +1091,6 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
 *                                                       *
 \*******************************************************/
 
-void FenetrePrincipale::on_pageAjoutModifBoutonAccueil_clicked() {
-    on_menuFichierAccueil_triggered();
-}
-
 void FenetrePrincipale::on_pageAjoutModifLineDateSortie_userDateChanged(const QDate &date) {
     ui->pageAjoutModifLabelDate->setText(methodeDiverses.formatDate(date));
 }
@@ -1194,10 +1178,6 @@ void FenetrePrincipale::on_pageAjoutModifLineDateProchain_userDateChanged(const 
 *                                                       *
 \*******************************************************/
 
-void FenetrePrincipale::on_pageListeModificationBoutonAccueil_clicked() {
-    on_menuFichierAccueil_triggered();
-}
-
 void FenetrePrincipale::on_pageListeModificationBoutonModifier_clicked() {
     if(ui->pageListeModificationDisplay->count() != 0){
         QString serie = ui->pageListeModificationDisplay->currentItem()->text();
@@ -1242,10 +1222,6 @@ void FenetrePrincipale::on_pageListeModificationDisplay_doubleClicked(const QMod
 *                                                       *
 \*******************************************************/
 
-void FenetrePrincipale::on_pageListeSupprimerBoutonAccueil_clicked() {
-    on_menuFichierAccueil_triggered();
-}
-
 void FenetrePrincipale::on_pageListeSupprimerBoutonSupprimer_clicked() {
     if(ui->pageListeSupprimerDisplay->count() != 0){
         QString serie = ui->pageListeSupprimerDisplay->currentItem()->text();
@@ -1274,10 +1250,6 @@ void FenetrePrincipale::on_pageListeSupprimerDisplay_doubleClicked(const QModelI
 *                                                       *
 \*******************************************************/
 
-void FenetrePrincipale::on_pageReporterBoutonAccueil_clicked() {
-    on_menuFichierAccueil_triggered();
-}
-
 void FenetrePrincipale::on_pageReporterButtonValider_clicked() {
     this->bdd->reporter(ui->pageReporterLabelNomSerie->text(),QDate::currentDate().addDays(7 * (ui->pageReporterSpinBox->value() - 1)));
     refresh();
@@ -1290,14 +1262,4 @@ void FenetrePrincipale::on_pageReporterButtonRetour_clicked() {
 
 void FenetrePrincipale::on_pageReporterSpinBox_valueChanged(int nbSemaines) {
     ui->pageReporterDate->setText(methodeDiverses.formatDate(QDate::currentDate().addDays(7 * nbSemaines)));
-}
-
-/*******************************************************\
-*                                                       *
-*                   PAGE HISTORIQUE                     *
-*                                                       *
-\*******************************************************/
-
-void FenetrePrincipale::on_pageHistoriqueBoutonAccueil_clicked() {
-    on_menuFichierAccueil_triggered();
 }

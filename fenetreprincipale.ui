@@ -109,32 +109,6 @@
           <item>
            <layout class="QHBoxLayout" name="pageConfigurationHLayoutTitre">
             <item>
-             <widget class="QPushButton" name="pageConfigurationBoutonAccueil">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Retourne à l'écran principal</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="ressource.qrc">
-                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QLabel" name="pageConfigurationTitre">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -391,44 +365,6 @@
          <layout class="QVBoxLayout" name="pagePrincipaleVLayoutPrincipal">
           <item>
            <layout class="QHBoxLayout" name="pagePrincipalHLayoutTitre">
-            <item>
-             <widget class="QPushButton" name="pagePrincipaleBoutonActualiser">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="ressource.qrc">
-                <normaloff>:/images/actualiser.png</normaloff>:/images/actualiser.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-              <property name="autoRepeatDelay">
-               <number>300</number>
-              </property>
-              <property name="autoRepeatInterval">
-               <number>100</number>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QLabel" name="pagePrincipaleTitre">
               <property name="sizePolicy">
@@ -731,32 +667,6 @@
           <item>
            <layout class="QHBoxLayout" name="pageVosSeriesHLayoutTitre">
             <item>
-             <widget class="QPushButton" name="pageVosSeriesBoutonAccueil">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Retourne à l'écran principal</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="ressource.qrc">
-                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QLabel" name="pageVosSeriesTitre">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Vos séries&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -806,32 +716,6 @@
          <layout class="QVBoxLayout" name="pageAjoutModificationVLayoutPrincipal">
           <item>
            <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutTitre">
-            <item>
-             <widget class="QPushButton" name="pageAjoutModifBoutonAccueil">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Retourne à l'écran principal</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="ressource.qrc">
-                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QLabel" name="pageAjoutModifTitre">
               <property name="sizePolicy">
@@ -1209,32 +1093,6 @@
           <item>
            <layout class="QHBoxLayout" name="pageListeModificationHLayoutTitre">
             <item>
-             <widget class="QPushButton" name="pageListeModificationBoutonAccueil">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Retourne à l'écran principal</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="ressource.qrc">
-                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QLabel" name="pageListeModificationTitre">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1332,32 +1190,6 @@
           <item>
            <layout class="QHBoxLayout" name="pageListeSupprimerHLayoutTitre">
             <item>
-             <widget class="QPushButton" name="pageListeSupprimerBoutonAccueil">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Retourne à l'écran principal</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="ressource.qrc">
-                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QLabel" name="pageListeSupprimerTitre">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1445,32 +1277,6 @@
          <layout class="QVBoxLayout" name="pageReporterVLayoutPrincipal">
           <item>
            <layout class="QHBoxLayout" name="pageReporterHLayoutTitre">
-            <item>
-             <widget class="QPushButton" name="pageReporterBoutonAccueil">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Retourne à l'écran principal</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="ressource.qrc">
-                <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QLabel" name="pageReporterTitre">
               <property name="text">
@@ -1583,29 +1389,6 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QPushButton" name="pageHistoriqueBoutonAccueil">
-            <property name="maximumSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="ressource.qrc">
-              <normaloff>:/images/accueil.png</normaloff>:/images/accueil.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QLabel" name="pageHistoriqueTitre">
             <property name="text">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Historique&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1669,7 +1452,7 @@
    <property name="maximumSize">
     <size>
      <width>16777215</width>
-     <height>22</height>
+     <height>25</height>
     </size>
    </property>
    <attribute name="toolBarArea">

@@ -796,6 +796,7 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const 
         ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
         ui->pageAjoutModifBoutonDossier->setVisible(true);
         ui->pageAjoutModifBoutonWiki->setVisible(true);
+        ui->pageAjoutModifComboNom->setEnabled(false);
     }
 }
 
@@ -827,6 +828,7 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(cons
         ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
         ui->pageAjoutModifBoutonDossier->setVisible(true);
         ui->pageAjoutModifBoutonWiki->setVisible(true);
+        ui->pageAjoutModifComboNom->setEnabled(false);
     }
 }
 
@@ -1012,6 +1014,7 @@ void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex 
         ui->pageAjoutModifLabelRetour->setText("pageVosSeries");
         ui->pageAjoutModifBoutonDossier->setVisible(true);
         ui->pageAjoutModifBoutonWiki->setVisible(true);
+        ui->pageAjoutModifComboNom->setEnabled(false);
     }
 }
 
@@ -1130,7 +1133,13 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
         } else {
             this->bdd->modifier(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineEpisodeCourant->text().toInt(), ui->pageAjoutModifLineDateProchain->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text(), ui->pageAjoutModifLineDateProchain->date().addDays(-7), true);
         }
-        ui->stackedWidget->setCurrentWidget(ui->pageListeModification);
+        if(ui->pageAjoutModifLabelRetour->text() == "pagePrincipale") {
+            ui->stackedWidget->setCurrentWidget(ui->pagePrincipale);
+        } else if(ui->pageAjoutModifLabelRetour->text() == "pageVosSeries") {
+            ui->stackedWidget->setCurrentWidget(ui->pageVosSeries);
+        } else if (ui->pageAjoutModifLabelRetour->text() == "pageListeModification"){
+            ui->stackedWidget->setCurrentWidget(ui->pageListeModification);
+        }
         refresh();
     }
 }

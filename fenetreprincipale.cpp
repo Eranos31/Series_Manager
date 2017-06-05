@@ -794,6 +794,8 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const 
         ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
         ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
         ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
+        ui->pageAjoutModifBoutonDossier->setVisible(true);
+        ui->pageAjoutModifBoutonWiki->setVisible(true);
     }
 }
 
@@ -823,6 +825,8 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(cons
         ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
         ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
         ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
+        ui->pageAjoutModifBoutonDossier->setVisible(true);
+        ui->pageAjoutModifBoutonWiki->setVisible(true);
     }
 }
 
@@ -1006,6 +1010,8 @@ void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex 
         ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
         ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
         ui->pageAjoutModifLabelRetour->setText("pageVosSeries");
+        ui->pageAjoutModifBoutonDossier->setVisible(true);
+        ui->pageAjoutModifBoutonWiki->setVisible(true);
     }
 }
 

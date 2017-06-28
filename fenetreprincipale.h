@@ -124,7 +124,7 @@ private:
     QIcon i_pellicule = QIcon(":/images/pellicule.gif");
     QIcon i_accueil = QIcon(":/images/accueil.png");//
     QIcon i_annuler = QIcon(":/images/annuler.png");//
-    QIcon i_t411 = QIcon(":/images/t411.png");
+    QIcon i_logo = QIcon(":/images/pirate_bay.png");
     QIcon i_reporter = QIcon(":/images/reporter.png");
     QIcon i_retour = QIcon(":/images/retour.png");
     QIcon i_dossier = QIcon(":/images/dossier.png");//

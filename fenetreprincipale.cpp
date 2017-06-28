@@ -44,7 +44,7 @@ void FenetrePrincipale::premiereConnexion() {
     ui->menuBar->setVisible(false);
     ui->mainToolBar->setVisible(false);
     ui->pageConfigLineEditExtension->setReadOnly(true);
-    ui->pageConfigLineEditExtension->setText("https://www.t411.");
+    ui->pageConfigLineEditExtension->setText("https://thepiratebay.");
     ui->pageConfigurationRadioToutes->setChecked(true);
     ui->pageConfigurationRadioAucun->setChecked(true);
     ui->stackedWidget->setCurrentWidget(ui->pageConfig);
@@ -89,7 +89,7 @@ void FenetrePrincipale::refresh() {
     liste.append("Nom");
     liste.append("Saison");
     liste.append("Episode");
-    liste.append("T411");
+    liste.append("Lien");
     liste.append("Wiki");
     liste.append("Reporter");
 
@@ -113,20 +113,20 @@ void FenetrePrincipale::refresh() {
             QSignalMapper* mapper2 = new QSignalMapper();
             QSignalMapper* mapper3 = new QSignalMapper();
 
-            QPushButton* t411 = new QPushButton(i_t411, "");
+            QPushButton* lien = new QPushButton(i_logo, "");
             QPushButton* wiki = new QPushButton(i_wiki, "");
             QPushButton* reporter = new QPushButton(i_reporter, "");
 
-            t411->setToolTip("Ouvre le lien t411 de " + map["NOM"]);
+            lien->setToolTip("Ouvre le lien URL de " + map["NOM"]);
             wiki->setToolTip("Ouvre le lien Wikipédia de " + map["NOM"]);
             reporter->setToolTip("Ouvre la fênetre de report de " + map["NOM"]);
 
-            mapper1->setMapping(t411, map["NOM"] + "+S" + map["SAISON"] + "E" + map["EPISODECOURANT"]);
+            mapper1->setMapping(lien, map["NOM"] + "+S" + map["SAISON"] + "E" + map["EPISODECOURANT"]);
             mapper2->setMapping(wiki, map["WIKI"]);
             mapper3->setMapping(reporter, map["NOM"]);
 
             QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_t411_clicked(QString)));
-            QObject::connect(t411, SIGNAL(clicked()), mapper1, SLOT(map()));
+            QObject::connect(lien, SIGNAL(clicked()), mapper1, SLOT(map()));
 
             QObject::connect(mapper2, SIGNAL(mapped(QString)), this, SLOT(on_bouton_wiki_clicked(QString)));
             QObject::connect(wiki, SIGNAL(clicked(bool)), mapper2, SLOT(map()));
@@ -138,7 +138,7 @@ void FenetrePrincipale::refresh() {
             ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(map["NOM"], false));
             ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget(map["SAISON"], true));
             ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(map["EPISODECOURANT"], true));
-            ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 3, t411);
+            ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 3, lien);
             ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 4, wiki);
             ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, reporter);
 
@@ -170,7 +170,7 @@ void FenetrePrincipale::refresh() {
     list.append("Nom");
     list.append("Saison");
     list.append("Episode");
-    list.append("T411");
+    list.append("Lien");
     list.append("Wiki");
     ui->pagePrincipaleTableWidgetDisplay_2->setHorizontalHeaderLabels(QStringList(list));
 
@@ -183,17 +183,17 @@ void FenetrePrincipale::refresh() {
         QSignalMapper* mapper1 = new QSignalMapper();
         QSignalMapper* mapper2 = new QSignalMapper();
 
-        QPushButton* t411Hier = new QPushButton(i_t411, "");
+        QPushButton* lienHier = new QPushButton(i_logo, "");
         QPushButton* wikiHier = new QPushButton(i_wiki, "");
 
-        t411Hier->setToolTip("Ouvre le lien t411 de " + mapHier["NOM"]);
+        lienHier->setToolTip("Ouvre le lien URL de " + mapHier["NOM"]);
         wikiHier->setToolTip("Ouvre le lien Wikipédia de " + mapHier["NOM"]);
 
-        mapper1->setMapping(t411Hier, mapHier["NOM"] + "+S" + mapHier["SAISON"] + "E" + mapHier["EPISODE"]);
+        mapper1->setMapping(lienHier, mapHier["NOM"] + "+S" + mapHier["SAISON"] + "E" + mapHier["EPISODE"]);
         mapper2->setMapping(wikiHier, lienWiki);
 
         QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_t411_clicked(QString)));
-        QObject::connect(t411Hier, SIGNAL(clicked()), mapper1, SLOT(map()));
+        QObject::connect(lienHier, SIGNAL(clicked()), mapper1, SLOT(map()));
 
         QObject::connect(mapper2, SIGNAL(mapped(QString)), this, SLOT(on_bouton_wiki_clicked(QString)));
         QObject::connect(wikiHier, SIGNAL(clicked(bool)), mapper2, SLOT(map()));
@@ -202,7 +202,7 @@ void FenetrePrincipale::refresh() {
         ui->pagePrincipaleTableWidgetDisplay_2->setItem(indice, 0, methodeDiverses.itemForTableWidget(mapHier["NOM"], false));
         ui->pagePrincipaleTableWidgetDisplay_2->setItem(indice, 1, methodeDiverses.itemForTableWidget(mapHier["SAISON"], true));
         ui->pagePrincipaleTableWidgetDisplay_2->setItem(indice, 2, methodeDiverses.itemForTableWidget(mapHier["EPISODE"], true));
-        ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 3, t411Hier);
+        ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 3, lienHier);
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 4, wikiHier);
 
         if(lienWiki == "") {
@@ -233,8 +233,8 @@ void FenetrePrincipale::refresh() {
         QMap<QString, QString> map = listeHistorique.value(i);
 
         QSignalMapper* mapper = new QSignalMapper();
-        QPushButton* url = new QPushButton(i_t411, "");
-        url->setToolTip("Ouvre le lien t411 de " + map["NOM"] + "pour l'épisode donné");
+        QPushButton* url = new QPushButton(i_logo, "");
+        url->setToolTip("Ouvre le lien URL de " + map["NOM"] + "pour l'épisode donné");
         mapper->setMapping(url, map["NOM"] + "+S" + map["SAISON"] + "E" + map["EPISODE"]);
         QObject::connect(mapper, SIGNAL(mapped(QString)), this, SLOT(on_bouton_t411_clicked(QString)));
         QObject::connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
@@ -338,21 +338,21 @@ void FenetrePrincipale::initialisation() {
 
 void FenetrePrincipale::on_bouton_t411_clicked(QString nom) {
     log->ecrire("FenetrePrincipale::on_bouton_t411_clicked() : Début de la génération du lien");
-    QString url = "https://www.t411." + getConfig("Configuration/Extension") + "/torrents/search/?search=";
+    QString url = "https://thepiratebay." + getConfig("Configuration/Extension") + "/search/";
     QString qualite = "";
     QString sousTitres = "";
-    QString fin = "&order=added&type=desc";
+    QString fin = "/0/99/200";
 
     if(getConfig("Configuration/Qualite") == "720p"){
-        qualite = "+720p";
+        qualite = " 720p";
     } else if (getConfig("Configuration/Qualite") == "1080p") {
-        qualite = "+1080p";
+        qualite = " 1080p";
     }
 
     if(getConfig("Configuration/Sous-Titres") == "") {
         sousTitres = "";
     } else {
-        sousTitres = "+vostfr";
+        sousTitres = " vostfr";
     }
 
     QDesktopServices::openUrl(QUrl(url + nom + sousTitres + qualite + fin));
@@ -429,7 +429,7 @@ void FenetrePrincipale::chargementConfiguration() {
 void FenetrePrincipale::majEpisode() {
     log->ecrire("FenetrePrincipale::majEpisode() : Début de mise à jour des episodes de la veille");
 
-    QString url = "https://www.t411." + getConfig("Configuration/Extension") + "/torrents/search/?search=";
+    QString url = "https://thepiratebay." + getConfig("Configuration/Extension") + "/search/";
     QString qualite = "";
     QString sousTitres = "";
     QDate dateDerniereOuverture = bdd->derniereOuvertureBDD();
@@ -654,7 +654,7 @@ void FenetrePrincipale::on_menuAideA_Propos_triggered() {
                    "que je regardais commençait à atteindre un nombre impressionnant.<br/><br/>"
                    "J'ai donc eu l'idée de créé un programme permettant de lister les "
                    "séries de la saison et de créé automatiquement les liens de recherches "
-                   "sur le site de téléchargement T411.<br/><br/>"
+                   "sur le site de téléchargement PirateBay.<br/><br/>"
                    "&copy;2014-2016 Eranos Corporation. Tout droits réservés.<br/><br/>"
                    "Ce projet a été développé sous Qt Creator 3.1.2<br/>"
                    "Plus d'info sur Qt : <a href='https://www.qt.io/'>https://www.qt.io/</a><br/>");
@@ -849,18 +849,18 @@ void FenetrePrincipale::on_pagePrincipaleBoutonSupprimer_clicked() {
 }
 
 void FenetrePrincipale::on_pagePrincipaleBoutonUrl_clicked() {
-    QString url = "https://www.t411." + getConfig("Configuration/Extension") + "/torrents/search/?search=";
+    QString url = "https://thepiratebay." + getConfig("Configuration/Extension") + "/search/";
     QString qualite = "";
     QString sousTitres = "";
 
     if(getConfig("Configuration/Qualite") == "720p"){
-        qualite = "+720p";
+        qualite = " 720p";
     } else if (getConfig("Configuration/Qualite") == "1080p") {
-        qualite = "+1080p";
+        qualite = " 1080p";
     }
 
     if(getConfig("Configuration/Sous-Titres") == "vostfr") {
-        sousTitres = "+vostfr";
+        sousTitres = " vostfr";
     } else if(getConfig("Configuration/Sous-Titres") == "") {
         sousTitres = "";
     }
@@ -1087,6 +1087,10 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
         QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_wiki_clicked(QString)));
         QObject::connect(wiki, SIGNAL(clicked(bool)), mapper1, SLOT(map()));
         ui->pageVosSeriesDisplay->setCellWidget(indice, 6, wiki);
+
+        if(list["WIKI"] == "") {
+            wiki->setEnabled(false);
+        }
 
         indice++;
     }

@@ -253,7 +253,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="text">
-                 <string>https://www.t411.</string>
+                 <string>https://thepiratebay.</string>
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>
@@ -402,7 +402,7 @@
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Ouvre tous les liens t411</string>
+                 <string>Ouvre tous les liens torrent</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
@@ -412,7 +412,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="ressource.qrc">
-                  <normaloff>:/images/t411.png</normaloff>:/images/t411.png</iconset>
+                  <normaloff>:/images/pirate_bay.png</normaloff>:/images/pirate_bay.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>

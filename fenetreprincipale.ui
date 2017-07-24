@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>505</width>
-    <height>508</height>
+    <height>489</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -100,7 +100,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="pageConfig">
        <layout class="QGridLayout" name="gridLayout">
@@ -144,51 +144,41 @@
             <property name="formAlignment">
              <set>Qt::AlignCenter</set>
             </property>
-            <item row="1" column="0">
-             <widget class="QLabel" name="pageConfigurationLabelQualite">
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>16777215</height>
-               </size>
-              </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="pageConfigurationLabelDossierTelechargement">
               <property name="styleSheet">
                <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
               </property>
               <property name="text">
-               <string>Qualité :</string>
+               <string>Dossier téléchargement :</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <layout class="QHBoxLayout" name="pageConfigHLayoutCheckBox">
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="pageConfigHLayoutDossierSerie_2">
               <item>
-               <widget class="QRadioButton" name="pageConfigurationRadioToutes">
-                <property name="text">
-                 <string>Toutes</string>
-                </property>
-                <property name="checked">
+               <widget class="QLineEdit" name="pageConfigurationLineDossierTelechargement">
+                <property name="readOnly">
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="pageConfigurationRadio720p">
-                <property name="text">
-                 <string>720p</string>
+               <widget class="QPushButton" name="pageConfigurationBoutonParcourir_2">
+                <property name="toolTip">
+                 <string>Ouvre un explorateur pour choisir le dossier de série</string>
                 </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="pageConfigurationRadio1080p">
+                <property name="styleSheet">
+                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
+                </property>
                 <property name="text">
-                 <string>1080p</string>
+                 <string>Parcourir</string>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
-            <item row="4" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="pageConfigurationLabelDossierSerie">
               <property name="styleSheet">
                <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
@@ -198,7 +188,7 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
+            <item row="1" column="1">
              <layout class="QHBoxLayout" name="pageConfigHLayoutDossierSerie">
               <item>
                <widget class="QLineEdit" name="pageConfigurationLineDossierSerie">
@@ -222,7 +212,7 @@
               </item>
              </layout>
             </item>
-            <item row="5" column="1">
+            <item row="2" column="1">
              <widget class="QLabel" name="pageConfigurationLabelExemple">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -234,104 +224,6 @@
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   Exemple : C:/Users/Eranos/Videos/Serie&lt;br/&gt;   Architecture de dossier demandé : ./Serie/Arrow/Saison 03&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="pageConfigLabelExtension">
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Extension&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <layout class="QHBoxLayout" name="pageConfigHLayoutExtension">
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLineEdit" name="pageConfigLineEditExtension">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>https://thepiratebay.</string>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="pageConfigLineEditExtension_2"/>
-              </item>
-             </layout>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="pageConfigurationLabelSousTitres">
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Sous-Titres :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <layout class="QHBoxLayout" name="pageConfigHLayoutSousTitres">
-              <item>
-               <widget class="QRadioButton" name="pageConfigurationRadioAucun">
-                <property name="text">
-                 <string>Aucun</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
-                </attribute>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="pageConfigurationRadioVOSTFR">
-                <property name="text">
-                 <string>VOSTFR</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
-                </attribute>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="pageConfigurationLabelDossierTelechargement">
-              <property name="styleSheet">
-               <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
-              </property>
-              <property name="text">
-               <string>Dossier téléchargement :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <layout class="QHBoxLayout" name="pageConfigHLayoutDossierSerie_2">
-              <item>
-               <widget class="QLineEdit" name="pageConfigurationLineDossierTelechargement">
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pageConfigurationBoutonParcourir_2">
-                <property name="toolTip">
-                 <string>Ouvre un explorateur pour choisir le dossier de série</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>Parcourir</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
             </item>
            </layout>
           </item>
@@ -412,7 +304,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="ressource.qrc">
-                  <normaloff>:/images/pirate_bay.png</normaloff>:/images/pirate_bay.png</iconset>
+                  <normaloff>:/images/logo.ico</normaloff>:/images/logo.ico</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -814,7 +706,7 @@
             <item row="3" column="1">
              <widget class="QSpinBox" name="pageAjoutModifLineNbEpisode"/>
             </item>
-            <item row="4" column="0">
+            <item row="5" column="0">
              <widget class="QLabel" name="pageAjoutModifLabelDateSortie">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -833,7 +725,7 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
+            <item row="5" column="1">
              <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutDateSortie">
               <item>
                <widget class="QDateEdit" name="pageAjoutModifLineDateSortie"/>
@@ -868,7 +760,7 @@
               </item>
              </layout>
             </item>
-            <item row="5" column="0">
+            <item row="6" column="0">
              <widget class="QLabel" name="pageAjoutModifLabelWiki">
               <property name="maximumSize">
                <size>
@@ -881,7 +773,7 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
+            <item row="6" column="1">
              <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutWiki">
               <item>
                <widget class="QLineEdit" name="pageAjoutModifLineWiki"/>
@@ -908,7 +800,7 @@
               </item>
              </layout>
             </item>
-            <item row="6" column="0">
+            <item row="8" column="0">
              <widget class="QLabel" name="pageAjoutModifLabelEpisodeCourant">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -933,10 +825,10 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="1">
+            <item row="8" column="1">
              <widget class="QSpinBox" name="pageAjoutModifLineEpisodeCourant"/>
             </item>
-            <item row="7" column="0">
+            <item row="9" column="0">
              <widget class="QLabel" name="pageAjoutModificationLabelProchain">
               <property name="font">
                <font>
@@ -948,7 +840,7 @@
               </property>
              </widget>
             </item>
-            <item row="7" column="1">
+            <item row="9" column="1">
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
                <widget class="QDateEdit" name="pageAjoutModifLineDateProchain"/>
@@ -973,6 +865,53 @@
                <string/>
               </property>
              </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QLineEdit" name="pageAjoutModifLineLien"/>
+            </item>
+            <item row="7" column="0">
+             <widget class="QLabel" name="pageAjoutModifLabelLien">
+              <property name="maximumSize">
+               <size>
+                <width>130</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Lien Site&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="pageAjoutModifLabelCreationDossierAuto">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Création dossier auto. :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QRadioButton" name="pageAjoutModifRadioButtonOui">
+                <property name="text">
+                 <string>Oui</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="pageAjoutModifRadioButtonNon">
+                <property name="text">
+                 <string>Non</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>

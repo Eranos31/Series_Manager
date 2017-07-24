@@ -20,7 +20,8 @@ BaseDeDonnees::BaseDeDonnees() {
                           "DATESORTIE DATE NOT NULL,"
                           "JOURSORTIE TEXT,"
                           "DATEMODIF DATE NOT NULL,"
-                          "WIKI TEXT"
+                          "WIKI TEXT,"
+                          "LIEN TEXT"
                           ")");
             log->ecrire("BaseDeDonnees::BaseDeDonnees() : Requete SQL : CREATE TABLE SERIE (NOM TEXT PRIMARY KEY NOT NULL,SAISON TEXT NOT NULL,NBEPISODE TEXT NOT NULL,EPISODECOURANT TEXT NOT NULL,DATESORTIE DATE NOT NULL,JOURSORTIE TEXT NOT NULL,DATEMODIF DATE NOT NULL,WIKI TEXT);");
 
@@ -105,7 +106,7 @@ BaseDeDonnees::~BaseDeDonnees(){
     log->ecrire("BaseDeDonnees::~BaseDeDonnees() : Suppression de la base de donnée");
 }
 
-void BaseDeDonnees::ajouter(QString nom, int saison, int nbEpisode, int jourSortie, QDate dateSortie, QString wiki) {
+void BaseDeDonnees::ajouter(QString nom, int saison, int nbEpisode, int jourSortie, QDate dateSortie, QString wiki, QString lien) {
     if(db.open()) {
         log->ecrire("BaseDeDonnees::ajouter() : Ouverture de la base de donnée");
         QString s_saison = "";
@@ -124,8 +125,8 @@ void BaseDeDonnees::ajouter(QString nom, int saison, int nbEpisode, int jourSort
         }
 
         QSqlQuery query(db);
-        query.prepare("INSERT INTO SERIE(NOM,SAISON,NBEPISODE,EPISODECOURANT,DATESORTIE,JOURSORTIE,DATEMODIF, WIKI) "
-                      "VALUES (:nom, :saison, :nbepisode, '01', :datesortie, :joursortie, :datemodif, :wiki)");
+        query.prepare("INSERT INTO SERIE(NOM,SAISON,NBEPISODE,EPISODECOURANT,DATESORTIE,JOURSORTIE,DATEMODIF, WIKI, LIEN) "
+                      "VALUES (:nom, :saison, :nbepisode, '01', :datesortie, :joursortie, :datemodif, :wiki, :lien)");
         query.bindValue(":nom", nom);
         query.bindValue(":saison", s_saison);
         query.bindValue(":nbepisode", s_nbEpisode);
@@ -133,8 +134,9 @@ void BaseDeDonnees::ajouter(QString nom, int saison, int nbEpisode, int jourSort
         query.bindValue(":joursortie", jourSortie);
         query.bindValue(":datemodif", dateSortie.addDays(-7).toString("yyyy-MM-dd"));
         query.bindValue(":wiki",wiki);
+        query.bindValue(":lien",lien);
 
-        log->ecrire("BaseDeDonnees::ajouter() : Requete SQL  : INSERT INTO SERIE(NOM,SAISON,NBEPISODE,EPISODECOURANT,DATESORTIE,JOURSORTIE,DATEMODIF,WIKI) VALUES ('" +  nom + "','" + s_saison + "','" + s_nbEpisode + "','01', " + dateSortie.toString("yyyy-MM-dd") + "','" + jourSortie + "','" + dateSortie.addDays(-7).toString("yyyy-MM-dd") + "', '" + wiki + "')");
+        log->ecrire("BaseDeDonnees::ajouter() : Requete SQL  : INSERT INTO SERIE(NOM,SAISON,NBEPISODE,EPISODECOURANT,DATESORTIE,JOURSORTIE,DATEMODIF,WIKI,LIEN) VALUES ('" +  nom + "','" + s_saison + "','" + s_nbEpisode + "','01', " + dateSortie.toString("yyyy-MM-dd") + "','" + jourSortie + "','" + dateSortie.addDays(-7).toString("yyyy-MM-dd") + "', '" + wiki + "', '" + lien + "')");
 
         if(query.exec()) {
             log->ecrire("BaseDeDonnees::ajouter() : La série a été ajoutée");
@@ -181,7 +183,7 @@ void BaseDeDonnees::reporter(QString nom, QDate dateModif) {
     log->ecrire("BaseDeDonnees::reporter() : Fermeture de la base de donnée");
 }
 
-void BaseDeDonnees::modifier(QString nom, int saison, int nbEpisode, int episodeCourant, int jourSortie, QDate date, QString wiki, QDate dateModif, bool message) {
+void BaseDeDonnees::modifier(QString nom, int saison, int nbEpisode, int episodeCourant, int jourSortie, QDate date, QString wiki, QDate dateModif, QString lien, bool message) {
     QString s_saison = "";
     QString s_nbEpisode = "";
     QString s_episodeCourant = "";
@@ -215,6 +217,7 @@ void BaseDeDonnees::modifier(QString nom, int saison, int nbEpisode, int episode
                       "JOURSORTIE = :joursortie,"
                       "DATESORTIE = :date,"
                       "WIKI = :wiki,"
+                      "LIEN = :lien, "
                       "DATEMODIF = :datemodif "
                       "WHERE NOM = :nom");
 
@@ -226,9 +229,10 @@ void BaseDeDonnees::modifier(QString nom, int saison, int nbEpisode, int episode
         query.bindValue(":joursortie", QString::number(jourSortie));
         query.bindValue(":date", date);
         query.bindValue(":wiki",wiki);
+        query.bindValue(":lien",lien);
         query.bindValue(":datemodif",dateModif);
 
-        log->ecrire("BaseDeDonnees::modifier() : Requete SQL : UPDATE SERIE SET SAISON = '" + s_saison + "', NBEPISODE = '" + s_nbEpisode + "', EPISODECOURANT = '" + s_episodeCourant + "', JOURSORTIE = '" + QString::number(jourSortie) + "', DATEMODIF = '" + date.toString("yyyy-MM-dd") + "', WIKI = '" + wiki + "', DATEMODIF = '" + dateModif.toString("yyyy-MM-DD") + "' WHERE NOM = '" + nom + "'");
+        log->ecrire("BaseDeDonnees::modifier() : Requete SQL : UPDATE SERIE SET SAISON = '" + s_saison + "', NBEPISODE = '" + s_nbEpisode + "', EPISODECOURANT = '" + s_episodeCourant + "', JOURSORTIE = '" + QString::number(jourSortie) + "', DATEMODIF = '" + date.toString("yyyy-MM-dd") + "', WIKI = '" + wiki + "', LIEN = '" + lien + "', DATEMODIF = '" + dateModif.toString("yyyy-MM-DD") + "' WHERE NOM = '" + nom + "'");
 
         if(query.exec()) {
             log->ecrire("BaseDeDonnees::modifier() : La serie a ete modifie");
@@ -301,6 +305,7 @@ QList<QMap<QString, QString> > BaseDeDonnees::requeteListe(QString requete) {
                 sousListe["JOURSORTIE"] = query.value(5).toString();
                 sousListe["DATEMODIF"] = query.value(6).toString();
                 sousListe["WIKI"] = query.value(7).toString();
+                sousListe["LIEN"] = query.value(8).toString();
                 liste.append(sousListe);
             }
         } else {
@@ -363,7 +368,8 @@ QMap<QString, QString> BaseDeDonnees::requete(QString requete) {
             liste["EPISODECOURANT"] = query.value(4).toString();
             liste["DATESORTIE"] = query.value(5).toString();
             liste["WIKI"] = query.value(6).toString();
-            liste["DATEMODIF"] = query.value(7).toString();
+            liste["LIEN"] = query.value(7).toString();
+            liste["DATEMODIF"] = query.value(8).toString();
         } else {
             log->ecrire("BaseDeDonnees::requete() : Erreur d'éxecution de la requête : " + query.lastError().text());
             QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
@@ -418,7 +424,6 @@ QList<QMap<QString, QString> > BaseDeDonnees::requeteHistorique() {
                 sousListe["SAISON"] = query.value(1).toString();
                 sousListe["EPISODE"] = query.value(2).toString();
                 sousListe["DATEAJOUT"] = query.value(3).toString();
-                sousListe["URL"] = query.value(4).toString();
                 liste.append(sousListe);
             }
         } else {

@@ -30,9 +30,8 @@ private slots:
     void premiereConnexion();
     void refresh();
     void initialisation();
-    void on_bouton_t411_clicked(QString nom);
+    void on_bouton_lien_clicked(QString nom);
     void on_bouton_dossier_clicked(QString nom);
-    void on_bouton_wiki_clicked(QString nom);
     void on_bouton_reporter_clicked(QString nom);
     void majIndicateur();
     void chargementConfiguration();
@@ -116,6 +115,7 @@ private:
     QString version;
     QDate dateVersion;
     QString heureVersion;
+    QString lienParDefaut;
     // IMAGE
     QPixmap i_seriesManager = QPixmap(":/images/SeriesManager.png");
     QIcon i_ajouter = QIcon(":/images/ajouter.png");//
@@ -124,7 +124,7 @@ private:
     QIcon i_pellicule = QIcon(":/images/pellicule.gif");
     QIcon i_accueil = QIcon(":/images/accueil.png");//
     QIcon i_annuler = QIcon(":/images/annuler.png");//
-    QIcon i_logo = QIcon(":/images/pirate_bay.png");
+    QIcon i_logo = QIcon(":/images/logo.ico");
     QIcon i_reporter = QIcon(":/images/reporter.png");
     QIcon i_retour = QIcon(":/images/retour.png");
     QIcon i_dossier = QIcon(":/images/dossier.png");//

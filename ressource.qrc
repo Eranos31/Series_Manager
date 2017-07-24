@@ -19,9 +19,8 @@
         <file>images/retour.png</file>
         <file>images/SeriesManager.ico</file>
         <file>images/SeriesManager.png</file>
-        <file>images/t411.png</file>
         <file>images/valider.png</file>
         <file>images/wiki.png</file>
-        <file>images/pirate_bay.png</file>
+        <file>images/logo.ico</file>
     </qresource>
 </RCC>

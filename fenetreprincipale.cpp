@@ -242,11 +242,16 @@ void FenetrePrincipale::refresh() {
     QList<QMap<QString, QString> > listeHistorique = this->bdd->requeteHistorique();
     for(int i = 0; i < listeHistorique.count(); i++) {
         QMap<QString, QString> map = listeHistorique.value(i);
+        QString lien = this->bdd->requeteUneColonne("SELECT LIEN FROM SERIE WHERE NOM = '" + map["NOM"] + "'");
 
         QSignalMapper* mapper = new QSignalMapper();
         QPushButton* url = new QPushButton(i_logo, "");
         url->setToolTip("Ouvre le lien URL de " + map["NOM"] + "pour l'épisode donné");
-        mapper->setMapping(url, map["LIEN"]);
+        if(lien.isNull() or lien.isEmpty()) {
+            mapper->setMapping(url, this->lienParDefaut);
+        } else {
+            mapper->setMapping(url, lien);
+        }
         QObject::connect(mapper, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
         QObject::connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
 

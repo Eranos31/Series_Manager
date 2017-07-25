@@ -1,3 +1,5 @@
 - Ajouter la possibilité d'avoir une fiche Série.
 Elle permettra de conserver certaines informations (exple : lien wiki, saison précedente, lien ancien episode, etc).
 - Ajouter la possibilité de filtrer la liste d'historique
+- Ajouter un champ dans la base de donné pour indiquer si un dossier existe pour la série
+- Utiliser le presse papiers (QClipboard) lorsque la série commence pour mettre le nom de la série et gagner du temps.

@@ -100,7 +100,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="pageConfig">
        <layout class="QGridLayout" name="gridLayout">
@@ -1642,6 +1642,51 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>pageConfigurationLineDossierTelechargement</tabstop>
+  <tabstop>pageConfigurationBoutonParcourir_2</tabstop>
+  <tabstop>pageConfigurationLineDossierSerie</tabstop>
+  <tabstop>pageConfigurationBoutonParcourir</tabstop>
+  <tabstop>pageConfigurationBoutonTerminer</tabstop>
+  <tabstop>pagePrincipaleTabWidget</tabstop>
+  <tabstop>pagePrincipaleTableWidgetDisplay</tabstop>
+  <tabstop>pagePrincipaleBoutonVosSeries</tabstop>
+  <tabstop>pagePrincipaleBoutonAjouter</tabstop>
+  <tabstop>pagePrincipaleBoutonModifier</tabstop>
+  <tabstop>pagePrincipaleBoutonSupprimer</tabstop>
+  <tabstop>pagePrincipaleBoutonUrl</tabstop>
+  <tabstop>pagePrincipaleBoutonWiki</tabstop>
+  <tabstop>pagePrincipaleBoutonDossierSerie</tabstop>
+  <tabstop>pagePrincipaleBoutonDeplacerFichier</tabstop>
+  <tabstop>pageVosSeriesComboBox</tabstop>
+  <tabstop>pageVosSeriesDisplay</tabstop>
+  <tabstop>pageAjoutModifComboNom</tabstop>
+  <tabstop>pageAjoutModifLineSaison</tabstop>
+  <tabstop>pageAjoutModifLineNbEpisode</tabstop>
+  <tabstop>pageAjoutModifRadioButtonOui</tabstop>
+  <tabstop>pageAjoutModifRadioButtonNon</tabstop>
+  <tabstop>pageAjoutModifLineDateSortie</tabstop>
+  <tabstop>pageAjoutModifLineWiki</tabstop>
+  <tabstop>pageAjoutModifButtonWiki</tabstop>
+  <tabstop>pageAjoutModifLineLien</tabstop>
+  <tabstop>pageAjoutModifLineEpisodeCourant</tabstop>
+  <tabstop>pageAjoutModifLineDateProchain</tabstop>
+  <tabstop>pageAjoutModifBoutonValider</tabstop>
+  <tabstop>pageAjoutModifBoutonDossier</tabstop>
+  <tabstop>pageAjoutModifBoutonWiki</tabstop>
+  <tabstop>pageAjoutModifBoutonRetour</tabstop>
+  <tabstop>pageListeModificationDisplay</tabstop>
+  <tabstop>pageListeModificationBoutonModifier</tabstop>
+  <tabstop>pageListeModificationBoutonRetour</tabstop>
+  <tabstop>pageListeSupprimerDisplay</tabstop>
+  <tabstop>pageListeSupprimerBoutonSupprimer</tabstop>
+  <tabstop>pageListeSupprimerBoutonRetour</tabstop>
+  <tabstop>pageReporterSpinBox</tabstop>
+  <tabstop>pageReporterButtonValider</tabstop>
+  <tabstop>pageReporterButtonRetour</tabstop>
+  <tabstop>pageHistoriqueTableWidget</tabstop>
+  <tabstop>pagePrincipaleTableWidgetDisplay_2</tabstop>
+ </tabstops>
  <resources>
   <include location="ressource.qrc"/>
  </resources>

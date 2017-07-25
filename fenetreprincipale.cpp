@@ -1077,9 +1077,11 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
            ui->pageAjoutModifLineSaison->text() != "" &&
            ui->pageAjoutModifLineNbEpisode->text() != "") {
             this->bdd->ajouter(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineDateSortie->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text(), ui->pageAjoutModifLineLien->text());
-            QDir dir;
-            dir.mkdir(dossierSerie + "/" + ui->pageAjoutModifComboNom->currentText());
-            dir.mkdir(dossierSerie + "/" + ui->pageAjoutModifComboNom->currentText() + "/Saison " + methodeDiverses.formalismeEntier(ui->pageAjoutModifLineSaison->text().toInt()));
+            if (ui->pageAjoutModifRadioButtonOui->isChecked()) {
+                QDir dir;
+                dir.mkdir(dossierSerie + "/" + ui->pageAjoutModifComboNom->currentText());
+                dir.mkdir(dossierSerie + "/" + ui->pageAjoutModifComboNom->currentText() + "/Saison " + methodeDiverses.formalismeEntier(ui->pageAjoutModifLineSaison->text().toInt()));
+            }
             ui->pageAjoutModifComboNom->clear();
             ui->pageAjoutModifLineSaison->clear();
             ui->pageAjoutModifLineNbEpisode->clear();

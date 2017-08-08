@@ -10,9 +10,13 @@
 #include <QInputDialog>
 #include <QNetworkConfigurationManager>
 #include <QNetworkAccessManager>
+#include <QCloseEvent>
+#include <QClipboard>
+#include <QStandardPaths>
 #include "basededonnees.h"
 #include "methodediverses.h"
 #include "log.h"
+#include "dialog.h"
 
 namespace Ui {
 class FenetrePrincipale;
@@ -25,6 +29,11 @@ class FenetrePrincipale : public QMainWindow
 public:
     explicit FenetrePrincipale(QWidget *parent = 0);
     ~FenetrePrincipale();
+    QString getConfig(QString config);
+    int getConfig(QString config, int valeur);
+    void setConfig(QString config, QString valeur);
+    QList<QString> getListeSerie();
+    QString getDossierSerie();
 
 private slots:
     void premiereConnexion();
@@ -37,12 +46,7 @@ private slots:
     void chargementConfiguration();
     void majEpisode();
     void verificationSerieTerminer();
-    void nettoyerDossierTelechargement();
-    QString getConfig(QString config);
-    int getConfig(QString config, int valeur);
-    void setConfig(QString config, QString valeur);
-    void resizeEvent(QResizeEvent *);
-    void moveEvent(QMoveEvent *);
+    void closeEvent(QCloseEvent *event);
     // MENU
     void on_menuFichierAccueil_triggered();
     void on_menuFichierHistorique_triggered();
@@ -71,6 +75,8 @@ private slots:
     // PAGE PRINCIPALE
     void on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index);
+    void on_pagePrincipaleTableWidgetDisplay_customContextMenuRequested(const QPoint &pos);
+    void on_pagePrincipaleTableWidgetDisplay_2_customContextMenuRequested(const QPoint &pos);
     void on_pagePrincipaleBoutonVosSeries_clicked();
     void on_pagePrincipaleBoutonAjouter_clicked();
     void on_pagePrincipaleBoutonModifier_clicked();
@@ -102,6 +108,8 @@ private slots:
     void on_pageReporterButtonValider_clicked();
     void on_pageReporterButtonRetour_clicked();
     void on_pageReporterSpinBox_valueChanged(int nbSemaines);
+    // PAGE HISTORIQUE
+    void on_pageHistoriqueTableWidget_customContextMenuRequested(const QPoint &pos);
 
 private:
     Ui::FenetrePrincipale *ui;
@@ -114,28 +122,28 @@ private:
     Log* log;
     QString version;
     QDate dateVersion;
-    QString heureVersion;
-    QString lienParDefaut;
+    QTime heureVersion;
+    QString lien;
     // IMAGE
     QPixmap i_seriesManager = QPixmap(":/images/SeriesManager.png");
-    QIcon i_ajouter = QIcon(":/images/ajouter.png");//
+    QIcon i_ajouter = QIcon(":/images/ajouter.png");
     QIcon i_valider = QIcon(":/images/valider.png");
     QIcon i_modifier = QIcon(":/images/modifier.png");
     QIcon i_pellicule = QIcon(":/images/pellicule.gif");
-    QIcon i_accueil = QIcon(":/images/accueil.png");//
-    QIcon i_annuler = QIcon(":/images/annuler.png");//
-    QIcon i_logo = QIcon(":/images/logo.ico");
+    QIcon i_accueil = QIcon(":/images/accueil.png");
+    QIcon i_annuler = QIcon(":/images/annuler.png");
+    QIcon i_logo = QIcon(":/images/logo.png");
     QIcon i_reporter = QIcon(":/images/reporter.png");
     QIcon i_retour = QIcon(":/images/retour.png");
-    QIcon i_dossier = QIcon(":/images/dossier.png");//
-    QIcon i_actualiser = QIcon(":/images/actualiser.png");//
-    QIcon i_engrenage = QIcon(":/images/engrenage.png");//
+    QIcon i_dossier = QIcon(":/images/dossier.png");
+    QIcon i_actualiser = QIcon(":/images/actualiser.png");
+    QIcon i_engrenage = QIcon(":/images/engrenage.png");
     QIcon i_interrogation = QIcon(":/images/interrogation.gif");
     QIcon i_wiki = QIcon(":/images/wiki.png");
-    QIcon i_exit = QIcon(":/images/exit.png");//
+    QIcon i_exit = QIcon(":/images/exit.png");
     QPixmap i_feuRouge = QPixmap(":/images/FeuRouge.ico");
     QPixmap i_feuVert = QPixmap(":/images/FeuVert.ico");
-    QIcon i_deplacement = QIcon(":/images/deplacement.png");//
+    QIcon i_deplacement = QIcon(":/images/deplacement.png");
 };
 
 #endif // FENETREPRINCIPALE_H

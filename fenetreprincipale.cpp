@@ -6,10 +6,24 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     ui(new Ui::FenetrePrincipale) {
     ui->setupUi(this);
 
+    QDir dir;
+#ifdef QT_DEBUG
+    if(!QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/logs").exists())
+        dir.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/logs");
+#else
+    if(!QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/data").exists())
+        dir.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/data");
+    if(!QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/logs").exists())
+        dir.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/logs");
+#endif
+
     log = new Log();
 
-    QDir dir;
-    QFile file("config.ini");
+#ifdef QT_DEBUG
+    QFile *file = new QFile(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini");
+#else
+    QFile *file = new QFile(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini");
+#endif
 
     // Refresh automatique
     QTimer *timer = new QTimer();
@@ -20,12 +34,11 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QObject::connect(timerDossierSerie, SIGNAL(timeout()), this, SLOT(majIndicateur()));
     timerDossierSerie->start(500);
 
-    if(!QDir("Log").exists()) {
-        dir.mkdir("Log");
-    }
-
-    if(file.exists()) {
-        if(getConfig("Configuration/Chemin") == "") {
+    if(file->exists()) {
+        if(getConfig("Configuration/Chemin") == "" ||
+           getConfig("Configuration/Telechargement") == "" ||
+           getConfig("Configuration/Extension") == "" ||
+           getConfig("Configuration/PurgeLog") == "") {
             premiereConnexion();
         } else {
             initialisation();
@@ -43,8 +56,34 @@ void FenetrePrincipale::premiereConnexion() {
     log->ecrire("FenetrePrincipale::premiereConnexion() : Début du paramétrage de première connexion");
     ui->menuBar->setVisible(false);
     ui->mainToolBar->setVisible(false);
+    ui->pagePrincipaleLabelDossierSerie->setVisible(false);
+    ui->pagePrincipaleLabelDossierSerie_2->setVisible(false);
+    ui->pagePrincipaleLabelInternet->setVisible(false);
+    ui->pagePrincipaleLabelInternet_2->setVisible(false);
     ui->stackedWidget->setCurrentWidget(ui->pageConfig);
-    ui->pageConfigurationLineDossierSerie->setReadOnly(true);
+    ui->pageConfigurationSpinBoxLogEfface->setValue(getConfig("Configuration/PurgeLog").toInt());
+    ui->pageConfigurationLineDossierTelechargement->setText(getConfig("Configuration/Telechargement"));
+    ui->pageConfigurationLineDossierSerie->setText(getConfig("Configuration/Chemin"));
+    ui->pageConfigurationLineEditExtension->setText(getConfig("Configuration/Extension"));
+    switch (getConfig("Configuration/Qualite").toInt()) {
+    case 0:
+        ui->pageConfigurationRadioButtonQualiteToutes->setChecked(true);
+        break;
+    case 1:
+        ui->pageConfigurationRadioButtonQualite720->setChecked(true);
+        break;
+    case 2:
+        ui->pageConfigurationRadioButtonQualite1080->setChecked(true);
+        break;
+    }
+    switch (getConfig("Configuration/SousTitres").toInt()) {
+    case 0:
+        ui->pageConfigurationRadioButtonSousTitresToutes->setChecked(true);
+        break;
+    case 1:
+        ui->pageConfigurationRadioButtonSousTitresVOSTFR->setChecked(true);
+        break;
+    }
     log->ecrire("FenetrePrincipale::premiereConnexion() : Fin du paramétrage de première connexion");
 }
 
@@ -60,130 +99,99 @@ void FenetrePrincipale::refresh() {
                                                                    "WHERE DATEAJOUT = '" + QDate::currentDate().addDays(-1).toString("yyyy-MM-dd") + "' "
                                                                    "ORDER BY DATEAJOUT DESC");
 
-    listeQuoti = bdd->requeteListe("SELECT NOM, SAISON, NBEPISODE, EPISODECOURANT, DATESORTIE, JOURSORTIE, DATEMODIF, WIKI, LIEN "
+    listeQuoti = bdd->requeteListe("SELECT NOM, SAISON, NBEPISODE, EPISODECOURANT, DATESORTIE, JOURSORTIE, DATEMODIF, WIKI "
                                    "FROM SERIE "
-                                   "WHERE JOURSORTIE = '" + QString::number(QDate::currentDate().dayOfWeek()) + "' "
+                                   "WHERE DATEMODIF = '" + QDate::currentDate().addDays(-7).toString("yyyy-MM-dd") + "' "
                                    "ORDER BY NOM");
 
-    listeGlobal = bdd->requeteListe("SELECT NOM, SAISON, NBEPISODE, EPISODECOURANT, DATESORTIE, JOURSORTIE, DATEMODIF, WIKI, LIEN "
+    listeGlobal = bdd->requeteListe("SELECT NOM, SAISON, NBEPISODE, EPISODECOURANT, DATESORTIE, JOURSORTIE, DATEMODIF, WIKI "
                                     "FROM SERIE "
                                     "ORDER BY DATEMODIF, JOURSORTIE");
 
-    bool quotiVide = true;
+    int indice = 0;
+    bool activationBoutonWikiGlobal = false;
 
     //Effacement des tableau
-    ui->pagePrincipaleTableWidgetDisplay->clear();
     ui->pageListeModificationDisplay->clear();
     ui->pageListeSupprimerDisplay->clear();
-    log->ecrire("\tEffacement des tableau");
+    log->ecrire("\tEffacement des liste effectué");
 
     on_pageVosSeriesComboBox_currentIndexChanged(getConfig("Configuration/ListeSerie"));
+    log->ecrire("\tAjout des données dans le tableau vos séries");
 
     // refresh de l'affichage
-    // Mise en place des headers du tableau de la page principale
-    QList<QString> liste;
-    liste.append("Nom");
-    liste.append("Saison");
-    liste.append("Episode");
-    liste.append("Lien");
-    liste.append("Wiki");
-    liste.append("Reporter");
-
-    ui->pagePrincipaleTableWidgetDisplay->setColumnCount(6);
     ui->pagePrincipaleTableWidgetDisplay->setRowCount(0);
-    ui->pagePrincipaleTableWidgetDisplay->setHorizontalHeaderLabels(QStringList(liste));
-
-    int indice = 0;
-
     // Refresh de l'onglet aujourd'hui
     for (int i = 0; i < listeQuoti.count(); i++) {
         QMap<QString, QString> map = listeQuoti.value(i);
 
-        if(methodeDiverses.stringToDate(map["DATESORTIE"]) <= QDate::currentDate() &&
-           methodeDiverses.stringToDate(map["DATEMODIF"]) <= QDate::currentDate() &&
-           methodeDiverses.stringToDate(map["DATEMODIF"]) != QDate::currentDate()) {
-            quotiVide = false;
-            QString lienAOuvrir;
+        // Page Principale
+        QSignalMapper* mapper1 = new QSignalMapper();
+        QSignalMapper* mapper2 = new QSignalMapper();
+        QSignalMapper* mapper3 = new QSignalMapper();
 
-            // Page Principale
-            QSignalMapper* mapper1 = new QSignalMapper();
-            QSignalMapper* mapper2 = new QSignalMapper();
-            QSignalMapper* mapper3 = new QSignalMapper();
+        QPushButton* lien = new QPushButton(i_logo, "");
+        QPushButton* wiki = new QPushButton(i_wiki, "");
+        QPushButton* reporter = new QPushButton(i_reporter, "");
 
-            QPushButton* lien = new QPushButton(i_logo, "");
-            QPushButton* wiki = new QPushButton(i_wiki, "");
-            QPushButton* reporter = new QPushButton(i_reporter, "");
+        lien->setToolTip("Ouvre le lien URL de " + map["NOM"]);
+        wiki->setToolTip("Ouvre le lien Wikipédia de " + map["NOM"]);
+        reporter->setToolTip("Ouvre la fênetre de report de " + map["NOM"]);
 
-            lien->setToolTip("Ouvre le lien URL de " + map["NOM"]);
-            wiki->setToolTip("Ouvre le lien Wikipédia de " + map["NOM"]);
-            reporter->setToolTip("Ouvre la fênetre de report de " + map["NOM"]);
+        mapper1->setMapping(lien, QString(map["NOM"]).replace(" ", "+") + "+S" + map["SAISON"] + "E" + map["EPISODECOURANT"]);
+        mapper2->setMapping(wiki, map["WIKI"]);
+        mapper3->setMapping(reporter, map["NOM"]);
 
-            if(map["LIEN"].isNull() or map["LIEN"].isEmpty()) {
-                lienAOuvrir = this->lienParDefaut;
-            } else {
-                lienAOuvrir = map["LIEN"];
-            }
+        QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
+        QObject::connect(lien, SIGNAL(clicked()), mapper1, SLOT(map()));
 
-            mapper1->setMapping(lien, lienAOuvrir);
-            mapper2->setMapping(wiki, map["WIKI"]);
-            mapper3->setMapping(reporter, map["NOM"]);
+        QObject::connect(mapper2, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
+        QObject::connect(wiki, SIGNAL(clicked(bool)), mapper2, SLOT(map()));
 
-            QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
-            QObject::connect(lien, SIGNAL(clicked()), mapper1, SLOT(map()));
+        QObject::connect(mapper3, SIGNAL(mapped(QString)), this, SLOT(on_bouton_reporter_clicked(QString)));
+        QObject::connect(reporter, SIGNAL(clicked(bool)), mapper3, SLOT(map()));
 
-            QObject::connect(mapper2, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
-            QObject::connect(wiki, SIGNAL(clicked(bool)), mapper2, SLOT(map()));
+        ui->pagePrincipaleTableWidgetDisplay->setRowCount(indice+1);
+        ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(map["NOM"], false));
+        ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget(map["SAISON"], true));
+        ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(map["EPISODECOURANT"], true));
+        ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 3, lien);
+        ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 4, wiki);
+        ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, reporter);
 
-            QObject::connect(mapper3, SIGNAL(mapped(QString)), this, SLOT(on_bouton_reporter_clicked(QString)));
-            QObject::connect(reporter, SIGNAL(clicked(bool)), mapper3, SLOT(map()));
+        indice++;
 
-            ui->pagePrincipaleTableWidgetDisplay->setRowCount(indice+1);
-            ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(map["NOM"], false));
-            ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget(map["SAISON"], true));
-            ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(map["EPISODECOURANT"], true));
-            ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 3, lien);
-            ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 4, wiki);
-            ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, reporter);
-
-            indice++;
-
-            if(map["WIKI"] == "") {
-                wiki->setEnabled(false);
-            }
+        if(map["WIKI"] == "") {
+            wiki->setEnabled(false);
         }
     }
 
-    log->ecrire("\tActualisation de l'onglet Aujourd'hui");
+    log->ecrire("\tActualisation de l'onglet Aujourd'hui effectué");
 
-    if(quotiVide) {
+    if(listeQuoti.isEmpty()) {
         ui->pagePrincipaleBoutonUrl->setEnabled(false);
-        ui->pagePrincipaleBoutonWiki->setEnabled(false);
-        log->ecrire("\tDésactivation des boutons globaux");
     } else {
         ui->pagePrincipaleBoutonUrl->setEnabled(true);
-        ui->pagePrincipaleBoutonWiki->setEnabled(true);
-        log->ecrire("\tActivation des boutons globaux");
     }
 
+    for (int i = 0; i < listeQuoti.count(); ++i) {
+        if(!listeQuoti.at(i)["WIKI"].isEmpty()) {
+            activationBoutonWikiGlobal = true;
+        }
+    }
+    ui->pagePrincipaleBoutonWiki->setEnabled(activationBoutonWikiGlobal);
+    log->ecrire("\tParamètrage des boutons globaux");
+
+
+
     // Refresh de l'onglet hier
-    ui->pagePrincipaleTableWidgetDisplay_2->clear();
-    ui->pagePrincipaleTableWidgetDisplay_2->setColumnCount(5);
     ui->pagePrincipaleTableWidgetDisplay_2->setRowCount(0);
-    QList<QString> list;
-    list.append("Nom");
-    list.append("Saison");
-    list.append("Episode");
-    list.append("Lien");
-    list.append("Wiki");
-    ui->pagePrincipaleTableWidgetDisplay_2->setHorizontalHeaderLabels(QStringList(list));
 
     indice = 0;
 
     for(int i = 0; i < listeHier.count(); i++) {
-        QString lienAOuvrir;
         QMap<QString, QString> mapHier = listeHier.value(i);
         QString lienWiki = this->bdd->requeteUneColonne("SELECT WIKI FROM SERIE WHERE NOM = '" + mapHier["NOM"] + "'");
-        QString lienSite = this->bdd->requeteUneColonne("SELECT LIEN FROM SERIE WHERE NOM = '" + mapHier["NOM"] + "'");
 
         QSignalMapper* mapper1 = new QSignalMapper();
         QSignalMapper* mapper2 = new QSignalMapper();
@@ -194,13 +202,7 @@ void FenetrePrincipale::refresh() {
         lienHier->setToolTip("Ouvre le lien URL de " + mapHier["NOM"]);
         wikiHier->setToolTip("Ouvre le lien Wikipédia de " + mapHier["NOM"]);
 
-        if(lienSite.isNull() or lienSite.isEmpty()) {
-            lienAOuvrir = this->lienParDefaut;
-        } else {
-            lienAOuvrir = lienSite;
-        }
-
-        mapper1->setMapping(lienHier, lienSite);
+        mapper1->setMapping(lienHier, QString(mapHier["NOM"]).replace(" ", "+") + "+S" + mapHier["SAISON"] + "E" + mapHier["EPISODE"]);
         mapper2->setMapping(wikiHier, lienWiki);
 
         QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
@@ -223,35 +225,21 @@ void FenetrePrincipale::refresh() {
         indice++;
     }
 
-    log->ecrire("\tActualisation de l'onglet Hier");
+    log->ecrire("\tActualisation de l'onglet Hier effectué");
 
     // Refresh de l'historique
-    ui->pageHistoriqueTableWidget->clear();
-    ui->pageHistoriqueTableWidget->setColumnCount(5);
     ui->pageHistoriqueTableWidget->setRowCount(0);
-    QList<QString> listeEnteteHisto;
-    listeEnteteHisto.append("Nom");
-    listeEnteteHisto.append("Saison");
-    listeEnteteHisto.append("Episode");
-    listeEnteteHisto.append("Date épisode");
-    listeEnteteHisto.append("URL");
-    ui->pageHistoriqueTableWidget->setHorizontalHeaderLabels(QStringList(listeEnteteHisto));
 
     indice = 0;
 
     QList<QMap<QString, QString> > listeHistorique = this->bdd->requeteHistorique();
     for(int i = 0; i < listeHistorique.count(); i++) {
         QMap<QString, QString> map = listeHistorique.value(i);
-        QString lien = this->bdd->requeteUneColonne("SELECT LIEN FROM SERIE WHERE NOM = '" + map["NOM"] + "'");
 
         QSignalMapper* mapper = new QSignalMapper();
         QPushButton* url = new QPushButton(i_logo, "");
         url->setToolTip("Ouvre le lien URL de " + map["NOM"] + "pour l'épisode donné");
-        if(lien.isNull() or lien.isEmpty()) {
-            mapper->setMapping(url, this->lienParDefaut);
-        } else {
-            mapper->setMapping(url, lien);
-        }
+        mapper->setMapping(url, QString(map["NOM"]).replace(" ","+") + "+S" + map["SAISON"] + "E" + map["EPISODE"]);
         QObject::connect(mapper, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
         QObject::connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
 
@@ -265,7 +253,7 @@ void FenetrePrincipale::refresh() {
         indice++;
     }
 
-    log->ecrire("\tActualisation du tableau de l'historique");
+    log->ecrire("\tActualisation du tableau de l'historique effectué");
 
     // Dimensionner les colonnes
     ui->pagePrincipaleTableWidgetDisplay->resizeColumnToContents(0);
@@ -284,12 +272,25 @@ void FenetrePrincipale::refresh() {
     ui->pageHistoriqueTableWidget->resizeColumnsToContents();
     ui->pageHistoriqueTableWidget->setColumnWidth(4, 52);
 
-    log->ecrire("\tDimensionnement des colonnes des tableaux");
+    log->ecrire("\tDimensionnement des colonnes des tableaux effectué");
 
-    for (int i = 0; i < listeGlobal.count(); i++) {
-        QMap<QString, QString> map = listeGlobal.value(i);
-        ui->pageListeModificationDisplay->addItem(map["NOM"]);
-        ui->pageListeSupprimerDisplay->addItem(map["NOM"]);
+    if(listeGlobal.isEmpty()) {
+        ui->pagePrincipaleBoutonVosSeries->setEnabled(false);
+        ui->pagePrincipaleBoutonModifier->setEnabled(false);
+        ui->toolBarModifier->setEnabled(false);
+        ui->pagePrincipaleBoutonSupprimer->setEnabled(false);
+        ui->toolBarSupprimer->setEnabled(false);
+    } else {
+        ui->pagePrincipaleBoutonVosSeries->setEnabled(true);
+        ui->pagePrincipaleBoutonModifier->setEnabled(true);
+        ui->toolBarModifier->setEnabled(true);
+        ui->pagePrincipaleBoutonSupprimer->setEnabled(true);
+        ui->toolBarSupprimer->setEnabled(true);
+        for (int i = 0; i < listeGlobal.count(); i++) {
+            QMap<QString, QString> map = listeGlobal.value(i);
+            ui->pageListeModificationDisplay->addItem(map["NOM"]);
+            ui->pageListeSupprimerDisplay->addItem(map["NOM"]);
+        }
     }
 
     log->ecrire("\tAjout des noms de série pour les pages de sélection de modification et de suppression");
@@ -305,31 +306,32 @@ void FenetrePrincipale::refresh() {
     ui->pageAjoutModifComboNom->addItem("");
 
     listeSerie.clear();
-    foreach (QFileInfo file, QDir(dossierSerie).entryInfoList()) {
-        if(file.isDir()) {
+    foreach (QFileInfo file, QDir(dossierSerie).entryInfoList(QDir::NoDotAndDotDot|QDir::AllDirs)) {
+        if(file.isDir() && file.absoluteFilePath() != getConfig("Configuration/Telechargement")) {
             QString nom;
             nom = file.absoluteFilePath();
             nom.replace(dossierSerie, "");
-            nom.replace(file.absolutePath(), "");
-            nom.replace("/","");
+            ui->pageAjoutModifComboNom->addItem(nom);
+            listeSerie.append(nom);
 
-            if(nom != "") {
-                ui->pageAjoutModifComboNom->addItem(nom);
-                listeSerie.append(nom);
-            }
         }
     }
 
     log->ecrire("\tAjout des noms des séries du dossier des série dans la liste déroulante de l'ajout de série");
-    log->ecrire("FenetrePrincipale::refresh() : Fin de l'actualisation");
 
-    ui->statusBar->showMessage("Refresh fait à " + QTime::currentTime().toString("HH:mm:ss"));
+    ui->statusBar->showMessage("Actualisé à " + QTime::currentTime().toString("hh:mm:ss"));
+    log->ecrire("FenetrePrincipale::refresh() : Fin de l'actualisation");
 }
 
 void FenetrePrincipale::initialisation() {
     log->ecrire("FenetrePrincipale::initialisation() : Début de l'initialisation");
     // Mettre le menu en visible
     ui->menuBar->setVisible(true);
+    ui->mainToolBar->setVisible(true);
+    ui->pagePrincipaleLabelDossierSerie->setVisible(true);
+    ui->pagePrincipaleLabelDossierSerie_2->setVisible(true);
+    ui->pagePrincipaleLabelInternet->setVisible(true);
+    ui->pagePrincipaleLabelInternet_2->setVisible(true);
     ui->pageReporterSpinBox->setMinimum(1);
     // Masquer les champs
     ui->pageReporterLabelNomSerie->setVisible(false);
@@ -337,10 +339,15 @@ void FenetrePrincipale::initialisation() {
     // Recuperation de la base de données ou création si elle n'existe pas
     this->bdd = new BaseDeDonnees();
     // Récupération de la version de l'appli
-    QMap<QString, QString> map = this->bdd->requeteVersion();
-    this->version = map["NUMERO"];
-    this->dateVersion = methodeDiverses.stringToDate(map["DATE"]);
-    this->heureVersion = map["HEURE"];
+    this->version = "2.4";
+    this->setWindowTitle("Series Manager " + this->version);
+#ifdef QT_DEBUG
+    this->dateVersion = QFileInfo("./debug/Series_Manager.exe").lastModified().date();
+    this->heureVersion = QFileInfo("./debug/Series_Manager.exe").lastModified().time();
+#else
+    this->dateVersion = QFileInfo("Series_Manager.exe").lastModified().date();
+    this->heureVersion = QFileInfo("Series_Manager.exe").lastModified().time();
+#endif
     // Charge le fichier de configuration
     chargementConfiguration();
     // Place l'appli sur la page principale
@@ -353,14 +360,38 @@ void FenetrePrincipale::initialisation() {
 }
 
 void FenetrePrincipale::on_bouton_lien_clicked(QString nom) {
-    log->ecrire("FenetrePrincipale::on_bouton_lien_clicked() : Début de la génération du lien");
-    if(QDesktopServices::openUrl(QUrl(nom))) {
-        log->ecrire("\tOuverture du lien");
-    } else {
-        QMessageBox::warning(this, "Attention", "Le lien " + nom + " n'a pu être ouvert");
-        log->ecrire("\tLe lien " + nom + " n'a pu être ouvert");
+    QString qualite;
+    QString sousTitres;
+    QString fin;
+
+    switch (getConfig("Configuration/Qualite").toInt()) {
+    case 0:
+        qualite = "";
+        break;
+    case 1:
+        qualite = "+720p";
+        break;
+    case 2:
+        qualite = "+1080p";
+        break;
     }
-    log->ecrire("\tLien généré : " + nom);
+
+    switch (getConfig("Configuration/SousTitres").toInt()) {
+    case 0:
+        sousTitres = "";
+        break;
+    case 1:
+        sousTitres = "+VOSTFR";
+        break;
+    }
+
+    log->ecrire("FenetrePrincipale::on_bouton_lien_clicked() : Début de la génération du lien");
+    if(QDesktopServices::openUrl(QUrl(lien + nom + sousTitres + qualite + fin))) {
+        log->ecrire("\tOuverture du lien " + lien + nom + sousTitres + qualite + fin);
+    } else {
+        QMessageBox::warning(this, this->windowTitle(), "Le lien " + lien + nom + sousTitres + qualite + fin + " n'a pu être ouvert");
+        log->ecrire("\tLe lien " + lien + nom + sousTitres + qualite + fin + " n'a pu être ouvert");
+    }
 
     log->ecrire("FenetrePrincipale::on_bouton_lien_clicked() : Fin de la génération du lien");
 }
@@ -368,7 +399,7 @@ void FenetrePrincipale::on_bouton_lien_clicked(QString nom) {
 void FenetrePrincipale::on_bouton_dossier_clicked(QString nom) {
     log->ecrire("FenetrePrincipale::on_bouton_dossier_clicked() : Début de l'ouverture du dossier");
     if(!QDesktopServices::openUrl(QUrl::fromLocalFile(dossierSerie + nom))) {
-        QMessageBox::information(this,"Attention", "Le dossier " + dossierSerie + nom + " n'a pas pu être ouvert");
+        QMessageBox::warning(this,this->windowTitle(), "Le dossier " + dossierSerie + nom + " n'a pas pu être ouvert");
         log->ecrire("\tLe dossier " + dossierSerie + nom + " n'a pas pu être ouvert");
     } else {
         log->ecrire("\tLe dossier " + dossierSerie + nom + " a été ouvert");
@@ -398,6 +429,14 @@ void FenetrePrincipale::majIndicateur() {
     } else {
         ui->pagePrincipaleLabelInternet_2->setPixmap(i_feuRouge);
     }
+
+    if(QDir(getConfig("Configuration/Telechargement")).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() > 0) {
+        ui->pagePrincipaleBoutonDeplacerFichier->setEnabled(true);
+        ui->toolBarDeplcerFichiers->setEnabled(true);
+    } else {
+        ui->pagePrincipaleBoutonDeplacerFichier->setEnabled(false);
+        ui->toolBarDeplcerFichiers->setEnabled(false);
+    }
 }
 
 void FenetrePrincipale::chargementConfiguration() {
@@ -413,8 +452,13 @@ void FenetrePrincipale::chargementConfiguration() {
     }
 
     this->dossierSerie = getConfig("Configuration/Chemin");
-    this->setGeometry(getConfig("Position/X_position", 724), getConfig("Position/Y_position", 303), getConfig("Taille/Width", 472), getConfig("Taille/Height", 434));
-    this->lienParDefaut = getConfig("Configuration/LienParDefaut");
+    if(getConfig("Dimension/Fullscreen").toInt()) {
+        this->setWindowState(this->windowState()|Qt::WindowMaximized);
+    } else {
+        this->setGeometry(getConfig("Dimension/X", 724), getConfig("Dimension/Y", 303), getConfig("Dimension/W", 472), getConfig("Dimension/H", 434));
+    }
+
+    lien = ui->pageConfigurationLineEditSite->text() + getConfig("Configuration/Extension") + "/engine/search?q=";
 
     log->ecrire("FenetrePrincipale::chargementConfiguration() : Fin du chargement du fichier de configuration");
 }
@@ -426,7 +470,7 @@ void FenetrePrincipale::majEpisode() {
     QDate dateDerniereOuverturePlus1 = dateDerniereOuverture.addDays(1);
 
     while(dateDerniereOuverture <= QDate::currentDate().addDays(-1)) {
-        QList<QMap<QString,QString> > liste = bdd->requeteListe("SELECT NOM, SAISON, NBEPISODE, EPISODECOURANT, DATESORTIE, JOURSORTIE, DATEMODIF, WIKI, LIEN "
+        QList<QMap<QString,QString> > liste = bdd->requeteListe("SELECT NOM, SAISON, NBEPISODE, EPISODECOURANT, DATESORTIE, JOURSORTIE, DATEMODIF, WIKI "
                                                                 "FROM SERIE "
                                                                 "WHERE JOURSORTIE = '" + QString::number(dateDerniereOuverture.dayOfWeek()) + "' ");
 
@@ -440,7 +484,7 @@ void FenetrePrincipale::majEpisode() {
                        (methodeDiverses.stringToDate(list["DATEMODIF"]) >= dateDerniereOuverture.addDays(-7) &&
                         methodeDiverses.stringToDate(list["DATEMODIF"]) < dateDerniereOuverture)) {
                         log->ecrire("\tMise à jour de " + list["NOM"]);
-                        bdd->modifier(list["NOM"], list["SAISON"].toInt(), list["NBEPISODE"].toInt(), list["EPISODECOURANT"].toInt() + 1, dateDerniereOuverture.dayOfWeek(), methodeDiverses.stringToDate(list["DATESORTIE"]), list["WIKI"], dateDerniereOuverture, list["LIEN"], false);
+                        bdd->modifier(list["NOM"], list["SAISON"].toInt(), list["NBEPISODE"].toInt(), list["EPISODECOURANT"].toInt() + 1, dateDerniereOuverture.dayOfWeek(), methodeDiverses.stringToDate(list["DATESORTIE"]), list["WIKI"], dateDerniereOuverture, false);
 
                         this->bdd->requeteInsertUpdate("INSERT INTO HISTORIQUE (NOM, SAISON, EPISODE, DATEAJOUT)"
                                                        "VALUES ('" + list["NOM"] + "', '" + list["SAISON"] + "', '" + list["EPISODECOURANT"] + "', '" + dateDerniereOuverture.toString("yyyy-MM-dd") + "')");
@@ -471,43 +515,53 @@ void FenetrePrincipale::verificationSerieTerminer() {
     log->ecrire("FenetrePrincipale::verificationSerieTerminer() : Fin de vérification des séries terminées");
 }
 
-void FenetrePrincipale::nettoyerDossierTelechargement() {
-    log->ecrire("FenetrePrincipale::nettoyerDossierTelechargement() : Début du nettoyage du dossier de téléchargement");
-    foreach (QFileInfo info, QDir(getConfig("Configuration/Telechargement")).entryInfoList()) {
-        if(info.isFile()) {
-            if(!QFile(info.absoluteFilePath()).remove()) {
-                log->ecrire("WARNING : Le dossier de téléchargement ne s'est pas purgé correctement");
-            } else {
-                log->ecrire("\tLe fichier " + info.fileName() + " a été supprimé");
-            }
-        }
-    }
-    log->ecrire("FenetrePrincipale::nettoyerDossierTelechargement() : Fin du nettoyage du dossier de téléchargement");
-}
-
 QString FenetrePrincipale::getConfig(QString config) {
-    QSettings settings("config.ini", QSettings::IniFormat);
+#ifdef QT_DEBUG
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
+#else
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
+#endif
     return settings.value(config).toString();
 }
 
 int FenetrePrincipale::getConfig(QString config, int valeur) {
-    QSettings settings("config.ini", QSettings::IniFormat);
+#ifdef QT_DEBUG
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
+#else
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
+#endif
     return settings.value(config, valeur).toInt();
 }
 
 void FenetrePrincipale::setConfig(QString config, QString valeur) {
-    QSettings settings("config.ini", QSettings::IniFormat);
+#ifdef QT_DEBUG
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
+#else
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
+#endif
     settings.setValue(config, valeur);
 }
 
-void FenetrePrincipale::resizeEvent(QResizeEvent *) {
-    setConfig("Taille/Width", QString::number(this->geometry().width()));
-    setConfig("Taille/Height", QString::number(this->geometry().height()));
+QList<QString> FenetrePrincipale::getListeSerie() {
+    return this->listeSerie;
 }
 
-void FenetrePrincipale::moveEvent(QMoveEvent *) {
-    setConfig("Position/X_position", QString::number(this->geometry().x()));
-    setConfig("Position/Y_position",QString::number(this->geometry().y()));
+QString FenetrePrincipale::getDossierSerie() {
+    return this->dossierSerie;
+}
+
+void FenetrePrincipale::closeEvent(QCloseEvent *event) {
+    QWidget::closeEvent(event);
+    if(getConfig("Dimension/W", 472) != this->geometry().width())
+        setConfig("Dimension/W", QString::number(this->geometry().width()));
+    if(getConfig("Dimension/H", 434) != this->geometry().height())
+        setConfig("Dimension/H", QString::number(this->geometry().height()));
+    if(getConfig("Dimension/X",724) != this->geometry().x())
+        setConfig("Dimension/X", QString::number(this->geometry().x()));
+    if(getConfig("Dimension/Y", 303) != this->geometry().y())
+        setConfig("Dimension/Y",QString::number(this->geometry().y()));
+    if(getConfig("Dimension/Fullscreen", 0) != this->isMaximized())
+        setConfig("Dimension/Fullscreen", QString::number(this->isMaximized()));
 }
 
 /*******************************************************\
@@ -530,57 +584,54 @@ void FenetrePrincipale::on_menuFichierToutes_les_s_ries_triggered() {
         ui->stackedWidget->setCurrentWidget(ui->pageVosSeries);
         on_pageVosSeriesComboBox_currentIndexChanged(ui->pageVosSeriesComboBox->currentText());
     } else {
-        QMessageBox::information(this, "Pas de série", "Il n'y a pas de série !");
+        QMessageBox::information(this, this->windowTitle(), "Il n'y a pas de série !");
     }
 }
 
 void FenetrePrincipale::on_menuFichierAjouter_triggered() {
     ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
     ui->pageAjoutModifTitre->setText("Ajouter série");
-    ui->pageAjoutModifBoutonValider->setText("Ajouter");
+    ui->pageAjoutModifComboNom->setEnabled(true);
     ui->pageAjoutModifComboNom->setCurrentText("");
     ui->pageAjoutModifLineSaison->setValue(1);
     ui->pageAjoutModifLineSaison->clear();
     ui->pageAjoutModifLineNbEpisode->setValue(1);
     ui->pageAjoutModifLineNbEpisode->clear();
-    ui->pageAjoutModifLabelEpisodeCourant->setVisible(false);
-    ui->pageAjoutModifLineEpisodeCourant->setVisible(false);
-    ui->pageAjoutModifComboNom->setEnabled(true);
-    ui->pageAjoutModifBoutonValider->setIcon(i_valider);
-    ui->pageAjoutModifLineDateSortie->setEnabled(true);
-    ui->pageAjoutModifLineDateSortie->setDate(QDate::currentDate());
-    ui->pageAjoutModifBoutonDossier->setVisible(false);
-    ui->pageAjoutModifBoutonWiki->setVisible(false);
-    ui->pageAjoutModifLabelDateProchain->setVisible(false);
-    ui->pageAjoutModificationLabelProchain->setVisible(false);
-    ui->pageAjoutModifLineDateProchain->setVisible(false);
-    ui->pageAjoutModifLineWiki->setText("");
-    ui->pageAjoutModifLineLien->setText("");
     ui->pageAjoutModifLabelCreationDossierAuto->setVisible(true);
     ui->pageAjoutModifRadioButtonOui->setVisible(true);
-    ui->pageAjoutModifRadioButtonNon->setVisible(true);
     ui->pageAjoutModifRadioButtonOui->setChecked(true);
+    ui->pageAjoutModifRadioButtonNon->setVisible(true);
+    ui->pageAjoutModifLineDateSortie->setEnabled(true);
+    ui->pageAjoutModifLineDateSortie->setDate(QDate::currentDate());
+    ui->pageAjoutModifLineWiki->setText("");
+    ui->pageAjoutModifLabelEpisodeCourant->setVisible(false);
+    ui->pageAjoutModifLineEpisodeCourant->setVisible(false);
+    ui->pageAjoutModifLabelDateProchain->setVisible(false);
+    ui->pageAjoutModifLabelDateProchain_2->setVisible(false);
+    ui->pageAjoutModifLineDateProchain->setVisible(false);
+    ui->pageAjoutModifBoutonValider->setIcon(i_valider);
+    ui->pageAjoutModifBoutonValider->setText("Ajouter");
+    ui->pageAjoutModifBoutonDossier->setVisible(false);
+    ui->pageAjoutModifBoutonWiki->setVisible(false);
 }
 
 void FenetrePrincipale::on_menuFichierModifier_triggered() {
     if(listeGlobal.count() != 0) {
         ui->stackedWidget->setCurrentWidget(ui->pageListeModification);
+        ui->pageAjoutModifComboNom->setEnabled(false);
         ui->pageAjoutModifLabelEpisodeCourant->setVisible(true);
         ui->pageAjoutModifLineEpisodeCourant->setVisible(true);
-        ui->pageAjoutModifComboNom->setEnabled(false);
+        ui->pageAjoutModifLabelDateProchain->setVisible(true);
+        ui->pageAjoutModifLineDateProchain->setVisible(true);
+        ui->pageAjoutModifLabelDateProchain_2->setVisible(true);
         ui->pageAjoutModifBoutonValider->setIcon(i_modifier);
         ui->pageAjoutModifBoutonDossier->setVisible(true);
         ui->pageAjoutModifBoutonWiki->setVisible(true);
-        ui->pageAjoutModifLabelDateProchain->setVisible(true);
-        ui->pageAjoutModificationLabelProchain->setVisible(true);
-        ui->pageAjoutModifLineDateProchain->setVisible(true);
-    } else {
-        QMessageBox::information(this, "Pas de série", "Il n'y a pas de série !");
-    }
 
-    if(ui->pageListeModificationDisplay->count() != 0) {
         ui->pageListeModificationDisplay->item(0)->setSelected(true);
         ui->pageListeModificationDisplay->setCurrentItem(ui->pageListeModificationDisplay->item(0));
+    } else {
+        QMessageBox::information(this, this->windowTitle(), "Il n'y a pas de série !");
     }
 }
 
@@ -588,7 +639,7 @@ void FenetrePrincipale::on_menuFichierSupprimer_triggered() {
     if(listeGlobal.count() != 0) {
         ui->stackedWidget->setCurrentWidget(ui->pageListeSupprimer);
     } else {
-        QMessageBox::information(this, "Pas de série", "Il n'y a pas de série !");
+        QMessageBox::information(this, this->windowTitle(), "Il n'y a pas de série !");
     }
 
     if(ui->pageListeSupprimerDisplay->count() != 0){
@@ -599,6 +650,7 @@ void FenetrePrincipale::on_menuFichierSupprimer_triggered() {
 
 void FenetrePrincipale::on_menuFichierQuitter_triggered() {
     log->ecrire("Fermeture de l'application");
+    closeEvent(new QCloseEvent());
     QCoreApplication::quit();
 }
 
@@ -607,20 +659,45 @@ void FenetrePrincipale::on_menuOptionsActualiser_triggered() {
 }
 
 void FenetrePrincipale::on_menuOptionsParam_tres_triggered() {
-    ui->pageConfigurationLineDossierSerie->setText(getConfig("Configuration/Chemin"));
-    ui->pageConfigurationLineDossierTelechargement->setText(getConfig("Configuration/Telechargement"));
-    ui->mainToolBar->setVisible(true);
     ui->stackedWidget->setCurrentWidget(ui->pageConfig);
-    ui->pageConfigurationLabelConsigne->setText("");
+    ui->pageConfigurationLabelConsigne->setVisible(false);
+    ui->pageConfigurationSpinBoxLogEfface->setValue(getConfig("Configuration/PurgeLog").toInt());
+    ui->pageConfigurationLineDossierTelechargement->setText(getConfig("Configuration/Telechargement"));
+    ui->pageConfigurationLineDossierTelechargement->setCursorPosition(0);
+    ui->pageConfigurationLineDossierSerie->setText(getConfig("Configuration/Chemin"));
+    switch (getConfig("Configuration/Qualite").toInt()) {
+    case 0:
+        ui->pageConfigurationRadioButtonQualiteToutes->setChecked(true);
+        break;
+    case 1:
+        ui->pageConfigurationRadioButtonQualite720->setChecked(true);
+        break;
+    case 2:
+        ui->pageConfigurationRadioButtonQualite1080->setChecked(true);
+        break;
+    }
+    switch (getConfig("Configuration/SousTitres").toInt()) {
+    case 0:
+        ui->pageConfigurationRadioButtonSousTitresToutes->setChecked(true);
+        break;
+    case 1:
+        ui->pageConfigurationRadioButtonSousTitresVOSTFR->setChecked(true);
+        break;
+    }
+    ui->pageConfigurationLineEditExtension->setText(getConfig("Configuration/Extension"));
 }
 
 void FenetrePrincipale::on_menuOptionsDossier_de_log_triggered() {
-    QDesktopServices::openUrl(QUrl::fromLocalFile("./Log"));
+#ifdef QT_DEBUG
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/logs"));
+#else
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/logs"));
+#endif
 }
 
 void FenetrePrincipale::on_menuAideA_Propos_triggered() {
     QMessageBox msgBox;
-    msgBox.setText("Version " + this->version + "\nBuild du " + this->dateVersion.toString("dd/MM/yyyy") + " - " + this->heureVersion + "<br/><br/>"
+    msgBox.setText("Version " + this->version + "\nBuild du " + this->dateVersion.toString("dd/MM/yyyy") + " - " + this->heureVersion.toString("hh:mm:ss")+ "<br/><br/>"
                    "Le projet Series Manager est venu le jour où le nombre de séries "
                    "que je regardais commençait à atteindre un nombre impressionnant.<br/><br/>"
                    "J'ai donc eu l'idée de créé un programme permettant de lister les "
@@ -659,7 +736,7 @@ void FenetrePrincipale::on_toolBarQuitter_triggered() {
 }
 
 void FenetrePrincipale::on_toolBarAjouter_triggered() {
-    if(ui->stackedWidget->currentWidget() == ui->pageAjoutModification && ui->pageAjoutModifTitre->text() != "Ajouter série" || ui->stackedWidget->currentWidget() != ui->pageAjoutModification) {
+    if((ui->stackedWidget->currentWidget() == ui->pageAjoutModification && ui->pageAjoutModifTitre->text() != "Ajouter série") || (ui->stackedWidget->currentWidget() != ui->pageAjoutModification)) {
         on_menuFichierAjouter_triggered();
     }
 }
@@ -687,29 +764,45 @@ void FenetrePrincipale::on_toolBarDeplcerFichiers_triggered() {
 \*******************************************************/
 
 void FenetrePrincipale::on_pageConfigurationBoutonParcourir_clicked() {
-    ui->pageConfigurationLineDossierSerie->setText(QFileDialog::getExistingDirectory(this, tr("Choisir un dossier"), "Ordinateur", QFileDialog::ShowDirsOnly));
+    ui->pageConfigurationLineDossierSerie->setText(QFileDialog::getExistingDirectory(this, tr("Choisir un dossier"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly));
 }
 
 void FenetrePrincipale::on_pageConfigurationBoutonParcourir_2_clicked() {
-    ui->pageConfigurationLineDossierTelechargement->setText(QFileDialog::getExistingDirectory(this, tr("Choisir un dossier"), "Ordinateur", QFileDialog::ShowDirsOnly));
+    ui->pageConfigurationLineDossierTelechargement->setText(QFileDialog::getExistingDirectory(this, tr("Choisir un dossier"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly));
 }
 
 void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
-    if(ui->pageConfigurationLineDossierSerie->text() != "" && ui->pageConfigurationLineDossierTelechargement->text() != "") {
+    if(ui->pageConfigurationLineDossierSerie->text() != "" && ui->pageConfigurationLineDossierTelechargement->text() != "" && ui->pageConfigurationLineEditExtension->text() != "") {
         setConfig("Configuration/Chemin", ui->pageConfigurationLineDossierSerie->text());
-        setConfig("Configuration/Telechargement", ui->pageConfigurationLineDossierTelechargement->text());
+        setConfig("Configuration/Extension", ui->pageConfigurationLineEditExtension->text());
+        lien = ui->pageConfigurationLineEditSite->text() + ui->pageConfigurationLineEditExtension->text() + "/engine/search?q=";
         setConfig("Configuration/ListeSerie", "Toutes");
-        setConfig("Taille/Width", QString::number(this->geometry().width()));
-        setConfig("Taille/Height", QString::number(this->geometry().height()));
-        setConfig("Position/X_position", QString::number(this->geometry().x()));
-        setConfig("Position/Y_position", QString::number(this->geometry().y()));
+        setConfig("Configuration/PurgeLog", QString::number(ui->pageConfigurationSpinBoxLogEfface->value()));
+        if(ui->pageConfigurationRadioButtonQualiteToutes->isChecked()) {
+            setConfig("Configuration/Qualite", "0");
+        } else if(ui->pageConfigurationRadioButtonQualite720->isChecked()) {
+            setConfig("Configuration/Qualite", "1");
+        } else if(ui->pageConfigurationRadioButtonQualite1080->isChecked()) {
+            setConfig("Configuration/Qualite", "2");
+        }
+        if(ui->pageConfigurationRadioButtonSousTitresToutes->isChecked()) {
+            setConfig("Configuration/SousTitres", "0");
+        } else {
+            setConfig("Configuration/SousTitres", "1");
+        }
+        setConfig("Configuration/Telechargement", ui->pageConfigurationLineDossierTelechargement->text());
+        setConfig("Dimension/Fullscreen", QString::number(this->isMaximized()));
+        setConfig("Dimension/H", QString::number(this->geometry().height()));
+        setConfig("Dimension/W", QString::number(this->geometry().width()));
+        setConfig("Dimension/X", QString::number(this->geometry().x()));
+        setConfig("Dimension/Y", QString::number(this->geometry().y()));
         if(!ui->mainToolBar->isVisible()) {
             initialisation();
         }
         dossierSerie =  ui->pageConfigurationLineDossierSerie->text();
         ui->stackedWidget->setCurrentWidget(ui->pagePrincipale);
     } else {
-        QMessageBox::warning(this, "Attention", "Veuillez remplir toutes les informations demandées !");
+        QMessageBox::warning(this, this->windowTitle(), "Veuillez remplir toutes les informations demandées !");
     }
 }
 
@@ -720,20 +813,19 @@ void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
 \*******************************************************/
 
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index) {
-    QString serie = ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->currentRow(), 0)->text();
+    QString serie = ui->pagePrincipaleTableWidgetDisplay->item(index.row(), 0)->text();
     serie.replace("'", "''");
-    QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, LIEN, DATEMODIF "
+    QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, DATEMODIF "
                                               "FROM SERIE "
                                               "WHERE NOM = '" + serie + "'"
                                               "ORDER BY NOM");
     if(liste.count() != 0) {
         ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
         ui->pageAjoutModifTitre->setText("Modifier série");
-        ui->pageAjoutModifBoutonValider->setText("Modifier");
+        ui->pageAjoutModifComboNom->setEnabled(false);
         ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
         ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
         ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
-        ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
         if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
             ui->pageAjoutModifLineDateSortie->setEnabled(false);
             ui->pageAjoutModifLineDateProchain->setEnabled(true);
@@ -743,28 +835,39 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const 
         }
         ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
         ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
-        ui->pageAjoutModifLineLien->setText(liste["LIEN"]);
+        ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
+        ui->pageAjoutModifLineEpisodeCourant->setVisible(true);
         ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
-        ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
-        ui->pageAjoutModifBoutonDossier->setVisible(true);
-        ui->pageAjoutModifBoutonWiki->setVisible(true);
-        ui->pageAjoutModifComboNom->setEnabled(false);
-        ui->pageAjoutModifBoutonValider->setIcon(i_modifier);
+        ui->pageAjoutModifLineDateProchain->setVisible(true);
+        ui->pageAjoutModifLabelDateProchain_2->setVisible(true);
+        ui->pageAjoutModifLabelDateProchain->setVisible(true);
         ui->pageAjoutModifLabelCreationDossierAuto->setVisible(false);
         ui->pageAjoutModifRadioButtonOui->setVisible(false);
         ui->pageAjoutModifRadioButtonNon->setVisible(false);
         ui->pageAjoutModifLabelEpisodeCourant->setVisible(true);
-        ui->pageAjoutModifLineEpisodeCourant->setVisible(true);
-        ui->pageAjoutModifLabelDateProchain->setVisible(true);
-        ui->pageAjoutModificationLabelProchain->setVisible(true);
-        ui->pageAjoutModifLineDateProchain->setVisible(true);
+        ui->pageAjoutModifBoutonValider->setIcon(i_modifier);
+        ui->pageAjoutModifBoutonValider->setText("Modifier");
+        ui->pageAjoutModifBoutonDossier->setVisible(true);
+        ui->pageAjoutModifBoutonWiki->setVisible(true);
+        ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
+        if(!QFile(dossierSerie + liste["NOM"]).exists()) {
+            ui->pageAjoutModifBoutonDossier->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonDossier->setEnabled(true);
+        }
+
+        if(liste["WIKI"] == "") {
+            ui->pageAjoutModifBoutonWiki->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonWiki->setEnabled(true);
+        }
     }
 }
 
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index) {
-    QString serie = ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->currentRow(), 0)->text();
+    QString serie = ui->pagePrincipaleTableWidgetDisplay_2->item(index.row(), 0)->text();
     serie.replace("'", "''");
-    QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, LIEN, DATEMODIF "
+    QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, DATEMODIF "
                                               "FROM SERIE "
                                               "WHERE NOM = '" + serie + "'"
                                               "ORDER BY NOM");
@@ -785,7 +888,6 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(cons
         }
         ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
         ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
-        ui->pageAjoutModifLineLien->setText(liste["LIEN"]);
         ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
         ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
         ui->pageAjoutModifBoutonDossier->setVisible(true);
@@ -797,9 +899,68 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(cons
         ui->pageAjoutModifRadioButtonNon->setVisible(false);
         ui->pageAjoutModifLabelEpisodeCourant->setVisible(true);
         ui->pageAjoutModifLineEpisodeCourant->setVisible(true);
+        ui->pageAjoutModifLabelDateProchain_2->setVisible(true);
         ui->pageAjoutModifLabelDateProchain->setVisible(true);
-        ui->pageAjoutModificationLabelProchain->setVisible(true);
         ui->pageAjoutModifLineDateProchain->setVisible(true);
+        if(!QFile(dossierSerie + liste["NOM"]).exists()) {
+            ui->pageAjoutModifBoutonDossier->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonDossier->setEnabled(true);
+        }
+
+        if(liste["WIKI"] == "") {
+            ui->pageAjoutModifBoutonWiki->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonWiki->setEnabled(true);
+        }
+    }
+}
+
+void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_customContextMenuRequested(const QPoint &pos) {
+    if(ui->pagePrincipaleTableWidgetDisplay->rowCount() > 0 && !ui->pagePrincipaleTableWidgetDisplay->selectedRanges().isEmpty()) {
+        QMenu menuContextuel(this);
+        QAction *copier = menuContextuel.addAction(QIcon(), "Copier le nom de la série");
+        QAction *dossier;
+        if(QDir(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 1)->text()).exists()) {
+            dossier = menuContextuel.addAction(QIcon(), "Ouvrir le dossier de la série");
+        }
+
+        QAction *a = menuContextuel.exec(ui->pagePrincipaleTableWidgetDisplay->viewport()->mapToGlobal(pos));
+
+        if(a == copier) {
+            QApplication::clipboard()->setText(ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text() + " S" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 1)->text() + "E" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 2)->text());
+        } else if(a == dossier) {
+            if(QDesktopServices::openUrl(QUrl::fromLocalFile(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 1)->text()))) {
+                log->ecrire("Ouverture du dossier de " + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text());
+            } else {
+                QMessageBox::warning(this, this->windowTitle(), "Le dossier n'a pas pu être ouvert");
+                log->ecrire("Le dossier n'a pas pu être ouvert");
+            }
+        }
+    }
+}
+
+void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_customContextMenuRequested(const QPoint &pos) {
+    if(ui->pagePrincipaleTableWidgetDisplay_2->rowCount() > 0 && !ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().isEmpty()) {
+        QMenu menuContextuel(this);
+        QAction *copier = menuContextuel.addAction(QIcon(), "Copier le nom de la série");
+        QAction *dossier;
+        if(QDir(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text()).exists()) {
+            dossier = menuContextuel.addAction(QIcon(), "Ouvrir le dossier de la série");
+        }
+
+        QAction *a = menuContextuel.exec(ui->pagePrincipaleTableWidgetDisplay_2->viewport()->mapToGlobal(pos));
+
+        if(a == copier) {
+            QApplication::clipboard()->setText(ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text());
+        }else if(a == dossier) {
+            if(QDesktopServices::openUrl(QUrl::fromLocalFile(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text()))) {
+                log->ecrire("Ouverture du dossier de " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text());
+            } else {
+                QMessageBox::warning(this, this->windowTitle(), "Le dossier n'a pas pu être ouvert");
+                log->ecrire("Le dossier n'a pas pu être ouvert");
+            }
+        }
     }
 }
 
@@ -821,22 +982,38 @@ void FenetrePrincipale::on_pagePrincipaleBoutonSupprimer_clicked() {
 
 void FenetrePrincipale::on_pagePrincipaleBoutonUrl_clicked() {
     if(this->listeQuoti.isEmpty()){
-        QMessageBox::information(this, "Erreur", "Il n'y a pas de série à regarder !");
+        QMessageBox::information(this, this->windowTitle(), "Il n'y a pas de série à regarder !");
     } else {
-        bool trouve = false;
+        QString qualite;
+        QString sousTitres;
+        QString fin;
+
+        switch (getConfig("Configuration/Qualite").toInt()) {
+        case 0:
+            qualite = "";
+            break;
+        case 1:
+            qualite = "+720p";
+            break;
+        case 2:
+            qualite = "+1080p";
+            break;
+        }
+
+        switch (getConfig("Configuration/SousTitres").toInt()) {
+        case 0:
+            sousTitres = "";
+            break;
+        case 1:
+            sousTitres = "+VOSTFR";
+            break;
+        }
 
         for (int i = 0; i < listeQuoti.count(); ++i) {
             QMap<QString,QString> list = listeQuoti.value(i);
-            if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() &&
-               methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() &&
-               methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
-                QDesktopServices::openUrl(list["LIEN"]);
-                trouve = true;
+            if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
+                QDesktopServices::openUrl(lien + QString(list["NOM"]).replace(" ","+") + "+S" + list["SAISON"] + "E" + list["EPISODECOURANT"] + sousTitres + qualite + fin);
             }
-        }
-
-        if(!trouve) {
-            QMessageBox::information(this, "Erreur", "Il n'y a pas de série à regarder !");
         }
     }
 }
@@ -846,7 +1023,7 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() {
     if(QDesktopServices::openUrl(QUrl::fromLocalFile(getConfig("Configuration/Telechargement")))) {
         log->ecrire("\tOuverture du dossier de téléchargement");
     } else {
-        QMessageBox::warning(this, "Attention", "Le dossier de téléchargement n'a pas pu être ouvert");
+        QMessageBox::warning(this, this->windowTitle(), "Le dossier de téléchargement n'a pas pu être ouvert");
         log->ecrire("\tLe dossier de téléchargement n'a pas pu être ouvert");
     }
     log->ecrire("FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() : Début de l'ouverture du dossier de téléchargement");
@@ -854,84 +1031,20 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() {
 
 void FenetrePrincipale::on_pagePrincipaleBoutonWiki_clicked() {
     if(this->listeQuoti.isEmpty()){
-        QMessageBox::information(this, "Erreur", "Il n'y a pas de série à regarder !");
+        QMessageBox::information(this, this->windowTitle(), "Il n'y a pas de série à regarder !");
     } else {
-        bool trouve = false;
-
         for (int i = 0; i < listeQuoti.count(); ++i) {
             QMap<QString,QString> list = listeQuoti.value(i);
-            if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() &&
-               methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() &&
-               methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
+            if(methodeDiverses.stringToDate(list["DATESORTIE"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) <= QDate::currentDate() && methodeDiverses.stringToDate(list["DATEMODIF"]) != QDate::currentDate()) {
                 QDesktopServices::openUrl(QUrl(list["WIKI"]));
-                trouve = true;
             }
-        }
-
-        if(!trouve) {
-            QMessageBox::information(this, "Erreur", "Il n'y a pas de série à regarder !");
         }
     }
 }
 
 void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
-    log->ecrire("FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() : Début du déplacement des dossiers du dossier de téléchargement");
-
-    int fichierTotal = 0;
-    int fichierDeplace = 0;
-
-    if(QDir(getConfig("Configuration/Telechargement")).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() != 0) {
-        if(!listeGlobal.isEmpty()) {
-            log->ecrire("Déplacement des fichiers téléchargés");
-            foreach (QFileInfo info, QDir(getConfig("Configuration/Telechargement")).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
-                for(int i = 0; i < listeSerie.count(); i++) {
-
-                    if(info.fileName().contains(listeSerie.at(i), Qt::CaseInsensitive) || info.fileName().contains(QString(listeSerie.at(i)).replace(" ", "."), Qt::CaseInsensitive)) {
-                        fichierTotal++;
-
-                        QFile fichier (info.absoluteFilePath());
-                        QString saison = info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}")) + 1, 2);
-                        QFile *newFichier = new QFile(dossierSerie + "\\" + listeSerie.at(i) + "\\Saison " + saison + "\\" + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
-
-                        if(newFichier->exists()) {
-                            if(methodeDiverses.msgBoxQuestion("Le fichier " + newFichier->fileName() + " existe déjà voulez vous le remplacer ?\nSi vous cliquer sur non le fichier sera supprimé") == 0) {
-                                newFichier->remove();
-                            } else {
-                                fichier.remove();
-                                continue;
-                            }
-                        }
-
-                        if(fichier.rename(dossierSerie + "\\" + listeSerie.at(i) + "\\Saison " + saison + "\\" + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix())) {
-                            log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "\\" + listeSerie.at(i) + "\\Saison " + saison + "\\" + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix());
-                            fichierDeplace++;
-                        } else {
-                            log->ecrire("\tLe fichier " + listeSerie.at(i) + " " + info.fileName().mid(info.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + info.suffix() + " n'a pas été déplacé");
-                        }
-                    }
-                }
-            }
-
-            if(fichierDeplace == fichierTotal) {
-                if(fichierDeplace == 1) {
-                    QMessageBox::information(this, "Fichier déplacé", "Le fichier a été déplacé");
-                    log->ecrire("Le fichier a été déplacé");
-                } else if (fichierDeplace > 1) {
-                    QMessageBox::information(this, "Fichiers déplacés", "Les " + QString::number(fichierTotal) + " fichiers ont été déplacés");
-                    log->ecrire("Les " + QString::number(fichierTotal) + " fichiers ont été déplacés");
-                } else  if(fichierDeplace == 0){
-                    QMessageBox::information(this, "Fichiers déplacés", "Il n'y a pas de fichier à déplacer");
-                }
-
-                nettoyerDossierTelechargement();
-            }
-
-            log->ecrire("FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() : Fin du déplacement des dossiers du dossier de téléchargement");
-
-        }
-    } else {
-        QMessageBox::information(this, "Information", "Il n'y a pas de fichiers à déplacer");
-    }
+    Dialog *dial = new Dialog(this);
+    dial->open();
 }
 
 /*******************************************************\
@@ -941,12 +1054,12 @@ void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
 \*******************************************************/
 
 void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex &index) {
-    QString serie = ui->pageVosSeriesDisplay->item(ui->pageVosSeriesDisplay->currentRow(), 0)->text();
+    QString serie = ui->pageVosSeriesDisplay->item(index.row(), 0)->text();
     serie.replace("'", "''");
-    QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, LIEN, DATEMODIF "
-                                              "FROM SERIE "
-                                              "WHERE NOM = '" + serie + "'"
-                                              "ORDER BY NOM");
+    QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, DATEMODIF "
+                                                     "FROM SERIE "
+                                                     "WHERE NOM = '" + serie + "'"
+                                                     "ORDER BY NOM");
     if(liste.count() != 0) {
         ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
         ui->pageAjoutModifTitre->setText("Modifier série");
@@ -964,7 +1077,6 @@ void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex 
         }
         ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
         ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
-        ui->pageAjoutModifLineLien->setText(liste["LIEN"]);
         ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
         ui->pageAjoutModifLabelRetour->setText("pageVosSeries");
         ui->pageAjoutModifBoutonDossier->setVisible(true);
@@ -977,37 +1089,40 @@ void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex 
         ui->pageAjoutModifLabelEpisodeCourant->setVisible(true);
         ui->pageAjoutModifLineEpisodeCourant->setVisible(true);
         ui->pageAjoutModifLabelDateProchain->setVisible(true);
-        ui->pageAjoutModificationLabelProchain->setVisible(true);
         ui->pageAjoutModifLineDateProchain->setVisible(true);
+        ui->pageAjoutModifLabelDateProchain_2->setVisible(true);
+        if(!QFile(dossierSerie + liste["NOM"]).exists()) {
+            ui->pageAjoutModifBoutonDossier->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonDossier->setEnabled(true);
+        }
+
+        if(liste["WIKI"] == "") {
+            ui->pageAjoutModifBoutonWiki->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonWiki->setEnabled(true);
+        }
     }
 }
 
 void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QString &arg1) {
-    ui->pageVosSeriesDisplay->clear();
-    ui->pageVosSeriesDisplay->setColumnCount(7);
+    ui->pageVosSeriesDisplay->setRowCount(0);
 
-    QList<QString> liste;
-    liste.append("Nom");
-    liste.append("Saison");
-    liste.append("Jour de sortie");
-    liste.append("Diffusion");
-    liste.append("Prochain le");
-    liste.append("Dossier");
-    liste.append("Wikipédia");
-
-    ui->pageVosSeriesDisplay->setHorizontalHeaderLabels(QStringList(liste));
-
-    int selection;
-
-    if(arg1 == "Toutes") {
+    int selection = 1;
+    if(getConfig("Configuration/ListeSerie") == "") {
         setConfig("Configuration/ListeSerie", "Toutes");
         selection = 1;
-    } else if (arg1 == "Série à venir") {
-        setConfig("Configuration/ListeSerie", "Série à venir");
-        selection = 2;
-    } else if (arg1 == "Série en cours") {
-        setConfig("Configuration/ListeSerie", "Série en cours");
-        selection = 3;
+    } else {
+        if(arg1 == "Toutes") {
+            setConfig("Configuration/ListeSerie", "Toutes");
+            selection = 1;
+        } else if (arg1 == "Série à venir") {
+            setConfig("Configuration/ListeSerie", "Série à venir");
+            selection = 2;
+        } else if (arg1 == "Série en cours") {
+            setConfig("Configuration/ListeSerie", "Série en cours");
+            selection = 3;
+        }
     }
 
     int indice = 0;
@@ -1045,6 +1160,11 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
         QObject::connect(dossier, SIGNAL(clicked(bool)), mapper, SLOT(map()));
         ui->pageVosSeriesDisplay->setCellWidget(indice, 5, dossier);
 
+        QFile file (dossierSerie + list["NOM"]);
+        if(!file.exists()) {
+            dossier->setEnabled(false);
+        }
+
         QSignalMapper* mapper1 = new QSignalMapper();
         QPushButton* wiki = new QPushButton(i_wiki,"");
         mapper1->setMapping(wiki, list["WIKI"]);
@@ -1081,28 +1201,26 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
         if(ui->pageAjoutModifComboNom->currentText() != "" &&
            ui->pageAjoutModifLineSaison->text() != "" &&
            ui->pageAjoutModifLineNbEpisode->text() != "") {
-            this->bdd->ajouter(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineDateSortie->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text(), ui->pageAjoutModifLineLien->text());
+            this->bdd->ajouter(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineDateSortie->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text());
             if (ui->pageAjoutModifRadioButtonOui->isChecked()) {
                 QDir dir;
-                dir.mkdir(dossierSerie + "/" + ui->pageAjoutModifComboNom->currentText());
-                dir.mkdir(dossierSerie + "/" + ui->pageAjoutModifComboNom->currentText() + "/Saison " + methodeDiverses.formalismeEntier(ui->pageAjoutModifLineSaison->text().toInt()));
+                dir.mkpath(dossierSerie + ui->pageAjoutModifComboNom->currentText() + "/Saison " + methodeDiverses.formalismeEntier(ui->pageAjoutModifLineSaison->text().toInt()));
             }
             ui->pageAjoutModifComboNom->clear();
             ui->pageAjoutModifLineSaison->clear();
             ui->pageAjoutModifLineNbEpisode->clear();
             ui->pageAjoutModifLineDateSortie->setDate(QDate::currentDate());
             ui->pageAjoutModifLineWiki->clear();
-            ui->pageAjoutModifLineLien->clear();
             refresh();
         } else {
-            QMessageBox::information(this, "Erreur", "Veuillez remplir tout les champs !");
+            QMessageBox::critical(this, this->windowTitle(), "Veuillez remplir tout les champs !");
         }
 
     } else if(ui->pageAjoutModifBoutonValider->text() == "Modifier") {
         if(ui->pageAjoutModifLineDateSortie->isEnabled()) {
-            this->bdd->modifier(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineEpisodeCourant->text().toInt(), ui->pageAjoutModifLineDateSortie->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text(), ui->pageAjoutModifLineDateSortie->date().addDays(-7), ui->pageAjoutModifLineLien->text(), true);
+            this->bdd->modifier(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineEpisodeCourant->text().toInt(), ui->pageAjoutModifLineDateSortie->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text(), ui->pageAjoutModifLineDateSortie->date().addDays(-7), true);
         } else {
-            this->bdd->modifier(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineEpisodeCourant->text().toInt(), ui->pageAjoutModifLineDateProchain->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text(), ui->pageAjoutModifLineDateProchain->date().addDays(-7), ui->pageAjoutModifLineLien->text(), true);
+            this->bdd->modifier(ui->pageAjoutModifComboNom->currentText(), ui->pageAjoutModifLineSaison->text().toInt(), ui->pageAjoutModifLineNbEpisode->text().toInt(), ui->pageAjoutModifLineEpisodeCourant->text().toInt(), ui->pageAjoutModifLineDateProchain->date().dayOfWeek(), ui->pageAjoutModifLineDateSortie->date(), ui->pageAjoutModifLineWiki->text(), ui->pageAjoutModifLineDateProchain->date().addDays(-7), true);
         }
         if(ui->pageAjoutModifLabelRetour->text() == "pagePrincipale") {
             ui->stackedWidget->setCurrentWidget(ui->pagePrincipale);
@@ -1127,13 +1245,13 @@ void FenetrePrincipale::on_pageAjoutModifBoutonDossier_clicked() {
 void FenetrePrincipale::on_pageAjoutModifBoutonWiki_clicked() {
     if (ui->pageAjoutModifBoutonValider->text() == "Modifier"){
         if(ui->pageAjoutModifLineWiki->text() != "") {
-            if(ui->pageAjoutModifLineWiki->text().contains(QRegExp("fr\.wikipedia\.org.*"))) {
+            if(ui->pageAjoutModifLineWiki->text().contains("wikipedia.org")) {
                 QDesktopServices::openUrl(QUrl(ui->pageAjoutModifLineWiki->text()));
             } else {
-                QMessageBox::warning(this, "Attention", "L'adresse saisie n'est pas un lien vers Wikipedia !");
+                QMessageBox::warning(this, this->windowTitle(), "L'adresse saisie n'est pas un lien vers Wikipedia !");
             }
         } else {
-            QMessageBox::information(this, "Pas de lien", "Il n'y a pas de lien !");
+            QMessageBox::information(this, this->windowTitle(), "Il n'y a pas de lien !");
         }
     }
 }
@@ -1154,7 +1272,7 @@ void FenetrePrincipale::on_pageAjoutModifBoutonRetour_clicked() {
 }
 
 void FenetrePrincipale::on_pageAjoutModifLineDateProchain_userDateChanged(const QDate &date) {
-    ui->pageAjoutModifLabelDateProchain->setText(methodeDiverses.formatDate(date));
+    ui->pageAjoutModifLabelDateProchain_2->setText(methodeDiverses.formatDate(date));
 }
 
 
@@ -1168,17 +1286,15 @@ void FenetrePrincipale::on_pageListeModificationBoutonModifier_clicked() {
     if(ui->pageListeModificationDisplay->count() != 0){
         QString serie = ui->pageListeModificationDisplay->currentItem()->text();
         serie.replace("'", "''");
-        QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, LIEN, DATEMODIF "
+        QMap<QString,QString> liste = this->bdd->requete("SELECT NOM, SAISON, NBEPISODE, JOURSORTIE, EPISODECOURANT, DATESORTIE, WIKI, DATEMODIF "
                                                   "FROM SERIE "
                                                   "WHERE NOM = '" + serie + "'"
                                                   "ORDER BY NOM");
         ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
         ui->pageAjoutModifTitre->setText("Modifier série");
-        ui->pageAjoutModifBoutonValider->setText("Modifier");
         ui->pageAjoutModifComboNom->setEditText(liste["NOM"]);
         ui->pageAjoutModifLineSaison->setValue(liste["SAISON"].toInt());
         ui->pageAjoutModifLineNbEpisode->setValue(liste["NBEPISODE"].toInt());
-        ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
         if (methodeDiverses.stringToDate(liste["DATESORTIE"]) < QDate::currentDate()) {
             ui->pageAjoutModifLineDateSortie->setEnabled(false);
             ui->pageAjoutModifLineDateProchain->setEnabled(true);
@@ -1187,13 +1303,26 @@ void FenetrePrincipale::on_pageListeModificationBoutonModifier_clicked() {
             ui->pageAjoutModifLineDateProchain->setEnabled(false);
         }
         ui->pageAjoutModifLineDateSortie->setDate(methodeDiverses.stringToDate(liste["DATESORTIE"]));
-        ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
-        ui->pageAjoutModifLineLien->setText(liste["LIEN"]);
-        ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
-        ui->pageAjoutModifLabelRetour->setText("pageListeModification");
         ui->pageAjoutModifLabelCreationDossierAuto->setVisible(false);
         ui->pageAjoutModifRadioButtonOui->setVisible(false);
         ui->pageAjoutModifRadioButtonNon->setVisible(false);
+        ui->pageAjoutModifLineWiki->setText(liste["WIKI"]);
+        ui->pageAjoutModifLineEpisodeCourant->setValue(liste["EPISODECOURANT"].toInt());
+        ui->pageAjoutModifLineDateProchain->setDate(methodeDiverses.stringToDate(liste["DATEMODIF"]).addDays(7));
+        ui->pageAjoutModifLabelRetour->setText("pageListeModification");
+        ui->pageAjoutModifBoutonValider->setText("Modifier");
+
+        if(!QFile(dossierSerie + liste["NOM"]).exists()) {
+            ui->pageAjoutModifBoutonDossier->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonDossier->setEnabled(true);
+        }
+
+        if(liste["WIKI"] == "") {
+            ui->pageAjoutModifBoutonWiki->setEnabled(false);
+        } else {
+            ui->pageAjoutModifBoutonWiki->setEnabled(true);
+        }
     }
 }
 
@@ -1252,4 +1381,22 @@ void FenetrePrincipale::on_pageReporterButtonRetour_clicked() {
 
 void FenetrePrincipale::on_pageReporterSpinBox_valueChanged(int nbSemaines) {
     ui->pageReporterDate->setText(methodeDiverses.formatDate(QDate::currentDate().addDays(7 * nbSemaines)));
+}
+
+/*******************************************************\
+*                                                       *
+*                   PAGE HISTORIQUE                     *
+*                                                       *
+\*******************************************************/
+
+void FenetrePrincipale::on_pageHistoriqueTableWidget_customContextMenuRequested(const QPoint &pos) {
+    if(ui->pageHistoriqueTableWidget->rowCount() > 0 && !ui->pageHistoriqueTableWidget->selectedRanges().isEmpty()) {
+        QMenu menuContextuel(this);
+        QAction *copier = menuContextuel.addAction(QIcon(), "Copier le nom de la série");
+        QAction *a = menuContextuel.exec(ui->pageHistoriqueTableWidget->viewport()->mapToGlobal(pos));
+
+        if(a == copier) {
+            QApplication::clipboard()->setText(ui->pageHistoriqueTableWidget->item(ui->pageHistoriqueTableWidget->selectedRanges().at(0).topRow(), 0)->text());
+        }
+    }
 }

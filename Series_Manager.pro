@@ -18,19 +18,21 @@ SOURCES += main.cpp\
         fenetreprincipale.cpp \
     basededonnees.cpp \
     log.cpp \
-    methodediverses.cpp
+    methodediverses.cpp \
+    dialog.cpp
 
 HEADERS  += fenetreprincipale.h \
     basededonnees.h \
     log.h \
-    methodediverses.h
+    methodediverses.h \
+    dialog.h
 
-FORMS    += fenetreprincipale.ui
+FORMS    += fenetreprincipale.ui \
+    dialog.ui
 
-OTHER_FILES += TODO.txt\
-               myapp.rc
+OTHER_FILES += TODO.txt
 
-RC_FILE = myapp.rc
+RC_ICONS = SeriesManager.ico
 
 RESOURCES += \
     ressource.qrc

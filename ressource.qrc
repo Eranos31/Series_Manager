@@ -5,7 +5,6 @@
         <file>images/ajouter.png</file>
         <file>images/annuler.png</file>
         <file>images/deplacement.png</file>
-        <file>images/deplacement_old.jpg</file>
         <file>images/dossier.png</file>
         <file>images/engrenage.png</file>
         <file>images/exit.png</file>
@@ -21,6 +20,6 @@
         <file>images/SeriesManager.png</file>
         <file>images/valider.png</file>
         <file>images/wiki.png</file>
-        <file>images/logo.ico</file>
+        <file>images/logo.png</file>
     </qresource>
 </RCC>

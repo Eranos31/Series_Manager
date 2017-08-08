@@ -66,7 +66,7 @@ QTableWidgetItem* MethodeDiverses::itemForTableWidget(const QString text, bool c
     if(center) {
         item->setTextAlignment(Qt::AlignCenter);
     }
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable & ~Qt::ItemIsSelectable);
+    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
     return item;
 }
 
@@ -87,7 +87,7 @@ QString MethodeDiverses::dateToString(QDate date) {
 }
 
 QDate MethodeDiverses::stringToDate(QString text) {
-    if(text == "0") {
+    if(text == "0" || text == "") {
         return QDate();
     } else {
         QStringList liste = text.split("-");

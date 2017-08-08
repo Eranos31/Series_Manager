@@ -11,8 +11,6 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     if(!QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/logs").exists())
         dir.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/logs");
 #else
-    if(!QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/data").exists())
-        dir.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/data");
     if(!QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/logs").exists())
         dir.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/logs");
 #endif

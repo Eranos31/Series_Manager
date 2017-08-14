@@ -108,6 +108,30 @@ void FenetrePrincipale::refresh() {
 
     int indice = 0;
     bool activationBoutonWikiGlobal = false;
+    QString qualite;
+    QString sousTitres;
+    QString fin;
+
+    switch (getConfig("Configuration/Qualite").toInt()) {
+    case 0:
+        qualite = "";
+        break;
+    case 1:
+        qualite = "+720p";
+        break;
+    case 2:
+        qualite = "+1080p";
+        break;
+    }
+
+    switch (getConfig("Configuration/SousTitres").toInt()) {
+    case 0:
+        sousTitres = "";
+        break;
+    case 1:
+        sousTitres = "+VOSTFR";
+        break;
+    }
 
     //Effacement des tableau
     ui->pageListeModificationDisplay->clear();
@@ -128,20 +152,20 @@ void FenetrePrincipale::refresh() {
         QSignalMapper* mapper2 = new QSignalMapper();
         QSignalMapper* mapper3 = new QSignalMapper();
 
-        QPushButton* lien = new QPushButton(i_logo, "");
+        QPushButton* url = new QPushButton(i_logo, "");
         QPushButton* wiki = new QPushButton(i_wiki, "");
         QPushButton* reporter = new QPushButton(i_reporter, "");
 
-        lien->setToolTip("Ouvre le lien URL de " + map["NOM"]);
+        url->setToolTip("Ouvre le lien URL de " + map["NOM"]);
         wiki->setToolTip("Ouvre le lien Wikipédia de " + map["NOM"]);
         reporter->setToolTip("Ouvre la fênetre de report de " + map["NOM"]);
 
-        mapper1->setMapping(lien, QString(map["NOM"]).replace(" ", "+") + "+S" + map["SAISON"] + "E" + map["EPISODECOURANT"]);
+        mapper1->setMapping(url, lien + QString(map["NOM"]).replace(" ", "+") + "+S" + map["SAISON"] + "E" + map["EPISODECOURANT"] + sousTitres + qualite + fin);
         mapper2->setMapping(wiki, map["WIKI"]);
         mapper3->setMapping(reporter, map["NOM"]);
 
         QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
-        QObject::connect(lien, SIGNAL(clicked()), mapper1, SLOT(map()));
+        QObject::connect(url, SIGNAL(clicked()), mapper1, SLOT(map()));
 
         QObject::connect(mapper2, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
         QObject::connect(wiki, SIGNAL(clicked(bool)), mapper2, SLOT(map()));
@@ -153,7 +177,7 @@ void FenetrePrincipale::refresh() {
         ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(map["NOM"], false));
         ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget(map["SAISON"], true));
         ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(map["EPISODECOURANT"], true));
-        ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 3, lien);
+        ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 3, url);
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 4, wiki);
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, reporter);
 
@@ -200,7 +224,7 @@ void FenetrePrincipale::refresh() {
         lienHier->setToolTip("Ouvre le lien URL de " + mapHier["NOM"]);
         wikiHier->setToolTip("Ouvre le lien Wikipédia de " + mapHier["NOM"]);
 
-        mapper1->setMapping(lienHier, QString(mapHier["NOM"]).replace(" ", "+") + "+S" + mapHier["SAISON"] + "E" + mapHier["EPISODE"]);
+        mapper1->setMapping(lienHier, lien + QString(mapHier["NOM"]).replace(" ", "+") + "+S" + mapHier["SAISON"] + "E" + mapHier["EPISODE"] + sousTitres + qualite + fin);
         mapper2->setMapping(wikiHier, lienWiki);
 
         QObject::connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
@@ -237,7 +261,7 @@ void FenetrePrincipale::refresh() {
         QSignalMapper* mapper = new QSignalMapper();
         QPushButton* url = new QPushButton(i_logo, "");
         url->setToolTip("Ouvre le lien URL de " + map["NOM"] + "pour l'épisode donné");
-        mapper->setMapping(url, QString(map["NOM"]).replace(" ","+") + "+S" + map["SAISON"] + "E" + map["EPISODE"]);
+        mapper->setMapping(url, lien + QString(map["NOM"]).replace(" ","+") + "+S" + map["SAISON"] + "E" + map["EPISODE"] + sousTitres + qualite + fin);
         QObject::connect(mapper, SIGNAL(mapped(QString)), this, SLOT(on_bouton_lien_clicked(QString)));
         QObject::connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
 
@@ -358,37 +382,12 @@ void FenetrePrincipale::initialisation() {
 }
 
 void FenetrePrincipale::on_bouton_lien_clicked(QString nom) {
-    QString qualite;
-    QString sousTitres;
-    QString fin;
-
-    switch (getConfig("Configuration/Qualite").toInt()) {
-    case 0:
-        qualite = "";
-        break;
-    case 1:
-        qualite = "+720p";
-        break;
-    case 2:
-        qualite = "+1080p";
-        break;
-    }
-
-    switch (getConfig("Configuration/SousTitres").toInt()) {
-    case 0:
-        sousTitres = "";
-        break;
-    case 1:
-        sousTitres = "+VOSTFR";
-        break;
-    }
-
     log->ecrire("FenetrePrincipale::on_bouton_lien_clicked() : Début de la génération du lien");
-    if(QDesktopServices::openUrl(QUrl(lien + nom + sousTitres + qualite + fin))) {
-        log->ecrire("\tOuverture du lien " + lien + nom + sousTitres + qualite + fin);
+    if(QDesktopServices::openUrl(QUrl(nom))) {
+        log->ecrire("\tOuverture du lien " + nom);
     } else {
-        QMessageBox::warning(this, this->windowTitle(), "Le lien " + lien + nom + sousTitres + qualite + fin + " n'a pu être ouvert");
-        log->ecrire("\tLe lien " + lien + nom + sousTitres + qualite + fin + " n'a pu être ouvert");
+        QMessageBox::warning(this, this->windowTitle(), "Le lien " + nom + " n'a pu être ouvert");
+        log->ecrire("\tLe lien " + nom + " n'a pu être ouvert");
     }
 
     log->ecrire("FenetrePrincipale::on_bouton_lien_clicked() : Fin de la génération du lien");

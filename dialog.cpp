@@ -91,13 +91,13 @@ void Dialog::on_pushButtonDeplacerFichier_clicked() {
         if(ui->tableWidget->cellWidget(i, 0) != NULL) {
             QCheckBox *checkBoxDeplacer = (QCheckBox *)ui->tableWidget->cellWidget(i, 0)->layout()->itemAt(0)->widget();
             if(checkBoxDeplacer->isChecked()) {
-                listeFichierADeplacer.append(pere->getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text().replace(".","") + "/" + nomFichier);
+                listeFichierADeplacer.append(pere->getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
             }
         }
         if(ui->tableWidget->cellWidget(i, 2) != NULL) {
             QCheckBox *checkBoxSupprimer = (QCheckBox *)ui->tableWidget->cellWidget(i, 2)->layout()->itemAt(0)->widget();
             if(checkBoxSupprimer->isChecked()) {
-                listeFichierASupprimer.append(pere->getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text().replace(".","") + "/" + nomFichier);
+                listeFichierASupprimer.append(pere->getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
             }
         }
     }
@@ -129,24 +129,24 @@ void Dialog::deplacerFichier(QList<QString> liste) {
 
                 QFile fichier(nomFichier);
                 QFileInfo infoFichier(nomFichier);
-                QString saison = nomFichier.mid(nomFichier.indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}")) +1, 2);
-                QFile *newFichier = new QFile(dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + infoFichier.suffix());
+                QString saison = infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}")) +1, 2).toUpper();
+                QFile *newFichier = new QFile(dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix());
 
                 if(newFichier->exists()) {
                     if(!methodeDiverses.msgBoxQuestion("Le fichier " + newFichier->fileName() + " existe déjà dans le dossier de la série.\nVoulez vous le remplacer ?")) {
                         newFichier->remove();
                     } else {
-                        log->ecrire("Le fichier " + nomFichier + " existe déjà et n'a pas été déplacé");
-                        ui->textBrowser->append("Le fichier " + nomFichier + " existe déjà et n'a pas été déplacé");
+                        log->ecrire("Le fichier " + infoFichier.fileName() + " existe déjà et n'a pas été déplacé");
+                        ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " existe déjà et n'a pas été déplacé");
                     }
                 }
 
-                if(fichier.rename(dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + infoFichier.suffix())) {
-                    log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6) + "." + infoFichier.suffix());
-                    ui->textBrowser->append("Le fichier " + nomFichier + " a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
+                if(fichier.rename(dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix())) {
+                    log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix());
+                    ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
                 } else {
-                    log->ecrire("\tLe fichier " + nomFichier + " n'a pas été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
-                    ui->textBrowser->append("01Le fichier " + nomFichier + " n'a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
+                    log->ecrire("\tLe fichier " + infoFichier.fileName() + " n'a pas été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
+                    ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " n'a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
                 }
             }
         }
@@ -157,7 +157,7 @@ void Dialog::deplacerFichier(QList<QString> liste) {
                     ui->textBrowser->append("Le fichier " + QFileInfo(nomFichier).fileName() + " a été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
                     log->ecrire("Le fichier " + QFileInfo(nomFichier).fileName() + " a été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
                 } else {
-                    ui->textBrowser->append("02Le fichier " + QFileInfo(nomFichier).fileName() + " n'a pas été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
+                    ui->textBrowser->append("Le fichier " + QFileInfo(nomFichier).fileName() + " n'a pas été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
                     log->ecrire("Le fichier " + QFileInfo(nomFichier).fileName() + " n'a pas été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
                 }
             } else {

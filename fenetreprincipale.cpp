@@ -949,7 +949,7 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_customContextMenuR
         QAction *a = menuContextuel.exec(ui->pagePrincipaleTableWidgetDisplay_2->viewport()->mapToGlobal(pos));
 
         if(a == copier) {
-            QApplication::clipboard()->setText(ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text());
+            QApplication::clipboard()->setText(ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + " S" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text() + "E" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 2)->text());
         }else if(a == dossier) {
             if(QDesktopServices::openUrl(QUrl::fromLocalFile(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text()))) {
                 log->ecrire("Ouverture du dossier de " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text());

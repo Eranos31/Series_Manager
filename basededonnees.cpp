@@ -1,35 +1,25 @@
 #include "basededonnees.h"
 
 BaseDeDonnees::BaseDeDonnees() {
+    if(!QDir("./data/images").exists()) {
+        QDir dir;
+        dir.mkpath("./data/images");
+    }
+    QFileInfo info("./bdd.db");
+    if(info.exists()) {
+        QFile(info.absoluteFilePath()).rename(info.absolutePath() + "/data/bdd.db");
+    }
+
     log = new Log("BaseDeDonnees");
-    QFile *file = new QFile("bdd.db");
+    QFile *file = new QFile("./data/bdd.db");
     if(!file->exists()) {
         log->ecrire("BaseDeDonnees::BaseDeDonnees() : Creation de la base de donnée");
         db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName("bdd.db");
+        db.setDatabaseName("./data/bdd.db");
 
         if(db.open()) {
             log->ecrire("BaseDeDonnees::BaseDeDonnees() : Ouverture de la base de donnée");
             QSqlQuery query(db);
-            query.prepare("CREATE TABLE SERIE"
-                          "("
-                          "NOM TEXT PRIMARY KEY NOT NULL,"
-                          "SAISON TEXT NOT NULL,"
-                          "NBEPISODE TEXT NOT NULL,"
-                          "EPISODECOURANT TEXT NOT NULL,"
-                          "DATESORTIE DATE NOT NULL,"
-                          "JOURSORTIE TEXT,"
-                          "DATEMODIF DATE NOT NULL,"
-                          "WIKI TEXT"
-                          ")");
-            log->ecrire("BaseDeDonnees::BaseDeDonnees() : Requete SQL : CREATE TABLE SERIE (NOM TEXT PRIMARY KEY NOT NULL,SAISON TEXT NOT NULL,NBEPISODE TEXT NOT NULL,EPISODECOURANT TEXT NOT NULL,DATESORTIE DATE NOT NULL,JOURSORTIE TEXT NOT NULL,DATEMODIF DATE NOT NULL,WIKI TEXT);");
-
-            if(query.exec()) {
-                log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table SERIE réussie");
-            } else {
-                log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table SERIE : " + query.lastError().text());
-                QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table SERIE : " + query.lastError().text());
-            }
 
             query.prepare("CREATE TABLE DATEOUVERTURE"
                           "("
@@ -54,10 +44,10 @@ BaseDeDonnees::BaseDeDonnees() {
 
             query.prepare("CREATE TABLE HISTORIQUE"
                           "("
-                          "NOM TEXT NOT NULL,"
-                          "SAISON TEXT NOT NULL,"
-                          "EPISODE TEXT NOT NULL,"
-                          "DATEAJOUT DATE NOT NULL"
+                          "NOM          TEXT NOT NULL,"
+                          "SAISON       TEXT NOT NULL,"
+                          "EPISODE      TEXT NOT NULL,"
+                          "DATEAJOUT    DATE NOT NULL"
                           ")");
 
             if(query.exec()) {
@@ -66,19 +56,149 @@ BaseDeDonnees::BaseDeDonnees() {
                 log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table HISTORIQUE : " + query.lastError().text());
                 QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table HISTORIQUE : " + query.lastError().text());
             }
+
+            query.prepare("CREATE TABLE `FS#FICHE_SERIE` ("
+                          "`FS#ID`      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+                          "`FSNOM`      TEXT NOT NULL UNIQUE,"
+                          "`FSIMAGE`	TEXT,"
+                          "`FSWIKI`     TEXT,"
+                          "`FSADDICTED` TEXT"
+                          ");");
+
+            if(query.exec()) {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table FS#FICHE_SERIE réussie");
+            } else {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table FS#FICHE_SERIE : " + query.lastError().text());
+                QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table FS#FICHE_SERIE : " + query.lastError().text());
+            }
+
+            query.prepare("CREATE TABLE `SA#SAISON` ("
+                          "`SAFS#ID`            INTEGER NOT NULL UNIQUE,"
+                          "`SASAISON`           TEXT NOT NULL,"
+                          "`SANBEPISODE`        TEXT NOT NULL,"
+                          "`SAEPISODECOURANT`	TEXT NOT NULL,"
+                          "`SADATESORTIE`       TEXT NOT NULL,"
+                          "`SAJOURSORTIE`       TEXT NOT NULL,"
+                          "`SADATEMODIF`        INTEGER NOT NULL,"
+                          "`SAWIKI`             INTEGER,"
+                          "FOREIGN KEY(`SAFS#ID`) REFERENCES `FS#FICHE_SERIE.FS#ID`"
+                          ");");
+
+            if(query.exec()) {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table SA#SAISON réussie");
+            } else {
+                log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table SA#SAISON : " + query.lastError().text());
+                QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table SA#SAISON : " + query.lastError().text());
+            }
         } else {
             log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR BDD non ouverte : " + db.lastError().text());
             QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
         }
     } else {
         db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName("bdd.db");
+        db.setDatabaseName("./data/bdd.db");
 
         if(!db.open()) {
             log->ecrire("BaseDeDonnees::BaseDeDonnees() : Erreur BDD non ouverte : " + db.lastError().text());
             QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
         } else {
             log->ecrire("BaseDeDonnees::BaseDeDonnees() : Ouverture de la base de donnee");
+            QSqlQuery query(db);
+
+            if(!query.exec("SELECT * FROM " + FICHE_SERIE_TABLE)) {
+                query.prepare("CREATE TABLE `FS#FICHE_SERIE` ("
+                              "`FS#ID`      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+                              "`FSNOM`      TEXT NOT NULL UNIQUE,"
+                              "`FSIMAGE`	TEXT,"
+                              "`FSWIKI`     TEXT,"
+                              "`FSADDICTED` TEXT"
+                              ")");
+
+                if(query.exec()) {
+                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table FS#FICHE_SERIE réussie");
+                } else {
+                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table FS#FICHE_SERIE : " + query.lastError().text());
+                    QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table FS#FICHE_SERIE : " + query.lastError().text());
+                }
+            }
+
+            if(!query.exec("SELECT * FROM " + SAISON_TABLE)) {
+                query.prepare("CREATE TABLE `SA#SAISON` ("
+                              "`SAFS#ID`            INTEGER NOT NULL UNIQUE,"
+                              "`SASAISON`           TEXT NOT NULL,"
+                              "`SANBEPISODE`        TEXT NOT NULL,"
+                              "`SAEPISODECOURANT`	TEXT NOT NULL,"
+                              "`SADATESORTIE`       TEXT NOT NULL,"
+                              "`SAJOURSORTIE`       TEXT NOT NULL,"
+                              "`SADATEMODIF`        INTEGER NOT NULL,"
+                              "`SAWIKI`             TEXT,"
+                              "`SADOUBLEEPISODE     TEXT`,"
+                              "FOREIGN KEY(`SAFS#ID`) REFERENCES `FS#FICHE_SERIE.FS#ID`"
+                              ")");
+
+                if(query.exec()) {
+                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table SA#SAISON réussie");
+                } else {
+                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table SA#SAISON : " + query.lastError().text());
+                    QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table SA#SAISON : " + query.lastError().text());
+                }
+            }
+#ifndef QT_DEBUG
+            if(query.exec("SELECT * FROM SERIE")) {
+                QList<QString> champs;
+                QList<QString> conditions;
+                QList<QString> ordres;
+                champs.append("NOM");
+                champs.append("SAISON");
+                champs.append("NBEPISODE");
+                champs.append("EPISODECOURANT");
+                champs.append("DATESORTIE");
+                champs.append("JOURSORTIE");
+                champs.append("DATEMODIF");
+                champs.append("WIKI");
+                QList<QMap<QString,QString> > listeSerie = requeteSelect(champs, "SERIE", conditions, ordres);
+                for(int i = 0; i < listeSerie.count(); i++) {
+                    QMap<QString,QString> map = listeSerie.at(i);
+                    champs.clear();
+                    QList<QString> valeurs;
+                    QList<QString> ordres;
+                    // Création de la fiche Série
+                    champs.append(FICHE_SERIE_NOM);
+                    valeurs.append(map.value("NOM"));
+                    requeteInsert(champs, valeurs, FICHE_SERIE_TABLE);
+                    // Récupération de l'ID
+                    champs.clear();
+                    conditions.clear();
+                    champs.append(FICHE_SERIE_ID);
+                    conditions.append(FICHE_SERIE_NOM + " = '" + map.value("NOM") + "'");
+                    QString id = requeteSelect(champs, FICHE_SERIE_TABLE, conditions, ordres).at(0).value(FICHE_SERIE_ID);
+                    // Création de la saison
+                    champs.clear();
+                    valeurs.clear();
+
+                    champs.append(SAISON_ID);
+                    valeurs.append(id);
+                    champs.append(SAISON_SAISON);
+                    valeurs.append(map.value("SAISON"));
+                    champs.append(SAISON_NB_EPISODE);
+                    valeurs.append(map.value("NBEPISODE"));
+                    champs.append(SAISON_EPISODE_COURANT);
+                    valeurs.append(map.value("EPISODECOURANT"));
+                    champs.append(SAISON_DATE_SORTIE);
+                    valeurs.append(map.value("DATESORTIE"));
+                    champs.append(SAISON_JOUR_SORTIE);
+                    valeurs.append(map.value("JOURSORTIE"));
+                    champs.append(SAISON_DATE_MODIF);
+                    valeurs.append(map.value("DATEMODIF"));
+                    champs.append(SAISON_WIKI);
+                    valeurs.append(map.value("WIKI"));
+
+                    requeteInsert(champs, valeurs, SAISON_TABLE);
+                }
+                db.open();
+                query.exec("DROP TABLE SERIE");
+            }
+#endif
         }
     }
     db.close();
@@ -89,333 +209,208 @@ BaseDeDonnees::~BaseDeDonnees(){
     //DO NOTHING
 }
 
-void BaseDeDonnees::ajouter(QString nom, int saison, int nbEpisode, int jourSortie, QDate dateSortie, QString wiki) {
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::ajouter() : Ouverture de la base de donnée");
-        QString s_saison = "";
-        QString s_nbEpisode = "";
-
-        if(saison > 0 && saison < 10) {
-            s_saison.append("0" + QString::number(saison));
-        } else {
-            s_saison.append(QString::number(saison));
-        }
-
-        if(nbEpisode > 0 && nbEpisode < 10) {
-            s_nbEpisode.append("0" + QString::number(nbEpisode));
-        } else {
-            s_nbEpisode.append(QString::number(nbEpisode));
-        }
-
-        QSqlQuery query(db);
-        query.prepare("INSERT INTO SERIE(NOM,SAISON,NBEPISODE,EPISODECOURANT,DATESORTIE,JOURSORTIE,DATEMODIF, WIKI) "
-                      "VALUES (:nom, :saison, :nbepisode, '01', :datesortie, :joursortie, :datemodif, :wiki)");
-        query.bindValue(":nom", nom);
-        query.bindValue(":saison", s_saison);
-        query.bindValue(":nbepisode", s_nbEpisode);
-        query.bindValue(":datesortie", dateSortie.toString("yyyy-MM-dd"));
-        query.bindValue(":joursortie", jourSortie);
-        query.bindValue(":datemodif", dateSortie.addDays(-7).toString("yyyy-MM-dd"));
-        query.bindValue(":wiki",wiki);
-
-        log->ecrire("BaseDeDonnees::ajouter() : Requete SQL  : INSERT INTO SERIE(NOM,SAISON,NBEPISODE,EPISODECOURANT,DATESORTIE,JOURSORTIE,DATEMODIF,WIKI) VALUES ('" +  nom + "','" + s_saison + "','" + s_nbEpisode + "','01', " + dateSortie.toString("yyyy-MM-dd") + "','" + jourSortie + "','" + dateSortie.addDays(-7).toString("yyyy-MM-dd") + "', '" + wiki + "')");
-
-        if(query.exec()) {
-            log->ecrire("BaseDeDonnees::ajouter() : La série a été ajoutée");
-            QMessageBox::information(NULL, "Ajout réussi", "La série a été ajoutée !");
-        } else {
-            log->ecrire("BaseDeDonnees::ajouter() : La série n'a pas été ajouté : " + query.lastError().text());
-            QMessageBox::critical(NULL, "ERREUR", "La série n'a pas été ajouté : " + query.lastError().text());
-        }
-    } else {
-        log->ecrire("BaseDeDonnees::ajouter() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
-    }
-
-    db.close();
-    log->ecrire("BaseDeDonnees::ajouter() : Fermeture de la base de donnée");
-}
-
-void BaseDeDonnees::reporter(QString nom, QDate dateModif) {
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::reporter() : Ouverture de la base de donnée");
-
-        QSqlQuery query(db);
-        query.prepare("UPDATE SERIE "
-                      "SET DATEMODIF = :datemodif "
-                      "WHERE NOM =  :nom");
-        query.bindValue(":datemodif", dateModif.toString("yyyy-MM-dd"));
-        query.bindValue(":nom", nom);
-
-        log->ecrire("BaseDeDonnees::reporter() : Requete SQL : UPDATE SERIE SET DATEMODIF = '" + dateModif.toString("yyyy-MM-dd") + "' WHERE NOM = '" + nom + "'");
-
-        if(query.exec()) {
-            log->ecrire("BaseDeDonnees::reporter() : La série a été reportée");
-            QMessageBox::information(NULL, "Modification réussi", "La série a été reportée");
-        } else {
-            log->ecrire("BaseDeDonnees::reporter : La série n'a pas été reporté : " + query.lastError().text());
-            QMessageBox::critical(NULL,"Erreur", "La série n'a pas été reporté : " + query.lastError().text());
-        }
-    } else {
-        log->ecrire("BaseDeDonnees::reporter() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
-    }
-
-    db.close();
-    log->ecrire("BaseDeDonnees::reporter() : Fermeture de la base de donnée");
-}
-
-void BaseDeDonnees::modifier(QString nom, int saison, int nbEpisode, int episodeCourant, int jourSortie, QDate date, QString wiki, QDate dateModif, bool message) {
-    QString s_saison = "";
-    QString s_nbEpisode = "";
-    QString s_episodeCourant = "";
-
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::modifier() : Ouverture de la base de donnée");
-
-        if(saison > 0 && saison < 10) {
-            s_saison.append("0" + QString::number(saison));
-        } else {
-            s_saison.append(QString::number(saison));
-        }
-
-        if(episodeCourant > 0 && episodeCourant < 10) {
-            s_episodeCourant.append("0" + QString::number(episodeCourant));
-        } else {
-            s_episodeCourant.append(QString::number(episodeCourant));
-        }
-
-        if(nbEpisode > 0 && nbEpisode < 10) {
-            s_nbEpisode.append("0" + QString::number(nbEpisode));
-        } else {
-            s_nbEpisode.append(QString::number(nbEpisode));
-        }
-
-        QSqlQuery query(db);
-        query.prepare("UPDATE SERIE "
-                      "SET SAISON = :saison,"
-                      "NBEPISODE = :nbepisode,"
-                      "EPISODECOURANT = :episodecourant,"
-                      "JOURSORTIE = :joursortie,"
-                      "DATESORTIE = :date,"
-                      "WIKI = :wiki,"
-                      "DATEMODIF = :datemodif "
-                      "WHERE NOM = :nom");
-
-        query.bindValue(":datemodif", date);
-        query.bindValue(":nom", nom);
-        query.bindValue(":saison", s_saison);
-        query.bindValue(":nbepisode", s_nbEpisode);
-        query.bindValue(":episodecourant", s_episodeCourant);
-        query.bindValue(":joursortie", QString::number(jourSortie));
-        query.bindValue(":date", date);
-        query.bindValue(":wiki",wiki);
-        query.bindValue(":datemodif",dateModif);
-
-        log->ecrire("BaseDeDonnees::modifier() : Requete SQL : UPDATE SERIE SET SAISON = '" + s_saison + "', NBEPISODE = '" + s_nbEpisode + "', EPISODECOURANT = '" + s_episodeCourant + "', JOURSORTIE = '" + QString::number(jourSortie) + "', DATEMODIF = '" + date.toString("yyyy-MM-dd") + "', WIKI = '" + wiki + "', DATEMODIF = '" + dateModif.toString("yyyy-MM-DD") + "' WHERE NOM = '" + nom + "'");
-
-        if(query.exec()) {
-            log->ecrire("BaseDeDonnees::modifier() : La serie a ete modifie");
-            if(message) {
-                QMessageBox::information(NULL,"Modification réussi","La série a été modifié !");
-            }
-        } else {
-            log->ecrire("BaseDeDonnees::modifier() : La sérié n'a pas été modifié : " + query.lastError().text());
-            if(message) {
-                QMessageBox::critical(NULL,"Erreur Modification", "La sérié n'a pas été modifié : " + query.lastError().text());
-            }
-        }
-
-    } else {
-        log->ecrire("BaseDeDonnees::modifier() : Erreur BDD non ouverte : " + db.lastError().text());
-        if(message) {
-            QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
-        }
-    }
-
-    db.close();
-    log->ecrire("BaseDeDonnees::modifier() : Fermeture de la base de donnée");
-}
-
-void BaseDeDonnees::supprimer(QString nom, bool msgBox) {
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::supprimer() : Ouverture de la base de donnée");
-
-        QSqlQuery query(db);
-        query.prepare("DELETE FROM SERIE "
-                      "WHERE NOM = :nom");
-        query.bindValue(":nom", nom);
-
-        log->ecrire("BaseDeDonnees::supprimer() : Requete SQL : DELETE FROM SERIE WHERE NOM = " + nom);
-        if(query.exec()) {
-            log->ecrire("BaseDeDonnees::supprimer() : La série a été supprimée");
-            if(msgBox) {
-                QMessageBox::information(NULL, "Suppression effectuée", "La série a été supprimée");
-            }
-        } else {
-            log->ecrire("BaseDeDonnees::supprimer() : La série n'a pas été supprimé : " + query.lastError().text());
-            if(msgBox) {
-                QMessageBox::information(NULL, "Suppression effectuée", "La série n'a pas été supprimé : " + query.lastError().text());
-            }
-        }
-    } else {
-        log->ecrire("BaseDeDonnees::supprimer() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
-    }
-
-    db.close();
-    log->ecrire("BaseDeDonnees::supprimer() : Fermeture de la base de donnée");
-}
-
-QList<QMap<QString, QString> > BaseDeDonnees::requeteListe(QString requete) {
+QList<QMap<QString, QString> > BaseDeDonnees::requeteSelect(QList<QString> champs, QString table, QList<QString> jointures, QList<QString> conditions, QList<QString> ordres) {
+    QString requete = "SELECT ";
     QList<QMap<QString, QString> > liste;
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::requeteListe() : Ouverture de la base de donnée");
+    foreach (QString champ, champs) {
+        requete.append(champ + ", ");
+    }
+    requete.replace(requete.length()-2, 2, " ");
+    requete.append("FROM " + table + " ");
 
+    for(int i = 0; i < jointures.count(); i++) {
+        requete.append(jointures.at(i) + " ");
+    }
+
+    for (int i = 0; i < conditions.count(); i++) {
+        if(i == 0) {
+            requete.append("WHERE " + conditions.at(i) + " ");
+        } else {
+            requete.append("AND " + conditions.at(i) + " ");
+        }
+    }
+
+    if(!ordres.isEmpty()) {
+        requete.append("ORDER BY ");
+        for(int i = 0; i < ordres.count(); i++) {
+            requete.append(ordres.at(i) + ", ");
+        }
+        requete.replace(requete.length()-2, 2, " ");
+    }
+
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteSelect() : Ouverture de la base de donnée");
         QSqlQuery query(db);
-        log->ecrire("BaseDeDonnees::requeteListe() : Requete SQL : " + requete);
+        log->ecrire("BaseDeDonnees::requeteSelect() : Requete SQL : " + requete);
         if(query.exec(requete)) {
             while(query.next()) {
-                QMap<QString, QString> sousListe;
-                sousListe["NOM"] = query.value(0).toString();
-                sousListe["SAISON"] = query.value(1).toString();
-                sousListe["NBEPISODE"] = query.value(2).toString();
-                sousListe["EPISODECOURANT"] = query.value(3).toString();
-                sousListe["DATESORTIE"] = query.value(4).toString();
-                sousListe["JOURSORTIE"] = query.value(5).toString();
-                sousListe["DATEMODIF"] = query.value(6).toString();
-                sousListe["WIKI"] = query.value(7).toString();
-                liste.append(sousListe);
+                QMap<QString, QString> map;
+                for(int i = 0; i < champs.count(); i++) {
+                    map[champs.at(i)] = query.value(i).toString();
+                }
+                liste.append(map);
             }
         } else {
-            log->ecrire("BaseDeDonnees::requeteListe() : Erreur d'éxecution de la requête : " + query.lastError().text());
-            QMessageBox::critical(NULL, "ERREUR", "Erreur d'éxecution de la requête : " + query.lastError().text());
+            log->ecrire("BaseDeDonnees::requeteSelect() : Erreur d'éxecution de la requête : " + query.lastError().text());
+            QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
         }
-    } else {
-        log->ecrire("BaseDeDonnees::requeteListe() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
-    }
 
+    } else {
+        log->ecrire("BaseDeDonnees::requeteSelect() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
     db.close();
-    log->ecrire("BaseDeDonnees::requeteListe() : Fermeture de la base de données");
+    log->ecrire("BaseDeDonnees::requeteSelect() : Fermeture de la base de donnée");
+
     return liste;
 }
 
-QList<QMap<QString, QString> > BaseDeDonnees::requeteListeHier(QString requete) {
+QList<QMap<QString, QString> > BaseDeDonnees::requeteSelect(QList<QString> champs, QString table, QList<QString> conditions, QList<QString> ordres) {
+    QString requete = "SELECT ";
     QList<QMap<QString, QString> > liste;
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::requeteListeHier() : Ouverture de la base de donnée");
+    foreach (QString champ, champs) {
+        requete.append(champ + ", ");
+    }
+    requete.replace(requete.length()-2, 2, " ");
+    requete.append("FROM " + table + " ");
+    for (int i = 0; i < conditions.count(); i++) {
+        if(i == 0) {
+            requete.append("WHERE " + conditions.at(i) + " ");
+        } else {
+            requete.append("AND " + conditions.at(i) + " ");
+        }
+    }
 
+    if(!ordres.isEmpty()) {
+        requete.append("ORDER BY ");
+        for(int i = 0; i < ordres.count(); i++) {
+            requete.append(ordres.at(i) + ", ");
+        }
+        requete.replace(requete.length()-2, 2, " ");
+    }
+
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteSelect() : Ouverture de la base de donnée");
         QSqlQuery query(db);
-        log->ecrire("BaseDeDonnees::requeteListeHier() : Requete SQL : " + requete);
+        log->ecrire("BaseDeDonnees::requeteSelect() : Requete SQL : " + requete);
         if(query.exec(requete)) {
             while(query.next()) {
-                QMap<QString, QString> sousListe;
-                sousListe["NOM"] = query.value(0).toString();
-                sousListe["SAISON"] = query.value(1).toString();
-                sousListe["EPISODE"] = query.value(2).toString();
-                liste.append(sousListe);
+                QMap<QString, QString> map;
+                for(int i = 0; i < champs.count(); i++) {
+                    map[champs.at(i)] = query.value(i).toString();
+                }
+                liste.append(map);
             }
         } else {
-            log->ecrire("BaseDeDonnees::requeteListeHier() : Erreur d'éxecution de la requête : " + query.lastError().text());
-            QMessageBox::critical(NULL, "ERREUR", "Erreur d'éxecution de la requête : " + query.lastError().text());
+            log->ecrire("BaseDeDonnees::requeteSelect() : Erreur d'éxecution de la requête : " + query.lastError().text());
+            QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
         }
-    } else {
-        log->ecrire("BaseDeDonnees::requeteListeHier() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
-    }
 
+    } else {
+        log->ecrire("BaseDeDonnees::requeteSelect() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
     db.close();
-    log->ecrire("BaseDeDonnees::requeteListeHier() : Fermeture de la base de données");
+    log->ecrire("BaseDeDonnees::requeteSelect() : Fermeture de la base de donnée");
+
     return liste;
 }
 
-QMap<QString, QString> BaseDeDonnees::requete(QString requete) {
-    QMap<QString, QString> liste;
+bool BaseDeDonnees::requeteInsert(QList<QString> champs, QList<QString> valeurs, QString table) {
+    QString requete = "INSERT INTO " + table + " (";
+    bool res = false;
+    foreach (QString champ, champs) {
+        requete.append(champ + ", ");
+    }
+    requete.replace(requete.length()-2, 2, " ");
+    requete.append(") VALUES (");
+    foreach (QString valeur, valeurs) {
+        requete.append("'" + valeur + "', ");
+    }
+    requete.replace(requete.length()-2, 2, ")");
+
+    //QMessageBox::information(NULL, "", requete);
+
     if(db.open()) {
-        log->ecrire("BaseDeDonnees::requete() : Ouverture de la base de donnée");
-
+        log->ecrire("BaseDeDonnees::requeteInsert() : Ouverture de la base de donnée");
         QSqlQuery query(db);
-        log->ecrire("BaseDeDonnees::requete() : Requete SQL : " + requete);
-
-        if(query.exec(requete)) {
-            query.next();
-            liste["NOM"] = query.value(0).toString();
-            liste["SAISON"] = query.value(1).toString();
-            liste["NBEPISODE"] = query.value(2).toString();
-            liste["JOURSORTIE"] = query.value(3).toString();
-            liste["EPISODECOURANT"] = query.value(4).toString();
-            liste["DATESORTIE"] = query.value(5).toString();
-            liste["WIKI"] = query.value(6).toString();
-            liste["DATEMODIF"] = query.value(7).toString();
-        } else {
-            log->ecrire("BaseDeDonnees::requete() : Erreur d'éxecution de la requête : " + query.lastError().text());
-            QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
+        log->ecrire("BaseDeDonnees::requeteInsert() : Requete SQL : " + requete);
+        res = query.exec(requete);
+        if(!res) {
+            log->ecrire("BaseDeDonnees::requeteUpdate() : ERREUR - " + query.lastError().text());
         }
     } else {
-        log->ecrire("BaseDeDonnees::requete() : Erreur BDD non ouverte : " + db.lastError().text());
+        log->ecrire("BaseDeDonnees::requeteInsert() : Erreur BDD non ouverte : " + db.lastError().text());
         QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
     }
-
     db.close();
-    log->ecrire("BaseDeDonnees::requete() : Fermeture de la base de donnée");
-    return liste;
+    log->ecrire("BaseDeDonnees::requeteInsert() : Fermeture de la base de donnée");
+    return res;
 }
 
-bool BaseDeDonnees::requeteInsertUpdate(QString requete) {
-    bool resultat;
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Ouverture de la base de donnée");
-
-        QSqlQuery query(db);
-        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Requete SQL : " + requete);
-        if(query.exec(requete)) {
-            resultat = true;
+bool BaseDeDonnees::requeteUpdate(QList<QString> champs, QString table, QList<QString> conditions) {
+    QString requete = "UPDATE " + table + " SET ";
+    bool res = false;
+    foreach (QString champ, champs) {
+        requete.append(champ + ", ");
+    }
+    requete.replace(requete.length()-2, 2, " ");
+    for (int i = 0; i < conditions.count(); i++) {
+        if(i == 0) {
+            requete.append("WHERE " + conditions.at(i) + " ");
         } else {
-            log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Erreur d'éxecution de la requête : " + query.lastError().text());
-            QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
-            resultat = false;
+            requete.append("AND " + conditions.at(i) + " ");
         }
-    } else {
-        log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
-        resultat = false;
     }
 
+    //QMessageBox::information(NULL, "", requete);
+
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteUpdate() : Ouverture de la base de donnée");
+        QSqlQuery query(db);
+        log->ecrire("BaseDeDonnees::requeteUpdate() : Requete SQL : " + requete);
+        //return query.exec(requete);
+        res = query.exec(requete);
+        if(!res) {
+            log->ecrire("BaseDeDonnees::requeteUpdate() : ERREUR - " + query.lastError().text());
+        }
+    } else {
+        log->ecrire("BaseDeDonnees::requeteUpdate() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
     db.close();
-    log->ecrire("BaseDeDonnees::requeteInsertUpdate() : Fermeture de la base de donnée");
-    return resultat;
+    log->ecrire("BaseDeDonnees::requeteUpdate() : Fermeture de la base de donnée");
+    return res;
 }
 
-QList<QMap<QString, QString> > BaseDeDonnees::requeteHistorique() {
-    QList<QMap<QString, QString> > liste;
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::requeteHistorique() : Ouverture de la base de donnée");
-
-        QSqlQuery query(db);
-        QString requete = "SELECT NOM, SAISON, EPISODE, DATEAJOUT FROM HISTORIQUE ORDER BY DATEAJOUT DESC";
-        log->ecrire("BaseDeDonnees::requeteHistorique() : Requete SQL : " + requete);
-        if(query.exec(requete)) {
-            while(query.next()) {
-                QMap<QString, QString> sousListe;
-                sousListe["NOM"] = query.value(0).toString();
-                sousListe["SAISON"] = query.value(1).toString();
-                sousListe["EPISODE"] = query.value(2).toString();
-                sousListe["DATEAJOUT"] = query.value(3).toString();
-                liste.append(sousListe);
-            }
+bool BaseDeDonnees::requeteDelete(QString table, QList<QString> conditions) {
+    QString requete = "DELETE FROM " + table + " ";
+    bool res = false;
+    for (int i = 0; i < conditions.count(); i++) {
+        if(i == 0) {
+            requete.append("WHERE " + conditions.at(i) + " ");
         } else {
-            log->ecrire("BaseDeDonnees::requeteHistorique() : Erreur d'éxecution de la requête : " + query.lastError().text());
-            QMessageBox::critical(NULL, "Erreur", "Erreur d'éxecution de la requête : " + query.lastError().text());
+            requete.append("AND " + conditions.at(i) + " ");
         }
-    } else {
-        log->ecrire("BaseDeDonnees::requeteHistorique() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
     }
 
+    //QMessageBox::information(NULL, "", requete);
+
+    if(db.open()) {
+        log->ecrire("BaseDeDonnees::requeteDelete() : Ouverture de la base de donnée");
+        QSqlQuery query(db);
+        log->ecrire("BaseDeDonnees::requeteDelete() : Requete SQL : " + requete);
+        res = query.exec(requete);
+        if(!res) {
+            log->ecrire("BaseDeDonnees::requeteDelete() : ERREUR - " + query.lastError().text());
+        }
+    } else {
+        log->ecrire("BaseDeDonnees::requeteDelete() : Erreur BDD non ouverte : " + db.lastError().text());
+        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
+    }
     db.close();
-    log->ecrire("BaseDeDonnees::requeteHistorique() : Fermeture de la base de donnée");
-    return liste;
+    log->ecrire("BaseDeDonnees::requeteDelete() : Fermeture de la base de donnée");
+    return res;
 }
 
 QDate BaseDeDonnees::derniereOuvertureBDD() {
@@ -482,31 +477,4 @@ void BaseDeDonnees::majDerniereOuvertureBDD() {
     }
     db.close();
     log->ecrire("BaseDeDonnees::derniereOuvertureBDD() : Fermeture de la base de donnée");
-}
-
-QString BaseDeDonnees::requeteUneColonne(QString requete) {
-    QString resultat;
-    if(db.open()) {
-        log->ecrire("BaseDeDonnees::requeteUneColonne() : Ouverture de la base de donnée");
-        QSqlQuery query(db);
-        log->ecrire("BaseDeDonnees::requeteUneColonne() : Requete SQL : " + requete);
-        if(query.exec(requete)) {
-            log->ecrire("BaseDeDonnees::requeteUneColonne() : La colonne a été récupéré");
-            query.next();
-            if(query.isValid()) {
-                resultat = query.value(0).toString();
-            } else {
-                resultat = "";
-            }
-        } else {
-            log->ecrire("BaseDeDonnees::requeteUneColonne() : ERREUR La colonne n'a pas été récupéré");
-            QMessageBox::critical(NULL, "Erreur", "La colonne n'a pas été récupéré");
-        }
-    } else {
-        log->ecrire("BaseDeDonnees::requeteUneColonne() : Erreur BDD non ouverte : " + db.lastError().text());
-        QMessageBox::critical(NULL, "Erreur", "Erreur BDD non ouverte : " + db.lastError().text());
-    }
-    db.close();
-    log->ecrire("BaseDeDonnees::requeteUneColonne() : Fermeture de la base de donnée");
-    return resultat;
 }

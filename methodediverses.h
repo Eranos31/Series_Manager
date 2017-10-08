@@ -17,11 +17,11 @@ public:
     QTableWidgetItem* itemForTableWidget(const QString text, bool center);
     QString dateToString(QDate date);
     QDate stringToDate(QString text);
+    QDate jmaToDate(QString text);
     QString formalismeEntier(int entier);
     QString formatDate(QDate date);
     QString formatDateJJMMAA(QDate date);
     QString monthToString(int mois);
-    QString formatDateJMA(QDate date);
 };
 
 #endif // METHODEDIVERSES_H

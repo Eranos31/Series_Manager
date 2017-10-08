@@ -119,7 +119,8 @@ void Dialog::on_pushButtonRetour_clicked() {
 
 void Dialog::deplacerFichier(QList<QString> liste) {
     QString dossierSerie = pere->getDossierSerie();
-    QList<QString> listeSerie = pere->getListeSerie();
+    QList<QString> listeSerie = getListeSerie();
+
 
     foreach (QString nomFichier, liste) {
         bool estPasse = false;
@@ -141,7 +142,7 @@ void Dialog::deplacerFichier(QList<QString> liste) {
                     }
                 }
 
-                if(fichier.rename(dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix())) {
+                if(fichier.rename(dossierSerie + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix())) {
                     log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix());
                     ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
                 } else {
@@ -190,7 +191,7 @@ void Dialog::supprimerFichier(QList<QString> liste) {
 }
 
 void Dialog::refresh(QString dossier) {
-    QList<QString> listeSerie = pere->getListeSerie();
+    QList<QString> listeSerie = getListeSerie();
     foreach (QFileInfo info, QDir(dossier).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
         if(info.isDir()) {
             ui->tableWidget->setRowCount(ui->tableWidget->rowCount()+1);
@@ -378,4 +379,18 @@ void Dialog::supprimerDossierEtContenu(QString dossier) {
         }
     }
     dir.rmdir(dossier);
+}
+
+QList<QString> Dialog::getListeSerie() {
+    QList<QString> listeSerie;
+    foreach (QFileInfo file, QDir(pere->getDossierSerie()).entryInfoList(QDir::NoDotAndDotDot|QDir::AllDirs)) {
+        if(file.isDir() && file.absoluteFilePath() != pere->getConfig("Configuration/Telechargement")) {
+            QString nom;
+            nom = file.absoluteFilePath();
+            nom.replace(pere->getDossierSerie(), "");
+            listeSerie.append(nom);
+
+        }
+    }
+    return listeSerie;
 }

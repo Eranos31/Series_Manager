@@ -95,8 +95,13 @@ QDate MethodeDiverses::stringToDate(QString text) {
     }
 }
 
+QDate MethodeDiverses::jmaToDate(QString text) {
+    QList<QString> liste = text.split("/");
+    return QDate(liste.at(2).toInt(), liste.at(1).toInt(), liste.at(0).toInt());
+}
+
 QString MethodeDiverses::formalismeEntier(int entier) {
-    if(entier > 0 && entier < 10) {
+    if(entier >= 0 && entier < 10) {
         return ("0" + QString::number(entier));
     } else {
         return (QString::number(entier));
@@ -104,23 +109,11 @@ QString MethodeDiverses::formalismeEntier(int entier) {
 }
 
 QString MethodeDiverses::formatDate(QDate date) {
-    QString res;
-    res.append(dayToString(date.dayOfWeek()));
-    res.append(" ");
-    res.append(QString::number(date.day()));
-    res.append(" ");
-    res.append(monthToString(date.month()));
-    return res;
+    return dayToString(date.dayOfWeek()) + " " + QString::number(date.day()) + " " + monthToString(date.month());
 }
 
 QString MethodeDiverses::formatDateJJMMAA(QDate date) {
-    QString res;
-    res.append(QString::number(date.day()));
-    res.append("/");
-    res.append(QString::number(date.month()));
-    res.append("/");
-    res.append(QString::number(date.year()));
-    return res;
+    return QString::number(date.day()) + "/" + QString::number(date.month()) + "/" + QString::number(date.year());
 }
 
 QString MethodeDiverses::monthToString(int mois) {
@@ -138,15 +131,5 @@ QString MethodeDiverses::monthToString(int mois) {
     case 11 : return "Novembre";
     case 12 : return "Decembre";
     }
-}
-
-QString MethodeDiverses::formatDateJMA(QDate date){
-    QString res;
-    res.append(QString::number(date.day()));
-    res.append(" ");
-    res.append(monthToString(date.month()));
-    res.append(" ");
-    res.append(QString::number(date.year()));
-    return res;
 }
 

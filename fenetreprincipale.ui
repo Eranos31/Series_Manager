@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
-    <height>522</height>
+    <width>1179</width>
+    <height>745</height>
    </rect>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_8">
+    <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <layout class="QFormLayout" name="formLayout_2">
@@ -88,7 +88,7 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item row="1" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -97,7 +97,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="pageConfig">
        <layout class="QGridLayout" name="gridLayout">
@@ -431,6 +431,29 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="pagePrincipalePushButtonAddicted">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="ressource.qrc">
+                  <normaloff>:/images/addic7ed.png</normaloff>:/images/addic7ed.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>64</width>
+                  <height>64</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="pagePrincipaleBoutonWiki">
                 <property name="minimumSize">
                  <size>
@@ -613,35 +636,12 @@
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="pagePrincipaleBoutonSupprimer">
-                <property name="toolTip">
-                 <string>Permet de supprimer une série</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>Supprimer</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>32</width>
-                  <height>32</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item row="0" column="0">
              <widget class="QTabWidget" name="pagePrincipaleTabWidget">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="pagePrincipaleTabWidgetTabAuj">
                <attribute name="title">
@@ -671,6 +671,11 @@
                   <column>
                    <property name="text">
                     <string>Lien</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Addic7ed</string>
                    </property>
                   </column>
                   <column>
@@ -715,6 +720,11 @@
                   <column>
                    <property name="text">
                     <string>Lien</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Addic7ed</string>
                    </property>
                   </column>
                   <column>
@@ -821,301 +831,493 @@
        </layout>
       </widget>
       <widget class="QWidget" name="pageAjoutModification">
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="0">
-         <layout class="QVBoxLayout" name="pageAjoutModificationVLayoutPrincipal">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutTitre">
-            <item>
-             <widget class="QLabel" name="pageAjoutModifTitre">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="whatsThis">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">font: 16pt &quot;MS Shell Dlg 2&quot;;</string>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Ajouter série&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QGroupBox" name="pageAjoutModifGroupBoxSerie">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>327</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+            </property>
+            <property name="title">
+             <string>Serie</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
+              <layout class="QFormLayout" name="formLayout_5">
+               <item row="0" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelPhoto">
+                 <property name="minimumSize">
+                  <size>
+                   <width>141</width>
+                   <height>141</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>141</width>
+                   <height>141</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">border-color: rgb(0, 0, 0);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+background-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 1px;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap resource="ressource.qrc">:/images/SeriesManager.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <layout class="QFormLayout" name="formLayout">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="pageAjoutModifLabelNom">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>130</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Nom&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QComboBox" name="pageAjoutModifComboFicheSerieNom">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="pageAjoutModifLabelFicheSerieWiki">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>130</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Wikipédia Série&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="pageAjoutModifLineEditFicheSerieWiki">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="pageAjoutModifLabelAddicted">
+                   <property name="text">
+                    <string>Addi7ed</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="pageAjoutModifLineEditAddicted">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="pageAjoutModifLabelCreerSaison">
+                   <property name="text">
+                    <string>Créer saison</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QCheckBox" name="pageAjoutModifCheckBoxCreerSaison">
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>Depuis l'ordinateur</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelDepuisURL">
+                 <property name="minimumSize">
+                  <size>
+                   <width>133</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>25</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Depuis une URL</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_14">
+                 <item>
+                  <widget class="QLineEdit" name="pageAjoutModifLineEditCheminPhoto">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pageAjoutModifPushButtonParcourirPhoto">
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Parcourir</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="3" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_13">
+                 <item>
+                  <widget class="QLineEdit" name="pageAjoutModifLineEditDepuisURL">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pageAjoutModifPushButtonTelecharger">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Télécharger</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Récuperer l'image...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QLabel" name="pageAjoutModifLabelCheminPhoto">
+               <property name="text">
+                <string>chemin photo</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="pageAjoutModifLabelRetour">
+               <property name="text">
+                <string>retour</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item>
-           <layout class="QFormLayout" name="formLayout">
-            <property name="formAlignment">
-             <set>Qt::AlignCenter</set>
+           <widget class="QGroupBox" name="pageAjoutModifGroupBoxSaison">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>230</height>
+             </size>
             </property>
-            <item row="0" column="1">
-             <widget class="QLabel" name="pageAjoutModifLabelRetour">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelNom">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>130</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; color:#000000;&quot;&gt;Nom :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="pageAjoutModifComboNom"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelSaison">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>130</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; color:#000000;&quot;&gt;Saison :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QSpinBox" name="pageAjoutModifLineSaison"/>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelNbEpisode">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>130</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; color:#000000;&quot;&gt;Nombre épisode :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QSpinBox" name="pageAjoutModifLineNbEpisode"/>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelCreationDossierAuto">
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Création dossier auto. :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <widget class="QRadioButton" name="pageAjoutModifRadioButtonOui">
-                <property name="text">
-                 <string>Oui</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
-                </attribute>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="pageAjoutModifRadioButtonNon">
-                <property name="text">
-                 <string>Non</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
-                </attribute>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelDateSortie">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>130</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Date de sortie :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutDateSortie">
-              <item>
-               <widget class="QDateEdit" name="pageAjoutModifLineDateSortie"/>
-              </item>
-              <item>
-               <widget class="QLabel" name="pageAjoutModifLabelDate">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="whatsThis">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelWiki">
-              <property name="maximumSize">
-               <size>
-                <width>130</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Lien Wiki :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutWiki">
-              <item>
-               <widget class="QLineEdit" name="pageAjoutModifLineWiki"/>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pageAjoutModifButtonWiki">
-                <property name="maximumSize">
-                 <size>
-                  <width>130</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Ouvre un lien vers Wikipédia</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/wiki.png</normaloff>:/images/wiki.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelEpisodeCourant">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>130</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Episode Courant :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QSpinBox" name="pageAjoutModifLineEpisodeCourant"/>
-            </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="pageAjoutModifLabelDateProchain">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Prochain le :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QDateEdit" name="pageAjoutModifLineDateProchain"/>
-              </item>
-              <item>
-               <widget class="QLabel" name="pageAjoutModifLabelDateProchain_2">
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+            </property>
+            <property name="title">
+             <string>Saison</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_11">
+             <item row="0" column="0">
+              <layout class="QFormLayout" name="formLayout_8">
+               <item row="0" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelSaison">
+                 <property name="maximumSize">
+                  <size>
+                   <width>130</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; color:#000000;&quot;&gt;Saison&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="pageAjoutModifSpinBoxSaisonSaison">
+                 <property name="styleSheet">
+                  <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelNbEpisode">
+                 <property name="maximumSize">
+                  <size>
+                   <width>130</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; color:#000000;&quot;&gt;Nombre épisode :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="pageAjoutModifSpinBoxSaisonNbEpisode">
+                 <property name="styleSheet">
+                  <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelCreationDossierAuto">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Création dossier auto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="pageAjoutModifCheckBoxCreationDossierAuto">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelDateSortie">
+                 <property name="maximumSize">
+                  <size>
+                   <width>130</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date de sortie&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutDateSortie">
+                 <item>
+                  <widget class="QDateEdit" name="pageAjoutModifDateEditSaisonDateSortie">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="pageAjoutModifLabelDate">
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelWiki">
+                 <property name="maximumSize">
+                  <size>
+                   <width>130</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Wikipédia saison&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutWiki">
+                 <item>
+                  <widget class="QLineEdit" name="pageAjoutModifLineEditSaisonWiki">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pageAjoutModifButtonWiki">
+                   <property name="maximumSize">
+                    <size>
+                     <width>130</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Ouvre un lien vers Wikipédia</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="ressource.qrc">
+                     <normaloff>:/images/wiki.png</normaloff>:/images/wiki.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelEpisodeCourant">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>130</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Episode Courant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QSpinBox" name="pageAjoutModifSpinBoxSaisonEpisodeCourant">
+                 <property name="styleSheet">
+                  <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                 </property>
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelDateProchain">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Prochain le</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QDateEdit" name="pageAjoutModifDateEditSaisonDateProchain">
+                   <property name="styleSheet">
+                    <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="pageAjoutModifLabelDateProchain_2">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="pageAjoutModificationHLayoutBoutonInferieur">
@@ -1145,6 +1347,26 @@
               </property>
               <property name="default">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pageAjoutModifPushButtonSupprimerSaison">
+              <property name="styleSheet">
+               <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+              </property>
+              <property name="text">
+               <string>Suppr. saison</string>
+              </property>
+              <property name="icon">
+               <iconset resource="ressource.qrc">
+                <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
               </property>
              </widget>
             </item>
@@ -1225,188 +1447,47 @@
           </item>
          </layout>
         </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="pageListeModification">
-       <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0">
-         <layout class="QVBoxLayout" name="pageListeModificationVlLayoutPrincipal">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <layout class="QHBoxLayout" name="pageListeModificationHLayoutTitre">
-            <item>
-             <widget class="QLabel" name="pageListeModificationTitre">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="whatsThis">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">font: 16pt &quot;MS Shell Dlg 2&quot;;</string>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Modifier série&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QComboBox" name="pageAjoutModifComboBoxListeSaison">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="pageListeModificationHLayoutPrincipal">
-            <item>
-             <widget class="QListWidget" name="pageListeModificationDisplay"/>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="pageListeModificationVLayoutBoutonLateral">
-              <item>
-               <widget class="QPushButton" name="pageListeModificationBoutonModifier">
-                <property name="toolTip">
-                 <string>Affiche l'écran de modification de la série</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>Modifier</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/modifier.png</normaloff>:/images/modifier.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>32</width>
-                  <height>32</height>
-                 </size>
-                </property>
-                <property name="default">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pageListeModificationBoutonRetour">
-                <property name="toolTip">
-                 <string>Retourne à l'écran principal</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>Retour</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/retour.png</normaloff>:/images/retour.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>32</width>
-                  <height>32</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="pageListeSupprimer">
-       <layout class="QGridLayout" name="gridLayout_7">
-        <item row="0" column="0">
-         <layout class="QVBoxLayout" name="pageListeSupprimerVLayoutPrincipal">
-          <item>
-           <layout class="QHBoxLayout" name="pageListeSupprimerHLayoutTitre">
-            <item>
-             <widget class="QLabel" name="pageListeSupprimerTitre">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Supprimer série&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="pageListeSupprimerHLayoutPrincipal">
-            <item>
-             <widget class="QListWidget" name="pageListeSupprimerDisplay"/>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="pageListeSupprimerVLayoutBoutonLateral">
-              <item>
-               <widget class="QPushButton" name="pageListeSupprimerBoutonSupprimer">
-                <property name="toolTip">
-                 <string>Supprime la série sélectionnée</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>Supprimer</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>32</width>
-                  <height>32</height>
-                 </size>
-                </property>
-                <property name="default">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pageListeSupprimerBoutonRetour">
-                <property name="toolTip">
-                 <string>Retourne à l'écran principal</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string>Retour</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/retour.png</normaloff>:/images/retour.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>32</width>
-                  <height>32</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
+           <widget class="QTableWidget" name="pageAjoutModifTableWidgetListeSaison">
+            <column>
+             <property name="text">
+              <string>Nom</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Episode</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Date diffusion</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Lien</string>
+             </property>
+            </column>
+           </widget>
           </item>
          </layout>
         </item>
@@ -1445,7 +1526,11 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QSpinBox" name="pageReporterSpinBox"/>
+             <widget class="QSpinBox" name="pageReporterSpinBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="pageReporterDate">
@@ -1572,6 +1657,323 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageHistoriqueAjouter">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QComboBox" name="pageHistoriqueAjouterComboBoxSerie"/>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <widget class="QPushButton" name="pageHistoriqueAjouterPushButtonAjouterLigne">
+            <property name="styleSheet">
+             <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+            </property>
+            <property name="text">
+             <string>Ajouter ligne</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pageHistoriqueAjouterPushButtonSupprimerLigne">
+            <property name="styleSheet">
+             <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+            </property>
+            <property name="text">
+             <string>Supprimer ligne</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="pageHistoriqueAjouterTableWidget">
+          <column>
+           <property name="text">
+            <string>Saison</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Episode</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Date diffusion</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pageHistoriqueAjouterPushButtonAjouter">
+          <property name="styleSheet">
+           <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Ajouter</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pageHistoriqueRechercher">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QComboBox" name="pageHistoriqueRechercherComboBoxNomSerie"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QPushButton" name="pageHistoriqueRechercherPushButtonAjoutNomSerie">
+              <property name="styleSheet">
+               <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+              </property>
+              <property name="text">
+               <string>Ajouter</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pageHistoriqueRechercherPushButtonSupprimerNomSerie">
+              <property name="styleSheet">
+               <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+              </property>
+              <property name="text">
+               <string>Enlever</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pageHistoriqueRechercherPushButtonSupprimerTout">
+              <property name="styleSheet">
+               <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+              </property>
+              <property name="text">
+               <string>Enlever tout</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Série :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="pageHistoriqueRechercherLabelAffichage">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="pageHistoriqueRechercherTableWidget">
+          <column>
+           <property name="text">
+            <string>Nom</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Saison</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Episode</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Date diffusion</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pageHistoriqueRechercherPushButtonRechercher">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Rechercher</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pageHistoriqueModifier">
+       <layout class="QFormLayout" name="formLayout_4">
+        <item row="0" column="0">
+         <widget class="QLabel" name="pageHistoriqueModifierLabelRechercheNom">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Nom&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="pageHistoriqueModifierComboBoxRechercheNom"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="pageHistoriqueModifierLabelRechercheSaison">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Saison&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="pageHistoriqueModifierSpinBoxRechercheSaison">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="pageHistoriqueModifierLabelRechercheEpisode">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Episode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="pageHistoriqueModifierSpinBoxRechercheEpisode">
+          <property name="value">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="pageHistoriqueModifierPushButtonRechercher">
+          <property name="styleSheet">
+           <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Rechercher</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="pageHistoriqueModifierLabelModificationDateDiffusion">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Date diffusion&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QDateEdit" name="pageHistoriqueModifierDateEditModificationDateDiffusion"/>
+        </item>
+        <item row="5" column="1">
+         <widget class="QPushButton" name="pageHistoriqueModifierPushButtonModifier">
+          <property name="styleSheet">
+           <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Modifier</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pageHistoriqueImporter">
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Chemin du fichier (csv)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="pageHistoriqueImporterLineEditCheminFichier">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pageHistoriqueImporterPushButtonParcourir">
+            <property name="styleSheet">
+             <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+            </property>
+            <property name="text">
+             <string>Parcourir</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="pageHistoriqueImporterTableWidget">
+          <column>
+           <property name="text">
+            <string>Nom</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Saison</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Episode</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Date diffusion</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <item>
+           <widget class="QPushButton" name="pageHistoriqueImporterPushButtonChargerFichier">
+            <property name="styleSheet">
+             <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+            </property>
+            <property name="text">
+             <string>Charger le fichier</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pageHistoriqueImporterPushButtonImporter">
+            <property name="styleSheet">
+             <string notr="true">font: 12pt &quot;MS Shell Dlg 2&quot;;</string>
+            </property>
+            <property name="text">
+             <string>Importer</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1581,7 +1983,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>508</width>
+     <width>1179</width>
      <height>21</height>
     </rect>
    </property>
@@ -1589,13 +1991,28 @@
     <property name="title">
      <string>Fichier</string>
     </property>
+    <widget class="QMenu" name="menuHistorique">
+     <property name="title">
+      <string>Historique</string>
+     </property>
+     <property name="icon">
+      <iconset resource="ressource.qrc">
+       <normaloff>:/images/sablier.png</normaloff>:/images/sablier.png</iconset>
+     </property>
+     <addaction name="menuFichierHistoriqueRechercher"/>
+     <addaction name="separator"/>
+     <addaction name="menuFichierHistoriqueAjouter"/>
+     <addaction name="menuFichierHistoriqueModifier"/>
+     <addaction name="menuFichierHistoriqueConsulter"/>
+     <addaction name="separator"/>
+     <addaction name="menuFichierHistoriqueImporter"/>
+    </widget>
     <addaction name="menuFichierAccueil"/>
-    <addaction name="menuFichierHistorique"/>
+    <addaction name="menuHistorique"/>
     <addaction name="menuFichierToutes_les_s_ries"/>
     <addaction name="separator"/>
     <addaction name="menuFichierAjouter"/>
     <addaction name="menuFichierModifier"/>
-    <addaction name="menuFichierSupprimer"/>
     <addaction name="separator"/>
     <addaction name="menuFichierQuitter"/>
    </widget>
@@ -1632,16 +2049,15 @@
     <bool>false</bool>
    </attribute>
    <addaction name="toolBarAccueil"/>
-   <addaction name="separator"/>
-   <addaction name="toolBarParam_tres"/>
-   <addaction name="toolBarActualiser"/>
    <addaction name="toolBarQuitter"/>
    <addaction name="separator"/>
    <addaction name="toolBarAjouter"/>
    <addaction name="toolBarModifier"/>
-   <addaction name="toolBarSupprimer"/>
    <addaction name="separator"/>
+   <addaction name="toolBarParam_tres"/>
+   <addaction name="toolBarActualiser"/>
    <addaction name="toolBarDeplcerFichiers"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="menuFichierAjouter">
@@ -1672,24 +2088,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
-   </property>
-  </action>
-  <action name="menuFichierSupprimer">
-   <property name="icon">
-    <iconset resource="ressource.qrc">
-     <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
-   </property>
-   <property name="text">
-    <string>Supprimer</string>
-   </property>
-   <property name="iconText">
-    <string>Supprimer une série</string>
-   </property>
-   <property name="toolTip">
-    <string>Supprimer une série</string>
-   </property>
-   <property name="shortcut">
-    <string>Del</string>
    </property>
   </action>
   <action name="menuFichierQuitter">
@@ -1770,14 +2168,6 @@
     <string>A Propos</string>
    </property>
   </action>
-  <action name="menuFichierHistorique">
-   <property name="text">
-    <string>Historique</string>
-   </property>
-   <property name="toolTip">
-    <string>Historique</string>
-   </property>
-  </action>
   <action name="menuOptionsDossier_de_log">
    <property name="icon">
     <iconset resource="ressource.qrc">
@@ -1829,18 +2219,6 @@
     <string>Modifier une série</string>
    </property>
   </action>
-  <action name="toolBarSupprimer">
-   <property name="icon">
-    <iconset resource="ressource.qrc">
-     <normaloff>:/images/annuler.png</normaloff>:/images/annuler.png</iconset>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="toolTip">
-    <string>Supprimer une série</string>
-   </property>
-  </action>
   <action name="toolBarActualiser">
    <property name="icon">
     <iconset resource="ressource.qrc">
@@ -1886,9 +2264,43 @@
     <string>Paramètres</string>
    </property>
   </action>
+  <action name="menuFichierHistoriqueConsulter">
+   <property name="text">
+    <string>Consulter</string>
+   </property>
+  </action>
+  <action name="menuFichierHistoriqueAjouter">
+   <property name="text">
+    <string>Ajouter</string>
+   </property>
+  </action>
+  <action name="menuFichierHistoriqueRechercher">
+   <property name="text">
+    <string>Rechercher</string>
+   </property>
+  </action>
+  <action name="menuFichierHistoriqueModifier">
+   <property name="text">
+    <string>Modifier</string>
+   </property>
+  </action>
+  <action name="menuFichierHistoriqueImporter">
+   <property name="text">
+    <string>Importer</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
+  <tabstop>pageAjoutModifButtonWiki</tabstop>
+  <tabstop>pageConfigurationLineEditSite</tabstop>
+  <tabstop>pageConfigurationLineEditExtension</tabstop>
+  <tabstop>pageConfigurationRadioButtonQualiteToutes</tabstop>
+  <tabstop>pageConfigurationRadioButtonQualite720</tabstop>
+  <tabstop>pageConfigurationRadioButtonQualite1080</tabstop>
+  <tabstop>pageConfigurationRadioButtonSousTitresToutes</tabstop>
+  <tabstop>pageConfigurationRadioButtonSousTitresVOSTFR</tabstop>
+  <tabstop>pageConfigurationSpinBoxLogEfface</tabstop>
   <tabstop>pageConfigurationLineDossierTelechargement</tabstop>
   <tabstop>pageConfigurationBoutonParcourir_2</tabstop>
   <tabstop>pageConfigurationLineDossierSerie</tabstop>
@@ -1899,33 +2311,26 @@
   <tabstop>pagePrincipaleBoutonVosSeries</tabstop>
   <tabstop>pagePrincipaleBoutonAjouter</tabstop>
   <tabstop>pagePrincipaleBoutonModifier</tabstop>
-  <tabstop>pagePrincipaleBoutonSupprimer</tabstop>
   <tabstop>pagePrincipaleBoutonUrl</tabstop>
   <tabstop>pagePrincipaleBoutonWiki</tabstop>
   <tabstop>pagePrincipaleBoutonDossierSerie</tabstop>
   <tabstop>pagePrincipaleBoutonDeplacerFichier</tabstop>
   <tabstop>pageVosSeriesComboBox</tabstop>
   <tabstop>pageVosSeriesDisplay</tabstop>
-  <tabstop>pageAjoutModifComboNom</tabstop>
-  <tabstop>pageAjoutModifLineSaison</tabstop>
-  <tabstop>pageAjoutModifLineNbEpisode</tabstop>
-  <tabstop>pageAjoutModifRadioButtonOui</tabstop>
-  <tabstop>pageAjoutModifRadioButtonNon</tabstop>
-  <tabstop>pageAjoutModifLineDateSortie</tabstop>
-  <tabstop>pageAjoutModifLineWiki</tabstop>
-  <tabstop>pageAjoutModifButtonWiki</tabstop>
-  <tabstop>pageAjoutModifLineEpisodeCourant</tabstop>
-  <tabstop>pageAjoutModifLineDateProchain</tabstop>
+  <tabstop>pageAjoutModifSpinBoxSaisonSaison</tabstop>
+  <tabstop>pageAjoutModifSpinBoxSaisonNbEpisode</tabstop>
+  <tabstop>pageAjoutModifCheckBoxCreationDossierAuto</tabstop>
+  <tabstop>pageAjoutModifDateEditSaisonDateSortie</tabstop>
+  <tabstop>pageAjoutModifLineEditSaisonWiki</tabstop>
+  <tabstop>pageAjoutModifSpinBoxSaisonEpisodeCourant</tabstop>
+  <tabstop>pageAjoutModifDateEditSaisonDateProchain</tabstop>
+  <tabstop>pageAjoutModifComboBoxListeSaison</tabstop>
+  <tabstop>pageAjoutModifTableWidgetListeSaison</tabstop>
   <tabstop>pageAjoutModifBoutonValider</tabstop>
+  <tabstop>pageAjoutModifPushButtonSupprimerSaison</tabstop>
   <tabstop>pageAjoutModifBoutonDossier</tabstop>
   <tabstop>pageAjoutModifBoutonWiki</tabstop>
   <tabstop>pageAjoutModifBoutonRetour</tabstop>
-  <tabstop>pageListeModificationDisplay</tabstop>
-  <tabstop>pageListeModificationBoutonModifier</tabstop>
-  <tabstop>pageListeModificationBoutonRetour</tabstop>
-  <tabstop>pageListeSupprimerDisplay</tabstop>
-  <tabstop>pageListeSupprimerBoutonSupprimer</tabstop>
-  <tabstop>pageListeSupprimerBoutonRetour</tabstop>
   <tabstop>pageReporterSpinBox</tabstop>
   <tabstop>pageReporterButtonValider</tabstop>
   <tabstop>pageReporterButtonRetour</tabstop>
@@ -1937,7 +2342,6 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
  </buttongroups>

@@ -40,6 +40,7 @@ private slots:
     bool contenuIdentique();
     void activationBoutonDeplacer();
     void supprimerDossierEtContenu(QString dossier);
+    QList<QString> getListeSerie();
 
 private:
     Ui::Dialog *ui;

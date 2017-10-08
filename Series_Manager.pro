@@ -19,13 +19,15 @@ SOURCES += main.cpp\
     basededonnees.cpp \
     log.cpp \
     methodediverses.cpp \
-    dialog.cpp
+    dialog.cpp \
+    filedownloader.cpp
 
 HEADERS  += fenetreprincipale.h \
     basededonnees.h \
     log.h \
     methodediverses.h \
-    dialog.h
+    dialog.h \
+    filedownloader.h
 
 FORMS    += fenetreprincipale.ui \
     dialog.ui

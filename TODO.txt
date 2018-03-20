@@ -1,1 +1,0 @@
-﻿- Ajout d'une fonctionalité qui permet de gérer les doubles épisodes (coche qui met à jour un champs sur la table SA#SAISON ?)

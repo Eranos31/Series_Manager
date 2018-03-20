@@ -15,6 +15,7 @@
 #include <QCloseEvent>
 #include <QClipboard>
 #include <QStandardPaths>
+#include <QScrollBar>
 #include "basededonnees.h"
 #include "methodediverses.h"
 #include "log.h"
@@ -44,6 +45,7 @@ private slots:
     void bouton_lien_clicked(QString nom);
     void bouton_dossier_clicked(QString nom);
     void bouton_reporter_clicked(QString nom);
+    void checkBox_vu_clicked(QString nom);
     void majIndicateur();
     void chargementConfiguration();
     void majEpisode();
@@ -80,6 +82,7 @@ private slots:
     void on_pageConfigurationBoutonParcourir_2_clicked();
     void on_pageConfigurationBoutonTerminer_clicked();
     // PAGE PRINCIPALE
+    void on_pagePrincipaleTableWidgetDisplay_clicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_customContextMenuRequested(const QPoint &pos);
@@ -87,8 +90,7 @@ private slots:
     void on_pagePrincipaleBoutonVosSeries_clicked();
     void on_pagePrincipaleBoutonAjouter_clicked();
     void on_pagePrincipaleBoutonModifier_clicked();
-    void on_pagePrincipaleBoutonUrl_clicked();
-    void on_pagePrincipalePushButtonAddicted_clicked();
+    void on_pagePrincipaleBoutonLienEtAddicted_clicked();
     void on_pagePrincipaleBoutonDossierSerie_clicked();
     void on_pagePrincipaleBoutonWiki_clicked();
     void on_pagePrincipaleBoutonDeplacerFichier_clicked();
@@ -110,6 +112,7 @@ private slots:
     void on_pageAjoutModifPushButtonParcourirPhoto_clicked();
     void on_pageAjoutModifPushButtonTelecharger_clicked();
     void on_pageAjoutModifLineEditDepuisURL_textChanged(const QString &arg1);
+    void on_pageAjoutModifCheckBoxDoubleEpisode_stateChanged(int arg1);
     // PAGE REPORTER
     void on_pageReporterButtonValider_clicked();
     void on_pageReporterButtonRetour_clicked();
@@ -130,10 +133,14 @@ private slots:
     void on_pageHistoriqueModifierSpinBoxRechercheSaison_valueChanged(int arg1);
     // PAGE HISTORIQUE CONSULTER
     void on_pageHistoriqueTableWidget_customContextMenuRequested(const QPoint &pos);
+    void on_pageHistoriqueTableWidget_clicked(const QModelIndex &index);
     // PAGE HISTORIQUE IMPORTER
     void on_pageHistoriqueImporterPushButtonParcourir_clicked();
     void on_pageHistoriqueImporterPushButtonChargerFichier_clicked();
     void on_pageHistoriqueImporterPushButtonImporter_clicked();
+
+
+
 
 private:
     Ui::FenetrePrincipale *ui;
@@ -149,34 +156,6 @@ private:
     QTime heureVersion;
     QString lien;
     FileDownloader *m_pImgCtrl;
-    // TABLE FS#FICHE_SERIE
-    const QString FICHE_SERIE_TABLE = "`FS#FICHE_SERIE`";
-    const QString FICHE_SERIE_ID = "`FS#ID`";
-    const QString FICHE_SERIE_NOM = "FSNOM";
-    const QString FICHE_SERIE_IMAGE = "FSIMAGE";
-    const QString FICHE_SERIE_WIKI = "FSWIKI";
-    const QString FICHE_SERIE_ADDICTED = "FSADDICTED";
-    // TABLE SA#SAISON
-    const QString SAISON_TABLE = "`SA#SAISON`";
-    const QString SAISON_ID = "`SAFS#ID`";
-    const QString SAISON_SAISON = "SASAISON";
-    const QString SAISON_NB_EPISODE = "SANBEPISODE";
-    const QString SAISON_EPISODE_COURANT = "SAEPISODECOURANT";
-    const QString SAISON_DATE_SORTIE = "SADATESORTIE";
-    const QString SAISON_JOUR_SORTIE = "SAJOURSORTIE";
-    const QString SAISON_DATE_MODIF = "SADATEMODIF";
-    const QString SAISON_WIKI = "SAWIKI";
-    // TABLE HISTORIQUE
-    const QString HISTORIQUE_TABLE = "HISTORIQUE";
-    const QString HISTORIQUE_NOM = "NOM";
-    const QString HISTORIQUE_SAISON = "SAISON";
-    const QString HISTORIQUE_EPISODE = "EPISODE";
-    const QString HISTORIQUE_DATE_AJOUT = "DATEAJOUT";
-    // JOINTURE
-    const QString JOINTURE_TYPE = "TYPE";
-    const QString JOINTURE_TABLE = "TABLE";
-    const QString JOINTURE_CONDITIONS = "CONDITIONS";
-
 
     // IMAGE
     QPixmap i_seriesManager = QPixmap(":/images/SeriesManager.png");
@@ -186,8 +165,10 @@ private:
     QIcon i_pellicule = QIcon(":/images/pellicule.gif");
     QIcon i_accueil = QIcon(":/images/accueil.png");
     QIcon i_annuler = QIcon(":/images/annuler.png");
-    QIcon i_logo = QIcon(":/images/logo.png");
+    QIcon i_torrent = QIcon(":/images/torrent.png");
+    QPixmap pix_torrent = QPixmap(":/images/torrent.png");
     QIcon i_addicted = QIcon(":/images/addic7ed.png");
+    QPixmap pix_addicted = QPixmap(":/images/addic7ed.png");
     QIcon i_reporter = QIcon(":/images/reporter.png");
     QIcon i_retour = QIcon(":/images/retour.png");
     QIcon i_dossier = QIcon(":/images/dossier.png");
@@ -200,6 +181,9 @@ private:
     QPixmap i_feuVert = QPixmap(":/images/FeuVert.ico");
     QIcon i_deplacement = QIcon(":/images/deplacement.png");
     QIcon i_historique = QIcon(":/images/sablier.png");
+
+
+
 };
 
 #endif // FENETREPRINCIPALE_H

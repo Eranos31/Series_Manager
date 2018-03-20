@@ -47,7 +47,8 @@ BaseDeDonnees::BaseDeDonnees() {
                           "NOM          TEXT NOT NULL,"
                           "SAISON       TEXT NOT NULL,"
                           "EPISODE      TEXT NOT NULL,"
-                          "DATEAJOUT    DATE NOT NULL"
+                          "DATEAJOUT    DATE NOT NULL,"
+                          "VU           INTEGER NOT NULL DEFAULT 0"
                           ")");
 
             if(query.exec()) {
@@ -62,7 +63,8 @@ BaseDeDonnees::BaseDeDonnees() {
                           "`FSNOM`      TEXT NOT NULL UNIQUE,"
                           "`FSIMAGE`	TEXT,"
                           "`FSWIKI`     TEXT,"
-                          "`FSADDICTED` TEXT"
+                          "`FSADDICTED` TEXT,"
+                          "`FSTERMINE`  INTEGER NOT NULL DEFAULT 0"
                           ");");
 
             if(query.exec()) {
@@ -78,9 +80,10 @@ BaseDeDonnees::BaseDeDonnees() {
                           "`SANBEPISODE`        TEXT NOT NULL,"
                           "`SAEPISODECOURANT`	TEXT NOT NULL,"
                           "`SADATESORTIE`       TEXT NOT NULL,"
-                          "`SAJOURSORTIE`       TEXT NOT NULL,"
                           "`SADATEMODIF`        INTEGER NOT NULL,"
                           "`SAWIKI`             INTEGER,"
+                          "`SAEPISODEENPLUS`    INTEGER NOT NULL DEFAULT 0,"
+                          "`SAVU`               INTEGER NOT NULL DEFAULT 0,"
                           "FOREIGN KEY(`SAFS#ID`) REFERENCES `FS#FICHE_SERIE.FS#ID`"
                           ");");
 
@@ -101,104 +104,6 @@ BaseDeDonnees::BaseDeDonnees() {
         if(!db.open()) {
             log->ecrire("BaseDeDonnees::BaseDeDonnees() : Erreur BDD non ouverte : " + db.lastError().text());
             QMessageBox::critical(NULL, "ERREUR", "Erreur BDD non ouverte : " + db.lastError().text());
-        } else {
-            log->ecrire("BaseDeDonnees::BaseDeDonnees() : Ouverture de la base de donnee");
-            QSqlQuery query(db);
-
-            if(!query.exec("SELECT * FROM " + FICHE_SERIE_TABLE)) {
-                query.prepare("CREATE TABLE `FS#FICHE_SERIE` ("
-                              "`FS#ID`      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
-                              "`FSNOM`      TEXT NOT NULL UNIQUE,"
-                              "`FSIMAGE`	TEXT,"
-                              "`FSWIKI`     TEXT,"
-                              "`FSADDICTED` TEXT"
-                              ")");
-
-                if(query.exec()) {
-                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table FS#FICHE_SERIE réussie");
-                } else {
-                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table FS#FICHE_SERIE : " + query.lastError().text());
-                    QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table FS#FICHE_SERIE : " + query.lastError().text());
-                }
-            }
-
-            if(!query.exec("SELECT * FROM " + SAISON_TABLE)) {
-                query.prepare("CREATE TABLE `SA#SAISON` ("
-                              "`SAFS#ID`            INTEGER NOT NULL UNIQUE,"
-                              "`SASAISON`           TEXT NOT NULL,"
-                              "`SANBEPISODE`        TEXT NOT NULL,"
-                              "`SAEPISODECOURANT`	TEXT NOT NULL,"
-                              "`SADATESORTIE`       TEXT NOT NULL,"
-                              "`SAJOURSORTIE`       TEXT NOT NULL,"
-                              "`SADATEMODIF`        INTEGER NOT NULL,"
-                              "`SAWIKI`             TEXT,"
-                              "`SADOUBLEEPISODE     TEXT`,"
-                              "FOREIGN KEY(`SAFS#ID`) REFERENCES `FS#FICHE_SERIE.FS#ID`"
-                              ")");
-
-                if(query.exec()) {
-                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : Création de la table SA#SAISON réussie");
-                } else {
-                    log->ecrire("BaseDeDonnees::BaseDeDonnees() : ERREUR sur la création de la table SA#SAISON : " + query.lastError().text());
-                    QMessageBox::critical(NULL, "ERREUR", "Erreur sur la création de la table SA#SAISON : " + query.lastError().text());
-                }
-            }
-#ifndef QT_DEBUG
-            if(query.exec("SELECT * FROM SERIE")) {
-                QList<QString> champs;
-                QList<QString> conditions;
-                QList<QString> ordres;
-                champs.append("NOM");
-                champs.append("SAISON");
-                champs.append("NBEPISODE");
-                champs.append("EPISODECOURANT");
-                champs.append("DATESORTIE");
-                champs.append("JOURSORTIE");
-                champs.append("DATEMODIF");
-                champs.append("WIKI");
-                QList<QMap<QString,QString> > listeSerie = requeteSelect(champs, "SERIE", conditions, ordres);
-                for(int i = 0; i < listeSerie.count(); i++) {
-                    QMap<QString,QString> map = listeSerie.at(i);
-                    champs.clear();
-                    QList<QString> valeurs;
-                    QList<QString> ordres;
-                    // Création de la fiche Série
-                    champs.append(FICHE_SERIE_NOM);
-                    valeurs.append(map.value("NOM"));
-                    requeteInsert(champs, valeurs, FICHE_SERIE_TABLE);
-                    // Récupération de l'ID
-                    champs.clear();
-                    conditions.clear();
-                    champs.append(FICHE_SERIE_ID);
-                    conditions.append(FICHE_SERIE_NOM + " = '" + map.value("NOM") + "'");
-                    QString id = requeteSelect(champs, FICHE_SERIE_TABLE, conditions, ordres).at(0).value(FICHE_SERIE_ID);
-                    // Création de la saison
-                    champs.clear();
-                    valeurs.clear();
-
-                    champs.append(SAISON_ID);
-                    valeurs.append(id);
-                    champs.append(SAISON_SAISON);
-                    valeurs.append(map.value("SAISON"));
-                    champs.append(SAISON_NB_EPISODE);
-                    valeurs.append(map.value("NBEPISODE"));
-                    champs.append(SAISON_EPISODE_COURANT);
-                    valeurs.append(map.value("EPISODECOURANT"));
-                    champs.append(SAISON_DATE_SORTIE);
-                    valeurs.append(map.value("DATESORTIE"));
-                    champs.append(SAISON_JOUR_SORTIE);
-                    valeurs.append(map.value("JOURSORTIE"));
-                    champs.append(SAISON_DATE_MODIF);
-                    valeurs.append(map.value("DATEMODIF"));
-                    champs.append(SAISON_WIKI);
-                    valeurs.append(map.value("WIKI"));
-
-                    requeteInsert(champs, valeurs, SAISON_TABLE);
-                }
-                db.open();
-                query.exec("DROP TABLE SERIE");
-            }
-#endif
         }
     }
     db.close();

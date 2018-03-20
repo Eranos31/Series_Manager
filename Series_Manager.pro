@@ -4,14 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui\
-            sql\
-            network
+QT       += core gui sql network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Series_Manager
 TEMPLATE = app
+CONFIG -= console
 
 
 SOURCES += main.cpp\
@@ -31,8 +30,6 @@ HEADERS  += fenetreprincipale.h \
 
 FORMS    += fenetreprincipale.ui \
     dialog.ui
-
-OTHER_FILES += TODO.txt
 
 RC_ICONS = SeriesManager.ico
 

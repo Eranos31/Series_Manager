@@ -13,82 +13,6 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_8">
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <layout class="QFormLayout" name="formLayout_2">
-        <item row="0" column="0">
-         <widget class="QLabel" name="pagePrincipaleLabelDossierSerie">
-          <property name="maximumSize">
-           <size>
-            <width>70</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Dossier Série</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="pagePrincipaleLabelDossierSerie_2">
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QFormLayout" name="formLayout_3">
-        <item row="0" column="0">
-         <widget class="QLabel" name="pagePrincipaleLabelInternet">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Internet</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="pagePrincipaleLabelInternet_2">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </item>
-    <item row="1" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -103,26 +27,6 @@
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="pageConfigVLayoutPrincipal">
-          <item>
-           <layout class="QHBoxLayout" name="pageConfigurationHLayoutTitre">
-            <item>
-             <widget class="QLabel" name="pageConfigurationTitre">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Series Manager&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
           <item>
            <widget class="QLabel" name="pageConfigurationLabelConsigne">
             <property name="sizePolicy">
@@ -372,66 +276,11 @@
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="pagePrincipaleVLayoutPrincipal">
           <item>
-           <layout class="QHBoxLayout" name="pagePrincipalHLayoutTitre">
-            <item>
-             <widget class="QLabel" name="pagePrincipaleTitre">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Series Manager&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
            <layout class="QGridLayout" name="pagePrincipaleGridLayoutPrincipal">
             <item row="2" column="0">
              <layout class="QHBoxLayout" name="pagePrincipaleHLayoutBoutonInferieur">
               <item>
-               <widget class="QPushButton" name="pagePrincipaleBoutonUrl">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Ouvre tous les liens torrent</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/logo.png</normaloff>:/images/logo.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>48</width>
-                  <height>48</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pagePrincipalePushButtonAddicted">
+               <widget class="QPushButton" name="pagePrincipaleBoutonLienEtAddicted">
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
@@ -440,16 +289,6 @@
                 </property>
                 <property name="text">
                  <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="ressource.qrc">
-                  <normaloff>:/images/addic7ed.png</normaloff>:/images/addic7ed.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>64</width>
-                  <height>64</height>
-                 </size>
                 </property>
                </widget>
               </item>
@@ -653,6 +492,9 @@
                   <property name="contextMenuPolicy">
                    <enum>Qt::CustomContextMenu</enum>
                   </property>
+                  <attribute name="verticalHeaderVisible">
+                   <bool>false</bool>
+                  </attribute>
                   <column>
                    <property name="text">
                     <string>Nom</string>
@@ -688,6 +530,11 @@
                     <string>Reporter</string>
                    </property>
                   </column>
+                  <column>
+                   <property name="text">
+                    <string>Vu</string>
+                   </property>
+                  </column>
                  </widget>
                 </item>
                </layout>
@@ -702,6 +549,9 @@
                   <property name="contextMenuPolicy">
                    <enum>Qt::CustomContextMenu</enum>
                   </property>
+                  <attribute name="verticalHeaderVisible">
+                   <bool>false</bool>
+                  </attribute>
                   <column>
                    <property name="text">
                     <string>Nom</string>
@@ -732,11 +582,90 @@
                     <string>Wiki</string>
                    </property>
                   </column>
+                  <column>
+                   <property name="text">
+                    <string>Vu</string>
+                   </property>
+                  </column>
                  </widget>
                 </item>
                </layout>
               </widget>
              </widget>
+            </item>
+            <item row="2" column="1">
+             <layout class="QFormLayout" name="formLayout_6">
+              <item row="0" column="0">
+               <widget class="QLabel" name="pagePrincipaleLabelDossierSerie">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Dossier Série</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="pagePrincipaleLabelDossierSerie_2">
+                <property name="maximumSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="ressource.qrc">:/images/FeuRouge.ico</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="pagePrincipaleLabelInternet_2">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="ressource.qrc">:/images/FeuRouge.ico</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="pagePrincipaleLabelInternet">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>50</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Internet</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
@@ -748,20 +677,6 @@
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="pageVosSeriesVLayoutPrincipal">
-          <item>
-           <layout class="QHBoxLayout" name="pageVosSeriesHLayoutTitre">
-            <item>
-             <widget class="QLabel" name="pageVosSeriesTitre">
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Vos séries&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
           <item>
            <widget class="QComboBox" name="pageVosSeriesComboBox">
             <property name="maximumSize">
@@ -789,6 +704,9 @@
           </item>
           <item>
            <widget class="QTableWidget" name="pageVosSeriesDisplay">
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
             <column>
              <property name="text">
               <string>Nom</string>
@@ -957,20 +875,34 @@ border-width: 1px;</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
+                 <item row="4" column="0">
                   <widget class="QLabel" name="pageAjoutModifLabelCreerSaison">
                    <property name="text">
                     <string>Créer saison</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
+                 <item row="4" column="1">
                   <widget class="QCheckBox" name="pageAjoutModifCheckBoxCreerSaison">
                    <property name="text">
                     <string/>
                    </property>
                    <property name="checked">
                     <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="pageAjoutModifLabelTermine">
+                   <property name="text">
+                    <string>Terminé ?</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QCheckBox" name="pageAjoutModifCheckBoxTermine">
+                   <property name="text">
+                    <string/>
                    </property>
                   </widget>
                  </item>
@@ -1087,7 +1019,7 @@ border-width: 1px;</string>
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>230</height>
+              <height>247</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -1105,6 +1037,9 @@ border-width: 1px;</string>
             <layout class="QGridLayout" name="gridLayout_11">
              <item row="0" column="0">
               <layout class="QFormLayout" name="formLayout_8">
+               <property name="formAlignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="pageAjoutModifLabelSaison">
                  <property name="maximumSize">
@@ -1147,7 +1082,7 @@ border-width: 1px;</string>
                   <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
                  </property>
                  <property name="minimum">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                 </widget>
                </item>
@@ -1314,6 +1249,37 @@ border-width: 1px;</string>
                  </item>
                 </layout>
                </item>
+               <item row="7" column="0">
+                <widget class="QLabel" name="pageAjoutModifLabelDoubleEpisode">
+                 <property name="text">
+                  <string>Episode en plus ?</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <item>
+                  <widget class="QCheckBox" name="pageAjoutModifCheckBoxDoubleEpisode">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="pageAjoutModifSpinBoxEpisodeEnPlus">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
               </layout>
              </item>
             </layout>
@@ -1467,6 +1433,9 @@ border-width: 1px;</string>
           </item>
           <item>
            <widget class="QTableWidget" name="pageAjoutModifTableWidgetListeSaison">
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
             <column>
              <property name="text">
               <string>Nom</string>
@@ -1485,6 +1454,11 @@ border-width: 1px;</string>
             <column>
              <property name="text">
               <string>Lien</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Vu</string>
              </property>
             </column>
            </widget>
@@ -1613,21 +1587,13 @@ border-width: 1px;</string>
       <widget class="QWidget" name="pageHistorique">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QLabel" name="pageHistoriqueTitre">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Historique&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
          <widget class="QTableWidget" name="pageHistoriqueTableWidget">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
           </property>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>Nom</string>
@@ -1651,6 +1617,11 @@ border-width: 1px;</string>
           <column>
            <property name="text">
             <string>URL</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Vu</string>
            </property>
           </column>
          </widget>
@@ -1688,6 +1659,9 @@ border-width: 1px;</string>
         </item>
         <item>
          <widget class="QTableWidget" name="pageHistoriqueAjouterTableWidget">
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>Saison</string>
@@ -1701,6 +1675,11 @@ border-width: 1px;</string>
           <column>
            <property name="text">
             <string>Date diffusion</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Vu</string>
            </property>
           </column>
          </widget>
@@ -1785,6 +1764,9 @@ border-width: 1px;</string>
         </item>
         <item>
          <widget class="QTableWidget" name="pageHistoriqueRechercherTableWidget">
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>Nom</string>
@@ -1926,6 +1908,9 @@ border-width: 1px;</string>
         </item>
         <item>
          <widget class="QTableWidget" name="pageHistoriqueImporterTableWidget">
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>Nom</string>
@@ -1944,6 +1929,11 @@ border-width: 1px;</string>
           <column>
            <property name="text">
             <string>Date diffusion</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Vu</string>
            </property>
           </column>
          </widget>
@@ -2311,7 +2301,6 @@ border-width: 1px;</string>
   <tabstop>pagePrincipaleBoutonVosSeries</tabstop>
   <tabstop>pagePrincipaleBoutonAjouter</tabstop>
   <tabstop>pagePrincipaleBoutonModifier</tabstop>
-  <tabstop>pagePrincipaleBoutonUrl</tabstop>
   <tabstop>pagePrincipaleBoutonWiki</tabstop>
   <tabstop>pagePrincipaleBoutonDossierSerie</tabstop>
   <tabstop>pagePrincipaleBoutonDeplacerFichier</tabstop>

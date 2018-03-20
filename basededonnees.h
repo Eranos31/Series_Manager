@@ -34,6 +34,7 @@ public:
     const QString FICHE_SERIE_IMAGE = "FSIMAGE";
     const QString FICHE_SERIE_WIKI = "FSWIKI";
     const QString FICHE_SERIE_ADDICTED = "FSADDICTED";
+    const QString FICHE_SERIE_TERMINE = "FSTERMINE";
     // TABLE SA#SAISON
     const QString SAISON_TABLE = "`SA#SAISON`";
     const QString SAISON_ID = "`SAFS#ID`";
@@ -41,15 +42,17 @@ public:
     const QString SAISON_NB_EPISODE = "SANBEPISODE";
     const QString SAISON_EPISODE_COURANT = "SAEPISODECOURANT";
     const QString SAISON_DATE_SORTIE = "SADATESORTIE";
-    const QString SAISON_JOUR_SORTIE = "SAJOURSORTIE";
     const QString SAISON_DATE_MODIF = "SADATEMODIF";
     const QString SAISON_WIKI = "SAWIKI";
+    const QString SAISON_EPISODE_EN_PLUS = "SAEPISODEENPLUS";
+    const QString SAISON_VU = "SAVU";
     // TABLE HISTORIQUE
     const QString HISTORIQUE_TABLE = "HISTORIQUE";
     const QString HISTORIQUE_NOM = "NOM";
     const QString HISTORIQUE_SAISON = "SAISON";
     const QString HISTORIQUE_EPISODE = "EPISODE";
     const QString HISTORIQUE_DATE_AJOUT = "DATEAJOUT";
+    const QString HISTORIQUE_VU = "VU";
     // JOINTURE
     const QString JOINTURE_TYPE = "TYPE";
     const QString JOINTURE_TABLE = "TABLE";

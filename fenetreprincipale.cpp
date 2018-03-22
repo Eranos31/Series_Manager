@@ -610,7 +610,7 @@ void FenetrePrincipale::checkBox_vu_clicked(QString nom) {
 
         champs.append(bdd->HISTORIQUE_VU + " = CASE WHEN " + bdd->HISTORIQUE_VU + " = 0 THEN 1 "
                                                    "WHEN " + bdd->HISTORIQUE_VU + " = 1 THEN 0 "
-                                                   "ELSE 0"
+                                                   "ELSE 0 "
                                                    "END");
         conditions.append(bdd->HISTORIQUE_NOM + " = '" + liste.at(0) + "'");
         conditions.append(bdd->HISTORIQUE_SAISON + " = '" + liste.at(1) + "'");
@@ -628,14 +628,14 @@ void FenetrePrincipale::checkBox_vu_clicked(QString nom) {
 
         champs.append(bdd->SAISON_VU + " = CASE WHEN " + bdd->SAISON_VU + " = 0 THEN 1 "
                                                "WHEN " + bdd->SAISON_VU + " = 1 THEN 0 "
-                                               "ELSE 0"
+                                               "ELSE 0 "
                                                "END");
         conditions.append(bdd->SAISON_ID + " = '" + id + "'");
 
         bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
     }
 
-
+    refresh();
 }
 
 void FenetrePrincipale::majIndicateur() {
@@ -1320,6 +1320,13 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const 
     on_menuFichierModifier_triggered();
     ui->pageAjoutModifComboFicheSerieNom->setCurrentText(ui->pagePrincipaleTableWidgetDisplay->item(index.row(), 0)->text());
     ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
+}
+
+void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_clicked(const QModelIndex &index) {
+    if(index.column() == 6 && ui->pagePrincipaleTableWidgetDisplay->cellWidget(index.row(), index.column()) != NULL) {
+        QCheckBox *vu = (QCheckBox *)ui->pagePrincipaleTableWidgetDisplay->cellWidget(index.row(), index.column())->layout()->itemAt(0)->widget();
+        vu->setChecked(!vu->isChecked());
+    }
 }
 
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index) {

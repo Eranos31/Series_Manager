@@ -142,6 +142,8 @@ private slots:
 
 
 
+    void on_pagePrincipaleTableWidgetDisplay_2_clicked(const QModelIndex &index);
+
 private:
     Ui::FenetrePrincipale *ui;
     BaseDeDonnees *bdd;

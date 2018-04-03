@@ -182,7 +182,7 @@ void FenetrePrincipale::refresh() {
     bool activationBoutonWikiGlobal = false;
     QString qualite;
     QString sousTitres;
-    QString fin;
+    QString fin = "&do=search&order=desc&sort=publish_date";
 
     switch (getConfig("Configuration/Qualite").toInt()) {
     case 0:
@@ -680,7 +680,7 @@ void FenetrePrincipale::chargementConfiguration() {
         this->setGeometry(getConfig("Dimension/X", 724), getConfig("Dimension/Y", 303), getConfig("Dimension/W", 472), getConfig("Dimension/H", 434));
     }
 
-    lien = ui->pageConfigurationLineEditSite->text() + getConfig("Configuration/Extension") + "/engine/search?q=";
+    lien = ui->pageConfigurationLineEditSite->text() + getConfig("Configuration/Extension") + "/engine/search?name=";
 
     log->ecrire("FenetrePrincipale::chargementConfiguration() : Fin du chargement du fichier de configuration");
 }
@@ -1272,7 +1272,7 @@ void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
     if(ui->pageConfigurationLineDossierSerie->text() != "" && ui->pageConfigurationLineDossierTelechargement->text() != "" && ui->pageConfigurationLineEditExtension->text() != "") {
         setConfig("Configuration/Chemin", ui->pageConfigurationLineDossierSerie->text());
         setConfig("Configuration/Extension", ui->pageConfigurationLineEditExtension->text());
-        lien = ui->pageConfigurationLineEditSite->text() + ui->pageConfigurationLineEditExtension->text() + "/engine/search?q=";
+        lien = ui->pageConfigurationLineEditSite->text() + ui->pageConfigurationLineEditExtension->text() + "/engine/search?name=";
         setConfig("Configuration/ListeSerie", "Toutes");
         setConfig("Configuration/PurgeLog", QString::number(ui->pageConfigurationSpinBoxLogEfface->value()));
         if(ui->pageConfigurationRadioButtonQualiteToutes->isChecked()) {
@@ -1409,7 +1409,7 @@ void FenetrePrincipale::on_pagePrincipaleBoutonLienEtAddicted_clicked() {
     } else {
         QString qualite;
         QString sousTitres;
-        QString fin;
+        QString fin = "&do=search&order=desc&sort=publish_date";
 
         switch (getConfig("Configuration/Qualite").toInt()) {
         case 0: qualite = ""; break;
@@ -1848,7 +1848,7 @@ void FenetrePrincipale::on_pageAjoutModifComboBoxListeSaison_currentTextChanged(
     QList<QString> ordres;
     QString qualite;
     QString sousTitres;
-    QString fin;
+    QString fin = "&do=search&order=desc&sort=publish_date";
     champs.append(bdd->HISTORIQUE_NOM);
     champs.append(bdd->HISTORIQUE_SAISON);
     champs.append(bdd->HISTORIQUE_EPISODE);

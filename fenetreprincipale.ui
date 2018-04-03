@@ -21,7 +21,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pageConfig">
        <layout class="QGridLayout" name="gridLayout">
@@ -155,7 +155,7 @@
               <item>
                <widget class="QLineEdit" name="pageConfigurationLineEditSite">
                 <property name="text">
-                 <string>https://yggtorrent.</string>
+                 <string>http://yggtorrent.</string>
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>

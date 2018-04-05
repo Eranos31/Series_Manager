@@ -1086,6 +1086,7 @@ void FenetrePrincipale::on_menuFichierAjouter_triggered() {
     ui->pageAjoutModifLineEditDepuisURL->setEnabled(false);
     ui->pageAjoutModifLabelDoubleEpisode->setVisible(false);
     ui->pageAjoutModifCheckBoxDoubleEpisode->setVisible(false);
+    ui->pageAjoutModifSpinBoxEpisodeEnPlus->setVisible(false);
 }
 
 void FenetrePrincipale::on_menuFichierModifier_triggered() {
@@ -1145,6 +1146,7 @@ void FenetrePrincipale::on_menuFichierModifier_triggered() {
     ui->pageAjoutModifLineEditDepuisURL->setEnabled(false);
     ui->pageAjoutModifLabelDoubleEpisode->setVisible(true);
     ui->pageAjoutModifCheckBoxDoubleEpisode->setVisible(true);
+    ui->pageAjoutModifSpinBoxEpisodeEnPlus->setVisible(true);
 }
 
 void FenetrePrincipale::on_menuFichierQuitter_triggered() {

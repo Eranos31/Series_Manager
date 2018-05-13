@@ -112,8 +112,7 @@ void Dialog::on_pushButtonDeplacerFichier_clicked() {
 }
 
 void Dialog::on_pushButtonRetour_clicked() {
-    closeEvent(new QCloseEvent());
-    this->~Dialog();
+    this->close();
 }
 
 
@@ -130,7 +129,8 @@ void Dialog::deplacerFichier(QList<QString> liste) {
 
                 QFile fichier(nomFichier);
                 QFileInfo infoFichier(nomFichier);
-                QString saison = infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}")) +1, 2).toUpper();
+                QString saison = infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}")) + 1, 2).toUpper();
+                QString episode = infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}")) + 4, 2).toUpper();
                 QFile *newFichier = new QFile(dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("S[0-9]{2}E[0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix());
 
                 if(newFichier->exists()) {
@@ -145,6 +145,43 @@ void Dialog::deplacerFichier(QList<QString> liste) {
                 if(fichier.rename(dossierSerie + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix())) {
                     log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix());
                     ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
+
+                    // Vérifier s'il existe une ligne dans la table historique
+                    QList<QString> champs;
+                    QList<QString> conditions;
+                    QList<QString> ordres;
+
+                    champs.append(pere->getBdd()->HISTORIQUE_NOM);
+                    champs.append(pere->getBdd()->HISTORIQUE_SAISON);
+                    champs.append(pere->getBdd()->HISTORIQUE_EPISODE);
+                    champs.append(pere->getBdd()->HISTORIQUE_ETAT);
+                    conditions.append(pere->getBdd()->HISTORIQUE_NOM + " = '" + listeSerie.at(i) + "'");
+                    conditions.append(pere->getBdd()->HISTORIQUE_SAISON + " = '" + saison + "'");
+                    conditions.append(pere->getBdd()->HISTORIQUE_EPISODE + " = '" + episode + "'");
+
+                    QList<QMap<QString,QString> > liste = pere->getBdd()->requeteSelect(champs, pere->getBdd()->HISTORIQUE_TABLE, conditions, ordres);
+                    if(liste.count()) {
+                        // Si oui on l'a met a jour si l'état n'est pas Vu
+                        champs.clear();
+                        conditions.clear();
+
+                        champs.append(pere->getBdd()->HISTORIQUE_ETAT + " = CASE WHEN " + pere->getBdd()->HISTORIQUE_ETAT + " = 'NV' THEN 'T' ELSE " + pere->getBdd()->HISTORIQUE_ETAT + " END");
+                        conditions.append(pere->getBdd()->HISTORIQUE_NOM + " = '" + listeSerie.at(i) + "'");
+                        conditions.append(pere->getBdd()->HISTORIQUE_SAISON + " = '" + saison + "'");
+                        conditions.append(pere->getBdd()->HISTORIQUE_EPISODE + " = '" + episode + "'");
+
+                        pere->getBdd()->requeteUpdate(champs, pere->getBdd()->HISTORIQUE_TABLE, conditions);
+                    } else {
+                        // Sinon on met à jour dans la table saison a la condition que l'épisode soit celui courant
+                        champs.clear();
+                        conditions.clear();
+
+                        champs.append(pere->getBdd()->SAISON_ETAT + " = CASE WHEN " + pere->getBdd()->SAISON_ETAT + " = 'NV' THEN 'T' ELSE " + pere->getBdd()->SAISON_ETAT + " END");
+                        conditions.append(pere->getBdd()->SAISON_ID + " = (SELECT " + pere->getBdd()->FICHE_SERIE_ID + " FROM " + pere->getBdd()->FICHE_SERIE_TABLE + " WHERE " + pere->getBdd()->FICHE_SERIE_NOM + " = '" + listeSerie.at(i) + "')");
+                        conditions.append(pere->getBdd()->SAISON_EPISODE_COURANT + " = '" + episode + "'");
+
+                        pere->getBdd()->requeteUpdate(champs, pere->getBdd()->SAISON_TABLE, conditions);
+                    }
                 } else {
                     log->ecrire("\tLe fichier " + infoFichier.fileName() + " n'a pas été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
                     ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " n'a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
@@ -167,6 +204,7 @@ void Dialog::deplacerFichier(QList<QString> liste) {
             }
         }
     }
+    pere->refresh();
 }
 
 void Dialog::supprimerFichier(QList<QString> liste) {

@@ -45,18 +45,14 @@ public:
     const QString SAISON_DATE_MODIF = "SADATEMODIF";
     const QString SAISON_WIKI = "SAWIKI";
     const QString SAISON_EPISODE_EN_PLUS = "SAEPISODEENPLUS";
-    const QString SAISON_VU = "SAVU";
+    const QString SAISON_ETAT = "SAETAT";
     // TABLE HISTORIQUE
     const QString HISTORIQUE_TABLE = "HISTORIQUE";
     const QString HISTORIQUE_NOM = "NOM";
     const QString HISTORIQUE_SAISON = "SAISON";
     const QString HISTORIQUE_EPISODE = "EPISODE";
     const QString HISTORIQUE_DATE_AJOUT = "DATEAJOUT";
-    const QString HISTORIQUE_VU = "VU";
-    // JOINTURE
-    const QString JOINTURE_TYPE = "TYPE";
-    const QString JOINTURE_TABLE = "TABLE";
-    const QString JOINTURE_CONDITIONS = "CONDITIONS";
+    const QString HISTORIQUE_ETAT = "ETAT";
 private:
     QSqlDatabase db;
     Log *log;

@@ -21,7 +21,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="pageConfig">
        <layout class="QGridLayout" name="gridLayout">
@@ -532,7 +532,7 @@
                   </column>
                   <column>
                    <property name="text">
-                    <string>Vu</string>
+                    <string>Etat</string>
                    </property>
                   </column>
                  </widget>
@@ -584,7 +584,7 @@
                   </column>
                   <column>
                    <property name="text">
-                    <string>Vu</string>
+                    <string>Etat</string>
                    </property>
                   </column>
                  </widget>
@@ -715,6 +715,11 @@
             <column>
              <property name="text">
               <string>Saison</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Episode</string>
              </property>
             </column>
             <column>
@@ -1458,7 +1463,7 @@ border-width: 1px;</string>
             </column>
             <column>
              <property name="text">
-              <string>Vu</string>
+              <string>Etat</string>
              </property>
             </column>
            </widget>
@@ -1587,6 +1592,41 @@ border-width: 1px;</string>
       <widget class="QWidget" name="pageHistorique">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Etat</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="pageHistoriqueComboBoxEtat">
+            <item>
+             <property name="text">
+              <string>Tous</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Non vu</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Téléchargé</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Vu</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QTableWidget" name="pageHistoriqueTableWidget">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
@@ -1621,7 +1661,7 @@ border-width: 1px;</string>
           </column>
           <column>
            <property name="text">
-            <string>Vu</string>
+            <string>Etat</string>
            </property>
           </column>
          </widget>
@@ -1679,7 +1719,7 @@ border-width: 1px;</string>
           </column>
           <column>
            <property name="text">
-            <string>Vu</string>
+            <string>Etat</string>
            </property>
           </column>
          </widget>
@@ -1933,7 +1973,7 @@ border-width: 1px;</string>
           </column>
           <column>
            <property name="text">
-            <string>Vu</string>
+            <string>Etat</string>
            </property>
           </column>
          </widget>

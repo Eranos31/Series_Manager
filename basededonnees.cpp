@@ -48,7 +48,7 @@ BaseDeDonnees::BaseDeDonnees() {
                           "SAISON       TEXT NOT NULL,"
                           "EPISODE      TEXT NOT NULL,"
                           "DATEAJOUT    DATE NOT NULL,"
-                          "VU           INTEGER NOT NULL DEFAULT 0"
+                          "ETAT         INTEGER NOT NULL DEFAULT 0"
                           ")");
 
             if(query.exec()) {
@@ -83,7 +83,7 @@ BaseDeDonnees::BaseDeDonnees() {
                           "`SADATEMODIF`        INTEGER NOT NULL,"
                           "`SAWIKI`             INTEGER,"
                           "`SAEPISODEENPLUS`    INTEGER NOT NULL DEFAULT 0,"
-                          "`SAVU`               INTEGER NOT NULL DEFAULT 0,"
+                          "`SAETAT`             INTEGER NOT NULL DEFAULT 0,"
                           "FOREIGN KEY(`SAFS#ID`) REFERENCES `FS#FICHE_SERIE.FS#ID`"
                           ");");
 

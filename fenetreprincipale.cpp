@@ -5,7 +5,7 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::FenetrePrincipale) {
     ui->setupUi(this);
-    this->version = "2.6";
+    this->version = "2.7";
 
     QDir dir;
 #ifdef QT_DEBUG
@@ -146,7 +146,7 @@ void FenetrePrincipale::refresh() {
     champs.append(bdd->HISTORIQUE_NOM);
     champs.append(bdd->HISTORIQUE_SAISON);
     champs.append(bdd->HISTORIQUE_EPISODE);
-    champs.append(bdd->HISTORIQUE_VU);
+    champs.append(bdd->HISTORIQUE_ETAT);
     conditions.append(bdd->HISTORIQUE_DATE_AJOUT + " = '" + QDate::currentDate().addDays(-1).toString("yyyy-MM-dd") + "' ");
     ordres.append(bdd->HISTORIQUE_NOM);
     ordres.append(bdd->HISTORIQUE_EPISODE);
@@ -166,7 +166,7 @@ void FenetrePrincipale::refresh() {
     champs.append(bdd->SAISON_DATE_MODIF);
     champs.append(bdd->SAISON_WIKI);
     champs.append(bdd->SAISON_EPISODE_EN_PLUS);
-    champs.append(bdd->SAISON_VU);
+    champs.append(bdd->SAISON_ETAT);
     conditions.append(bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
     ordres.append(bdd->SAISON_DATE_MODIF);
 
@@ -228,13 +228,16 @@ void FenetrePrincipale::refresh() {
         QPushButton* wiki = new QPushButton(i_wiki, "");
         QPushButton* reporter = new QPushButton(i_reporter, "");
         QPushButton* addicted = new QPushButton(i_addicted, "");
-        QCheckBox *vu = new QCheckBox();
+        QComboBox *etat = new QComboBox();
+
+        etat->addItem("Non vu");
+        etat->addItem("Téléchargé");
+        etat->addItem("Vu");
 
         url->setToolTip("Ouvre le lien URL de " + map.value(bdd->FICHE_SERIE_NOM));
         wiki->setToolTip("Ouvre le lien Wikipédia de " + map.value(bdd->FICHE_SERIE_NOM));
         reporter->setToolTip("Ouvre la fênetre de report de " + map.value(bdd->FICHE_SERIE_NOM));
         addicted->setToolTip("Ouvre le lien Addic7ed de " + map.value(bdd->FICHE_SERIE_NOM));
-        vu->setToolTip("Marque l'épisode S" + map.value(bdd->SAISON_SAISON) + "E" + map.value(bdd->SAISON_EPISODE_COURANT) + " de la série " + map.value(bdd->FICHE_SERIE_NOM) + " comme vu");
 
         mapper1->setMapping(url, lien + QString(map.value(bdd->FICHE_SERIE_NOM)).replace(" ", "+") + "+S" + map.value(bdd->SAISON_SAISON) + "E" + map.value(bdd->SAISON_EPISODE_COURANT) + sousTitres + qualite + fin);
         if(map.value(bdd->SAISON_WIKI) != "") {
@@ -264,18 +267,24 @@ void FenetrePrincipale::refresh() {
         connect(mapper4, SIGNAL(mapped(QString)), this, SLOT(bouton_lien_clicked(QString)));
         connect(addicted, SIGNAL(clicked(bool)), mapper4, SLOT(map()));
 
-        QWidget *widgetVu = new QWidget();
-        QHBoxLayout *layout = new QHBoxLayout();
-        layout->addWidget(vu);
-        layout->setAlignment(Qt::AlignCenter);
-        layout->setContentsMargins(0,0,0,0);
-        widgetVu->setLayout(layout);
-        vu->setChecked(map.value(bdd->SAISON_VU).toInt());
+        QWidget *widgetEtat = new QWidget();
+        QHBoxLayout *layoutEtat = new QHBoxLayout();
+        layoutEtat->addWidget(etat);
+        layoutEtat->setAlignment(Qt::AlignCenter);
+        layoutEtat->setContentsMargins(0,0,0,0);
+        widgetEtat->setLayout(layoutEtat);
 
-        mapper5->setMapping(vu, map.value(bdd->FICHE_SERIE_NOM));
+        if(map.value(bdd->SAISON_ETAT) == "NV") {
+            etat->setCurrentText("Non vu");
+        } else if (map.value(bdd->SAISON_ETAT) == "T") {
+            etat->setCurrentText("Téléchargé");
+        } else {
+            etat->setCurrentText("Vu");
+        }
 
-        connect(mapper5, SIGNAL(mapped(QString)), this, SLOT(checkBox_vu_clicked(QString)));
-        connect(vu, SIGNAL(stateChanged(int)), mapper5, SLOT(map()));
+        mapper5->setMapping(etat, map.value(bdd->FICHE_SERIE_NOM));
+        connect(mapper5, SIGNAL(mapped(QString)), this, SLOT(comboBox_etat_changed(QString)));
+        connect(etat, SIGNAL(currentTextChanged(QString)), mapper5, SLOT(map()));
 
         ui->pagePrincipaleTableWidgetDisplay->setRowCount(indice+1);
         ui->pagePrincipaleTableWidgetDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(map.value(bdd->FICHE_SERIE_NOM), false));
@@ -285,7 +294,13 @@ void FenetrePrincipale::refresh() {
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 4, addicted);
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, wiki);
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 6, reporter);
-        ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 7, widgetVu);
+        ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 7, widgetEtat);
+
+        if(map.value(bdd->SAISON_EPISODE_COURANT) == map.value(bdd->SAISON_NB_EPISODE)) {
+            for(int j = 0; j < 3; j++) {
+                ui->pagePrincipaleTableWidgetDisplay->item(indice, j)->setBackgroundColor(QColor(240, 63, 63));
+            }
+        }
 
         indice++;
 
@@ -342,6 +357,12 @@ void FenetrePrincipale::refresh() {
             ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, wikiDouble);
             ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 6, reporterDouble);
 
+            if(methodeDiverses.formalismeEntier(map.value(bdd->SAISON_EPISODE_COURANT).toInt() + j) == map.value(bdd->SAISON_NB_EPISODE)) {
+                for(int j = 0; j < 3; j++) {
+                    ui->pagePrincipaleTableWidgetDisplay->item(indice, j)->setBackgroundColor(QColor(240, 63, 63));
+                }
+            }
+
             indice++;
         }
     }
@@ -376,7 +397,6 @@ void FenetrePrincipale::refresh() {
         ordres.clear();
         champs.append(bdd->FICHE_SERIE_WIKI);
         champs.append(bdd->SAISON_WIKI);
-        //conditions.append(bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
         jointures.append("LEFT JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
         conditions.append(bdd->FICHE_SERIE_NOM + " = '" + mapHier.value(bdd->HISTORIQUE_NOM) + "'");
         QList<QMap<QString, QString> >listeWiki = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE/* + ", " + bdd->SAISON_TABLE*/, jointures, conditions, ordres);
@@ -390,6 +410,11 @@ void FenetrePrincipale::refresh() {
         QPushButton* wikiHier = new QPushButton(i_wiki, "");
         QPushButton* addicted = new QPushButton(i_addicted, "");
         QCheckBox *vuHier = new QCheckBox();
+        QComboBox *etatHier = new QComboBox();
+
+        etatHier->addItem("Non vu");
+        etatHier->addItem("Téléchargé");
+        etatHier->addItem("Vu");
 
         lienHier->setToolTip("Ouvre le lien URL de " + mapHier.value(bdd->HISTORIQUE_NOM));
         wikiHier->setToolTip("Ouvre le lien Wikipédia de " + mapHier.value(bdd->HISTORIQUE_NOM));
@@ -432,17 +457,24 @@ void FenetrePrincipale::refresh() {
         connect(mapper3, SIGNAL(mapped(QString)), this, SLOT(bouton_lien_clicked(QString)));
         connect(addicted, SIGNAL(clicked(bool)), mapper3, SLOT(map()));
 
-        QWidget *widgetVuHier = new QWidget();
+        QWidget *widgetEtatHier = new QWidget();
         QHBoxLayout *layout = new QHBoxLayout();
-        layout->addWidget(vuHier);
+        layout->addWidget(etatHier);
         layout->setAlignment(Qt::AlignCenter);
         layout->setContentsMargins(0,0,0,0);
-        widgetVuHier->setLayout(layout);
-        vuHier->setChecked(mapHier.value(bdd->HISTORIQUE_VU).toInt());
-        mapper4->setMapping(vuHier, mapHier.value(bdd->HISTORIQUE_NOM) + 30 + mapHier.value(bdd->HISTORIQUE_SAISON) + 30 + mapHier.value(bdd->HISTORIQUE_EPISODE));
+        widgetEtatHier->setLayout(layout);
 
-        connect(mapper4, SIGNAL(mapped(QString)), this, SLOT(checkBox_vu_clicked(QString)));
-        connect(vuHier, SIGNAL(stateChanged(int)), mapper4, SLOT(map()));
+        if(mapHier.value(bdd->HISTORIQUE_ETAT) == "NV") {
+            etatHier->setCurrentText("Non vu");
+        } else if (mapHier.value(bdd->HISTORIQUE_ETAT) == "T") {
+            etatHier->setCurrentText("Téléchargé");
+        } else {
+            etatHier->setCurrentText("Vu");
+        }
+
+        mapper4->setMapping(etatHier, mapHier.value(bdd->HISTORIQUE_NOM) + 30 + mapHier.value(bdd->HISTORIQUE_SAISON) + 30 + mapHier.value(bdd->HISTORIQUE_EPISODE));
+        connect(mapper4, SIGNAL(mapped(QString)), this, SLOT(comboBox_etat_changed(QString)));
+        connect(etatHier, SIGNAL(currentTextChanged(QString)), mapper4, SLOT(map()));
 
         ui->pagePrincipaleTableWidgetDisplay_2->setRowCount(indice+1);
         ui->pagePrincipaleTableWidgetDisplay_2->setItem(indice, 0, methodeDiverses.itemForTableWidget(mapHier.value(bdd->HISTORIQUE_NOM), false));
@@ -451,73 +483,12 @@ void FenetrePrincipale::refresh() {
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 3, lienHier);
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 4, addicted);
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 5, wikiHier);
-        ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 6, widgetVuHier);
+        ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 6, widgetEtatHier);
 
         indice++;
     }
 
     log->ecrire("\tActualisation de l'onglet Hier effectué");
-
-    // Refresh de l'historique
-    ui->pageHistoriqueTableWidget->setRowCount(0);
-
-    indice = 0;
-
-    champs.clear();
-    conditions.clear();
-    ordres.clear();
-    champs.append(bdd->HISTORIQUE_NOM);
-    champs.append(bdd->HISTORIQUE_SAISON);
-    champs.append(bdd->HISTORIQUE_EPISODE);
-    champs.append(bdd->HISTORIQUE_DATE_AJOUT);
-    champs.append(bdd->HISTORIQUE_VU);
-    ordres.append(bdd->HISTORIQUE_DATE_AJOUT + " DESC");
-    ordres.append(bdd->HISTORIQUE_NOM);
-    ordres.append(bdd->HISTORIQUE_SAISON + " DESC");
-    ordres.append(bdd->HISTORIQUE_EPISODE + " DESC");
-    QList<QMap<QString, QString> > listeHistorique = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
-    for(int i = 0; i < listeHistorique.count(); i++) {
-        QMap<QString, QString> map = listeHistorique.value(i);
-
-        QSignalMapper* mapper = new QSignalMapper();
-        QSignalMapper* mapper1 = new QSignalMapper();
-
-        QPushButton* url = new QPushButton(i_torrent, "");
-        QCheckBox* vu = new QCheckBox();
-
-        url->setToolTip("Ouvre le lien URL de " + map.value(bdd->HISTORIQUE_NOM) + "pour l'épisode donné");
-        vu->setToolTip("");
-
-        mapper->setMapping(url, lien + QString(map.value(bdd->HISTORIQUE_NOM)).replace(" ","+") + "+S" + map.value(bdd->HISTORIQUE_SAISON) + "E" + map.value(bdd->HISTORIQUE_EPISODE) + sousTitres + qualite + fin);
-        mapper1->setMapping(vu, map.value(bdd->HISTORIQUE_NOM) + 30 + map.value(bdd->HISTORIQUE_SAISON) + 30 + map.value(bdd->HISTORIQUE_EPISODE));
-
-        vu->setChecked(map.value(bdd->HISTORIQUE_VU).toInt());
-
-        connect(mapper, SIGNAL(mapped(QString)), this, SLOT(bouton_lien_clicked(QString)));
-        connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
-
-        connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(checkBox_vu_clicked(QString)));
-        connect(vu, SIGNAL(stateChanged(int)), mapper1, SLOT(map()));
-
-        QWidget *widgetVu = new QWidget();
-        QHBoxLayout *layout = new QHBoxLayout(widgetVu);
-        layout->addWidget(vu);
-        layout->setAlignment(Qt::AlignCenter);
-        layout->setContentsMargins(0,0,0,0);
-        widgetVu->setLayout(layout);
-
-        ui->pageHistoriqueTableWidget->setRowCount(indice+1);
-        ui->pageHistoriqueTableWidget->setItem(indice, 0, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_NOM), false));
-        ui->pageHistoriqueTableWidget->setItem(indice, 1, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_SAISON), true));
-        ui->pageHistoriqueTableWidget->setItem(indice, 2, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_EPISODE), true));
-        ui->pageHistoriqueTableWidget->setItem(indice, 3, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(map.value(bdd->HISTORIQUE_DATE_AJOUT)).toString("dd/MM/yy"), true));
-        ui->pageHistoriqueTableWidget->setCellWidget(indice, 4, url);
-        ui->pageHistoriqueTableWidget->setCellWidget(indice, 5, widgetVu);
-
-        indice++;
-    }
-
-    log->ecrire("\tActualisation du tableau de l'historique effectué");
 
     // Dimensionner les colonnes
     ui->pagePrincipaleTableWidgetDisplay->resizeColumnsToContents();
@@ -530,9 +501,6 @@ void FenetrePrincipale::refresh() {
     ui->pagePrincipaleTableWidgetDisplay_2->setColumnWidth(3, 60);
     ui->pagePrincipaleTableWidgetDisplay_2->setColumnWidth(4, 60);
     ui->pagePrincipaleTableWidgetDisplay_2->setColumnWidth(5, 60);
-
-    ui->pageHistoriqueTableWidget->resizeColumnsToContents();
-    ui->pageHistoriqueTableWidget->setColumnWidth(4, 60);
 
     log->ecrire("\tDimensionnement des colonnes des tableaux effectué");
 
@@ -608,8 +576,8 @@ void FenetrePrincipale::checkBox_vu_clicked(QString nom) {
     if(nom.contains(30)) {
         QList<QString> liste = nom.split(30);
 
-        champs.append(bdd->HISTORIQUE_VU + " = CASE WHEN " + bdd->HISTORIQUE_VU + " = 0 THEN 1 "
-                                                   "WHEN " + bdd->HISTORIQUE_VU + " = 1 THEN 0 "
+        champs.append(bdd->HISTORIQUE_ETAT + " = CASE WHEN " + bdd->HISTORIQUE_ETAT + " = 0 THEN 1 "
+                                                   "WHEN " + bdd->HISTORIQUE_ETAT + " = 1 THEN 0 "
                                                    "ELSE 0 "
                                                    "END");
         conditions.append(bdd->HISTORIQUE_NOM + " = '" + liste.at(0) + "'");
@@ -626,16 +594,93 @@ void FenetrePrincipale::checkBox_vu_clicked(QString nom) {
         champs.clear();
         conditions.clear();
 
-        champs.append(bdd->SAISON_VU + " = CASE WHEN " + bdd->SAISON_VU + " = 0 THEN 1 "
-                                               "WHEN " + bdd->SAISON_VU + " = 1 THEN 0 "
+        champs.append(bdd->SAISON_ETAT + " = CASE WHEN " + bdd->SAISON_ETAT + " = 0 THEN 1 "
+                                               "WHEN " + bdd->SAISON_ETAT + " = 1 THEN 0 "
                                                "ELSE 0 "
                                                "END");
         conditions.append(bdd->SAISON_ID + " = '" + id + "'");
 
         bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
     }
+}
 
-    refresh();
+void FenetrePrincipale::comboBox_etat_changed(QString nom) {
+    int ligne;
+    QString nouvelEtat, saison, episode;
+    QList<QString> champs;
+    QList<QString> conditions;
+    if(ui->stackedWidget->currentWidget() == ui->pagePrincipale && ui->pagePrincipaleTabWidget->currentWidget() == ui->pagePrincipaleTabWidgetTabAuj) {
+        for(int i = 0; i < ui->pagePrincipaleTableWidgetDisplay->rowCount(); i++) {
+            if(nom == ui->pagePrincipaleTableWidgetDisplay->item(i, 0)->text()) {
+                ligne = i;
+                break;
+            }
+        }
+
+        nouvelEtat = ((QComboBox *)ui->pagePrincipaleTableWidgetDisplay->cellWidget(ligne, 7)->layout()->itemAt(0)->widget())->currentText();
+    } else if (ui->stackedWidget->currentWidget() == ui->pagePrincipale && ui->pagePrincipaleTabWidget->currentWidget() == ui->pagePrincipaleTabWidgetTabHier){
+        QList<QString> liste = nom.split(30);
+        nom = liste.at(0);
+        saison = liste.at(1);
+        episode = liste.at(2);
+        for(int i = 0; i < ui->pagePrincipaleTableWidgetDisplay_2->rowCount(); i++) {
+            if(nom == ui->pagePrincipaleTableWidgetDisplay_2->item(i, 0)->text() && ui->pagePrincipaleTableWidgetDisplay_2->item(i, 1)->text() == saison && ui->pagePrincipaleTableWidgetDisplay_2->item(i, 2)->text() == episode) {
+                ligne = i;
+                break;
+            }
+        }
+
+        nouvelEtat = ((QComboBox *)ui->pagePrincipaleTableWidgetDisplay_2->cellWidget(ligne, 6)->layout()->itemAt(0)->widget())->currentText();
+    } else if (ui->stackedWidget->currentWidget() == ui->pageHistorique) {
+        QList<QString> liste = nom.split(30);
+        nom = liste.at(0);
+        saison = liste.at(1);
+        episode = liste.at(2);
+        for(int i = 0; i < ui->pageHistoriqueTableWidget->rowCount(); i++) {
+            if(nom == ui->pageHistoriqueTableWidget->item(i, 0)->text() && ui->pageHistoriqueTableWidget->item(i, 1)->text() == saison && ui->pageHistoriqueTableWidget->item(i, 2)->text() == episode) {
+                ligne = i;
+                break;
+            }
+        }
+
+        nouvelEtat = ((QComboBox *)ui->pageHistoriqueTableWidget->cellWidget(ligne, 5)->layout()->itemAt(0)->widget())->currentText();
+    } else if (ui->stackedWidget->currentWidget() == ui->pageAjoutModification) {
+        QList<QString> liste = nom.split(30);
+        nom = liste.at(0);
+        saison = liste.at(1);
+        episode = liste.at(2);
+        for(int i = 0; i < ui->pageAjoutModifTableWidgetListeSaison->rowCount(); i++) {
+            if(nom == ui->pageAjoutModifTableWidgetListeSaison->item(i, 0)->text() && ui->pageAjoutModifTableWidgetListeSaison->item(i, 1)->text() == episode) {
+                ligne = i;
+                break;
+            }
+        }
+
+        nouvelEtat = ((QComboBox *)ui->pageAjoutModifTableWidgetListeSaison->cellWidget(ligne, 4)->layout()->itemAt(0)->widget())->currentText();
+    }
+
+    if(nouvelEtat == "Non vu") {
+        nouvelEtat = "NV";
+    } else if (nouvelEtat == "Téléchargé") {
+        nouvelEtat = "T";
+    } else {
+        nouvelEtat = "V";
+    }
+
+
+    if(ui->stackedWidget->currentWidget() == ui->pagePrincipale && ui->pagePrincipaleTabWidget->currentWidget() == ui->pagePrincipaleTabWidgetTabAuj) {
+        champs.append(bdd->SAISON_ETAT + " = '" + nouvelEtat + "'");
+        conditions.append(bdd->SAISON_ID + " = (SELECT " + bdd->FICHE_SERIE_ID + " FROM " + bdd->FICHE_SERIE_TABLE + " WHERE " + bdd->FICHE_SERIE_NOM + " = '" + nom + "')");
+
+        bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
+    } else {
+        champs.append(bdd->HISTORIQUE_ETAT + " = '" + nouvelEtat + "'");
+        conditions.append(bdd->HISTORIQUE_NOM + " = '" + nom + "'");
+        conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison + "'");
+        conditions.append(bdd->HISTORIQUE_EPISODE + " = '" + episode + "'");
+
+        bdd->requeteUpdate(champs, bdd->HISTORIQUE_TABLE, conditions);
+    }
 }
 
 void FenetrePrincipale::majIndicateur() {
@@ -706,7 +751,7 @@ void FenetrePrincipale::majEpisode() {
         champs.append(bdd->SAISON_DATE_MODIF);
         champs.append(bdd->SAISON_WIKI);
         champs.append(bdd->SAISON_EPISODE_EN_PLUS);
-        champs.append(bdd->SAISON_VU);
+        champs.append(bdd->SAISON_ETAT);
         conditions.append(bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
         conditions.append(bdd->SAISON_DATE_MODIF + " = '" + methodeDiverses.dateToString(dateDerniereOuverture.addDays(-7)) + "'");
         QList<QMap<QString,QString> > liste = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE + ", " + bdd->SAISON_TABLE, conditions, ordres);
@@ -724,7 +769,7 @@ void FenetrePrincipale::majEpisode() {
                     champs.append(bdd->SAISON_EPISODE_COURANT + " = '" + methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + list.value(bdd->SAISON_EPISODE_EN_PLUS).toInt() + 1) + "'");
                     champs.append(bdd->SAISON_EPISODE_EN_PLUS + " = 0" );
                 }
-                champs.append(bdd->SAISON_VU + " = 0");
+                champs.append(bdd->SAISON_ETAT + " = 0");
                 champs.append(bdd->SAISON_DATE_MODIF + " = '" + dateDerniereOuverture.toString("yyyy-MM-dd") + "'");
                 conditions.append(bdd->SAISON_ID + " = '" + list.value(bdd->FICHE_SERIE_ID) + "'");
                 bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
@@ -735,12 +780,12 @@ void FenetrePrincipale::majEpisode() {
                 champs.append(bdd->HISTORIQUE_SAISON);
                 champs.append(bdd->HISTORIQUE_EPISODE);
                 champs.append(bdd->HISTORIQUE_DATE_AJOUT);
-                champs.append(bdd->HISTORIQUE_VU);
+                champs.append(bdd->HISTORIQUE_ETAT);
                 valeurs.append(list.value(bdd->FICHE_SERIE_NOM));
                 valeurs.append(list.value(bdd->SAISON_SAISON));
                 valeurs.append(list.value(bdd->SAISON_EPISODE_COURANT));
                 valeurs.append(dateDerniereOuverture.toString("yyyy-MM-dd"));
-                valeurs.append(list.value(bdd->SAISON_VU));
+                valeurs.append(list.value(bdd->SAISON_ETAT));
                 bdd->requeteInsert(champs, valeurs, bdd->HISTORIQUE_TABLE);
                 for(int j = 1; j <= list.value(bdd->SAISON_EPISODE_EN_PLUS).toInt(); j++) {
                     champs.clear();
@@ -904,6 +949,10 @@ QString FenetrePrincipale::getDossierSerie() {
     return this->dossierSerie;
 }
 
+BaseDeDonnees *FenetrePrincipale::getBdd() {
+    return this->bdd;
+}
+
 void FenetrePrincipale::closeEvent(QCloseEvent *event) {
     QWidget::closeEvent(event);
     if(getConfig("Dimension/W", 472) != this->geometry().width())
@@ -1003,8 +1052,11 @@ void FenetrePrincipale::on_menuFichierHistoriqueModifier_triggered() {
 }
 
 void FenetrePrincipale::on_menuFichierHistoriqueConsulter_triggered() {
-    if(ui->stackedWidget->currentWidget() != ui->pageHistorique)
+    if(ui->stackedWidget->currentWidget() != ui->pageHistorique) {
         ui->stackedWidget->setCurrentWidget(ui->pageHistorique);
+
+        on_pageHistoriqueComboBoxEtat_currentTextChanged(ui->pageHistoriqueComboBoxEtat->currentText());
+    }
 }
 
 void FenetrePrincipale::on_menuFichierHistoriqueImporter_triggered() {
@@ -1311,24 +1363,10 @@ void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
 *                                                       *
 \*******************************************************/
 
-void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_clicked(const QModelIndex &index) {
-    if(index.column() == 7 && ui->pagePrincipaleTableWidgetDisplay->cellWidget(index.row(), index.column()) != NULL) {
-        QCheckBox *vu = (QCheckBox *)ui->pagePrincipaleTableWidgetDisplay->cellWidget(index.row(), index.column())->layout()->itemAt(0)->widget();
-        vu->setChecked(!vu->isChecked());
-    }
-}
-
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index) {
     on_menuFichierModifier_triggered();
     ui->pageAjoutModifComboFicheSerieNom->setCurrentText(ui->pagePrincipaleTableWidgetDisplay->item(index.row(), 0)->text());
     ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
-}
-
-void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_clicked(const QModelIndex &index) {
-    if(index.column() == 6 && ui->pagePrincipaleTableWidgetDisplay->cellWidget(index.row(), index.column()) != NULL) {
-        QCheckBox *vu = (QCheckBox *)ui->pagePrincipaleTableWidgetDisplay->cellWidget(index.row(), index.column())->layout()->itemAt(0)->widget();
-        vu->setChecked(!vu->isChecked());
-    }
 }
 
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index) {
@@ -1517,19 +1555,20 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
         ui->pageVosSeriesDisplay->setRowCount(indice + 1);
         ui->pageVosSeriesDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(list.value(bdd->FICHE_SERIE_NOM), false));
         ui->pageVosSeriesDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget(list.value(bdd->SAISON_SAISON), true));
-        ui->pageVosSeriesDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(methodeDiverses.dayToString(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).dayOfWeek()), true));
+        ui->pageVosSeriesDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(list.value(bdd->SAISON_EPISODE_COURANT), true));
+        ui->pageVosSeriesDisplay->setItem(indice, 3, methodeDiverses.itemForTableWidget(methodeDiverses.dayToString(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).dayOfWeek()), true));
 
         if(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)) <= QDate::currentDate() &&
            (selection == 1 || selection == 3)) {
-            ui->pageVosSeriesDisplay->setItem(indice, 3, methodeDiverses.itemForTableWidget("En cours", true));
+            ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget("En cours", true));
         } else {
-            ui->pageVosSeriesDisplay->setItem(indice, 3, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
+            ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
         }
 
         if(list.value(bdd->SAISON_DATE_MODIF) == "0") {
-            ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
+            ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
         } else {
-            ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).addDays(7).toString("dd/MM/yy"), true));
+            ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).addDays(7).toString("dd/MM/yy"), true));
         }
 
         QSignalMapper* mapper = new QSignalMapper();
@@ -1537,7 +1576,7 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
         mapper->setMapping(dossier, "/" + list.value(bdd->FICHE_SERIE_NOM) + "/Saison " + list.value(bdd->SAISON_SAISON));
         connect(mapper, SIGNAL(mapped(QString)), this, SLOT(bouton_dossier_clicked(QString)));
         connect(dossier, SIGNAL(clicked(bool)), mapper, SLOT(map()));
-        ui->pageVosSeriesDisplay->setCellWidget(indice, 5, dossier);
+        ui->pageVosSeriesDisplay->setCellWidget(indice, 6, dossier);
 
         QFile file (dossierSerie + list.value(bdd->FICHE_SERIE_NOM));
         if(!file.exists()) {
@@ -1556,7 +1595,7 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
         }
         connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(bouton_lien_clicked(QString)));
         connect(wiki, SIGNAL(clicked(bool)), mapper1, SLOT(map()));
-        ui->pageVosSeriesDisplay->setCellWidget(indice, 6, wiki);
+        ui->pageVosSeriesDisplay->setCellWidget(indice, 7, wiki);
 
 
         indice++;
@@ -1855,7 +1894,7 @@ void FenetrePrincipale::on_pageAjoutModifComboBoxListeSaison_currentTextChanged(
     champs.append(bdd->HISTORIQUE_SAISON);
     champs.append(bdd->HISTORIQUE_EPISODE);
     champs.append(bdd->HISTORIQUE_DATE_AJOUT);
-    champs.append(bdd->HISTORIQUE_VU);
+    champs.append(bdd->HISTORIQUE_ETAT);
     conditions.append(bdd->HISTORIQUE_NOM + " = '" + ui->pageAjoutModifComboFicheSerieNom->currentText() + "'");
     QString saison = arg1;
     conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison.replace("Saison ", "") + "'");
@@ -1888,32 +1927,43 @@ void FenetrePrincipale::on_pageAjoutModifComboBoxListeSaison_currentTextChanged(
         QMap<QString, QString> map = listeEpisodeHistorique.at(i);
 
         QSignalMapper* mapper = new QSignalMapper();
+        QSignalMapper* mapper1 = new QSignalMapper();
         QPushButton* url = new QPushButton(i_torrent, "");
+        QComboBox *etat = new QComboBox();
+
+        etat->addItem("Non vu");
+        etat->addItem("Téléchargé");
+        etat->addItem("Vu");
+
         url->setToolTip("Ouvre le lien URL de " + map.value(bdd->HISTORIQUE_NOM) + " pour l'épisode " + map.value(bdd->HISTORIQUE_EPISODE));
         mapper->setMapping(url, lien + QString(map.value(bdd->HISTORIQUE_NOM)).replace(" ","+") + "+S" + map.value(bdd->HISTORIQUE_SAISON) + "E" + map.value(bdd->HISTORIQUE_EPISODE) + sousTitres + qualite + fin);
         connect(mapper, SIGNAL(mapped(QString)), this, SLOT(bouton_lien_clicked(QString)));
         connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
 
-        QSignalMapper* mapper1 = new QSignalMapper();
-        QCheckBox* vu = new QCheckBox();
-        QWidget* widgetVu = new QWidget();
+        QWidget* widgetEtat = new QWidget();
         QHBoxLayout* layout = new QHBoxLayout();
-        layout->addWidget(vu);
+        layout->addWidget(etat);
         layout->setAlignment(Qt::AlignCenter);
         layout->setContentsMargins(0,0,0,0);
-        widgetVu->setLayout(layout);
-        vu->setChecked(map.value(bdd->HISTORIQUE_VU).toInt());
+        widgetEtat->setLayout(layout);
 
-        mapper1->setMapping(vu, map.value(bdd->HISTORIQUE_NOM) + 30 + map.value(bdd->HISTORIQUE_SAISON) + 30 + map.value(bdd->HISTORIQUE_EPISODE));
+        if(map.value(bdd->HISTORIQUE_ETAT) == "NV") {
+            etat->setCurrentText("Non vu");
+        } else if (map.value(bdd->HISTORIQUE_ETAT) == "T") {
+            etat->setCurrentText("Téléchargé");
+        } else {
+            etat->setCurrentText("Vu");
+        }
 
-        connect(mapper, SIGNAL(mapped(QString)), this, SLOT(checkBox_vu_clicked(QString)));
-        connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
+        mapper1->setMapping(etat, map.value(bdd->HISTORIQUE_NOM) + 30 + map.value(bdd->HISTORIQUE_SAISON) + 30 + map.value(bdd->HISTORIQUE_EPISODE));
+        connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(comboBox_etat_changed(QString)));
+        connect(etat, SIGNAL(currentTextChanged(QString)), mapper1, SLOT(map()));
 
         ui->pageAjoutModifTableWidgetListeSaison->setItem(i, 0, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_NOM), true));
         ui->pageAjoutModifTableWidgetListeSaison->setItem(i, 1, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_EPISODE), true));
         ui->pageAjoutModifTableWidgetListeSaison->setItem(i, 2, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(map.value(bdd->HISTORIQUE_DATE_AJOUT)).toString("dd/MM/yyyy"), true));
         ui->pageAjoutModifTableWidgetListeSaison->setCellWidget(i, 3 , url);
-        ui->pageAjoutModifTableWidgetListeSaison->setCellWidget(i, 4 , widgetVu);
+        ui->pageAjoutModifTableWidgetListeSaison->setCellWidget(i, 4 , widgetEtat);
     }
 }
 
@@ -2135,6 +2185,125 @@ void FenetrePrincipale::on_pageReporterSpinBox_valueChanged(int nbSemaines) {
 
 /*******************************************************\
 *                                                       *
+*               PAGE HISTORIQUE CONSULTER               *
+*                                                       *
+\*******************************************************/
+
+void FenetrePrincipale::on_pageHistoriqueComboBoxEtat_currentTextChanged(const QString &arg1) {
+    QString condition;
+    if(arg1 == "Tous") {
+        condition = "";
+    } else if(arg1 == "Non vu") {
+        condition = bdd->HISTORIQUE_ETAT + " = 'NV'";
+    } else if(arg1 == "Téléchargé") {
+        condition = bdd->HISTORIQUE_ETAT + " = 'T'";
+    } else {
+        condition = bdd->HISTORIQUE_ETAT + " = 'V'";
+    }
+
+    // Refresh de l'historique
+    ui->pageHistoriqueTableWidget->setRowCount(0);
+
+    QList<QString> champs;
+    QList<QString> conditions;
+    QList<QString> ordres;
+    int indice = 0;
+    QString qualite;
+    QString sousTitres;
+    QString fin = "&do=search&order=desc&sort=publish_date";
+
+    switch (getConfig("Configuration/Qualite").toInt()) {
+    case 0:
+        qualite = "";
+        break;
+    case 1:
+        qualite = "+720p";
+        break;
+    case 2:
+        qualite = "+1080p";
+        break;
+    }
+
+    switch (getConfig("Configuration/SousTitres").toInt()) {
+    case 0:
+        sousTitres = "";
+        break;
+    case 1:
+        sousTitres = "+VOSTFR";
+        break;
+    }
+
+    champs.append(bdd->HISTORIQUE_NOM);
+    champs.append(bdd->HISTORIQUE_SAISON);
+    champs.append(bdd->HISTORIQUE_EPISODE);
+    champs.append(bdd->HISTORIQUE_DATE_AJOUT);
+    champs.append(bdd->HISTORIQUE_ETAT);
+    if(!condition.isEmpty())
+        conditions.append(condition);
+    ordres.append(bdd->HISTORIQUE_DATE_AJOUT + " DESC");
+    ordres.append(bdd->HISTORIQUE_NOM);
+    ordres.append(bdd->HISTORIQUE_SAISON + " DESC");
+    ordres.append(bdd->HISTORIQUE_EPISODE + " DESC");
+    QList<QMap<QString, QString> > listeHistorique = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    for(int i = 0; i < listeHistorique.count(); i++) {
+        QMap<QString, QString> map = listeHistorique.value(i);
+
+        QSignalMapper* mapper = new QSignalMapper();
+        QSignalMapper* mapper1 = new QSignalMapper();
+
+        QPushButton* url = new QPushButton(i_torrent, "");
+        QComboBox *etat = new QComboBox();
+
+        etat->addItem("Non vu");
+        etat->addItem("Téléchargé");
+        etat->addItem("Vu");
+
+        url->setToolTip("Ouvre le lien URL de " + map.value(bdd->HISTORIQUE_NOM) + " pour l'épisode donné");
+
+        mapper->setMapping(url, lien + QString(map.value(bdd->HISTORIQUE_NOM)).replace(" ","+") + "+S" + map.value(bdd->HISTORIQUE_SAISON) + "E" + map.value(bdd->HISTORIQUE_EPISODE) + sousTitres + qualite + fin);
+        connect(mapper, SIGNAL(mapped(QString)), this, SLOT(bouton_lien_clicked(QString)));
+        connect(url, SIGNAL(clicked()), mapper, SLOT(map()));
+
+        QWidget *widgetEtat = new QWidget();
+        QHBoxLayout *layout = new QHBoxLayout(widgetEtat);
+        layout->addWidget(etat);
+        layout->setAlignment(Qt::AlignCenter);
+        layout->setContentsMargins(0,0,0,0);
+        widgetEtat->setLayout(layout);
+
+        if(map.value(bdd->HISTORIQUE_ETAT) == "NV") {
+            etat->setCurrentText("Non vu");
+        } else if (map.value(bdd->HISTORIQUE_ETAT) == "T") {
+            etat->setCurrentText("Téléchargé");
+        } else {
+            etat->setCurrentText("Vu");
+        }
+
+        mapper1->setMapping(etat, map.value(bdd->HISTORIQUE_NOM) + 30 + map.value(bdd->HISTORIQUE_SAISON) + 30 + map.value(bdd->HISTORIQUE_EPISODE));
+        connect(mapper1, SIGNAL(mapped(QString)), this, SLOT(comboBox_etat_changed(QString)));
+        connect(etat, SIGNAL(currentTextChanged(QString)), mapper1, SLOT(map()));
+
+        ui->pageHistoriqueTableWidget->setRowCount(indice+1);
+        ui->pageHistoriqueTableWidget->setItem(indice, 0, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_NOM), false));
+        ui->pageHistoriqueTableWidget->setItem(indice, 1, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_SAISON), true));
+        ui->pageHistoriqueTableWidget->setItem(indice, 2, methodeDiverses.itemForTableWidget(map.value(bdd->HISTORIQUE_EPISODE), true));
+        ui->pageHistoriqueTableWidget->setItem(indice, 3, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(map.value(bdd->HISTORIQUE_DATE_AJOUT)).toString("dd/MM/yy"), true));
+        ui->pageHistoriqueTableWidget->setCellWidget(indice, 4, url);
+        ui->pageHistoriqueTableWidget->setCellWidget(indice, 5, widgetEtat);
+
+        indice++;
+    }
+
+    log->ecrire("\tActualisation du tableau de l'historique effectué");
+
+    ui->pageHistoriqueTableWidget->resizeColumnsToContents();
+    ui->pageHistoriqueTableWidget->setColumnWidth(4, 60);
+
+
+}
+
+/*******************************************************\
+*                                                       *
 *               PAGE HISTORIQUE RECHERCHER              *
 *                                                       *
 \*******************************************************/
@@ -2220,15 +2389,19 @@ void FenetrePrincipale::on_pageHistoriqueAjouterPushButtonAjouterLigne_clicked()
     QSpinBox *spinBoxSaison = new QSpinBox();
     QSpinBox *spinBoxEpisode = new QSpinBox();
     QDateEdit *dateEditDateDiffusion = new QDateEdit();
-    QCheckBox *vu = new QCheckBox();
+    QComboBox *etat = new QComboBox();
     QWidget *widgetSaison = new QWidget();
     QWidget *widgetEpisode = new QWidget();
     QWidget *widgetDateDiffusion = new QWidget();
-    QWidget *widgetVu = new QWidget();
+    QWidget *widgetEtat = new QWidget();
     QHBoxLayout *layoutSaison = new QHBoxLayout(widgetSaison);
     QHBoxLayout *layoutEpisode = new QHBoxLayout(widgetEpisode);
     QHBoxLayout *layoutDateDiffusion = new QHBoxLayout(widgetDateDiffusion);
-    QHBoxLayout *layoutVu = new QHBoxLayout(widgetVu);
+    QHBoxLayout *layoutEtat = new QHBoxLayout(widgetEtat);
+
+    etat->addItem("Non vu");
+    etat->addItem("Téléchargé");
+    etat->addItem("Vu");
 
     spinBoxSaison->setMinimum(1);
     spinBoxEpisode->setMinimum(1);
@@ -2237,24 +2410,24 @@ void FenetrePrincipale::on_pageHistoriqueAjouterPushButtonAjouterLigne_clicked()
     layoutSaison->addWidget(spinBoxSaison);
     layoutEpisode->addWidget(spinBoxEpisode);
     layoutDateDiffusion->addWidget(dateEditDateDiffusion);
-    layoutVu->addWidget(vu);
+    layoutEtat->addWidget(etat);
 
     layoutSaison->setContentsMargins(0,0,0,0);
     layoutEpisode->setContentsMargins(0,0,0,0);
     layoutDateDiffusion->setContentsMargins(0,0,0,0);
-    layoutVu->setContentsMargins(0,0,0,0);
+    layoutEtat->setContentsMargins(0,0,0,0);
 
-    layoutVu->setAlignment(Qt::AlignCenter);
+    layoutEtat->setAlignment(Qt::AlignCenter);
 
     widgetSaison->setLayout(layoutSaison);
     widgetEpisode->setLayout(layoutEpisode);
     widgetDateDiffusion->setLayout(layoutDateDiffusion);
-    widgetVu->setLayout(layoutVu);
+    widgetEtat->setLayout(layoutEtat);
 
     ui->pageHistoriqueAjouterTableWidget->setCellWidget(ligne, 0, widgetSaison);
     ui->pageHistoriqueAjouterTableWidget->setCellWidget(ligne, 1, widgetEpisode);
     ui->pageHistoriqueAjouterTableWidget->setCellWidget(ligne, 2, widgetDateDiffusion);
-    ui->pageHistoriqueAjouterTableWidget->setCellWidget(ligne, 3, widgetVu);
+    ui->pageHistoriqueAjouterTableWidget->setCellWidget(ligne, 3, widgetEtat);
 }
 
 void FenetrePrincipale::on_pageHistoriqueAjouterPushButtonSupprimerLigne_clicked() {
@@ -2269,7 +2442,7 @@ void FenetrePrincipale::on_pageHistoriqueAjouterPushButtonAjouter_clicked() {
             QSpinBox *spinBoxSaison = (QSpinBox *)ui->pageHistoriqueAjouterTableWidget->cellWidget(i, 0)->layout()->itemAt(0)->widget();
             QSpinBox *spinBoxEpisode = (QSpinBox *)ui->pageHistoriqueAjouterTableWidget->cellWidget(i, 1)->layout()->itemAt(0)->widget();
             QDateEdit *dateEditDateDiffusion = (QDateEdit *)ui->pageHistoriqueAjouterTableWidget->cellWidget(i, 2)->layout()->itemAt(0)->widget();
-            QCheckBox *vu = (QCheckBox *)ui->pageHistoriqueAjouterTableWidget->cellWidget(i, 3)->layout()->itemAt(0)->widget();
+            QComboBox *etat = (QComboBox *)ui->pageHistoriqueAjouterTableWidget->cellWidget(i, 3)->layout()->itemAt(0)->widget();
 
             QList<QString> champs;
             QList<QString> valeurs;
@@ -2281,8 +2454,14 @@ void FenetrePrincipale::on_pageHistoriqueAjouterPushButtonAjouter_clicked() {
             valeurs.append(methodeDiverses.formalismeEntier(spinBoxEpisode->value()));
             champs.append(bdd->HISTORIQUE_DATE_AJOUT);
             valeurs.append(dateEditDateDiffusion->date().toString("yyyy-MM-dd"));
-            champs.append(bdd->HISTORIQUE_VU);
-            valeurs.append(QString::number(vu->isChecked()));
+            champs.append(bdd->HISTORIQUE_ETAT);
+            if(etat->currentText() == "Non vu") {
+                valeurs.append("NV");
+            } else if (etat->currentText() == "Téléchargé") {
+                valeurs.append("T");
+            } else {
+                valeurs.append("V");
+            }
             bdd->requeteInsert(champs, valeurs, bdd->HISTORIQUE_TABLE);
 
         }
@@ -2395,13 +2574,6 @@ void FenetrePrincipale::on_pageHistoriqueTableWidget_customContextMenuRequested(
     }
 }
 
-void FenetrePrincipale::on_pageHistoriqueTableWidget_clicked(const QModelIndex &index) {
-    if(index.column() == 5 && ui->pageHistoriqueTableWidget->cellWidget(index.row(), index.column()) != NULL) {
-        QCheckBox *vu = (QCheckBox *)ui->pageHistoriqueTableWidget->cellWidget(index.row(), index.column())->layout()->itemAt(0)->widget();
-        vu->setChecked(!vu->isChecked());
-    }
-}
-
 /*******************************************************\
 *                                                       *
 *                PAGE HISTORIQUE IMPORTER               *
@@ -2443,7 +2615,7 @@ void FenetrePrincipale::on_pageHistoriqueImporterPushButtonImporter_clicked() {
         QString saison = ui->pageHistoriqueImporterTableWidget->item(i, 1)->text();
         QString episode = ui->pageHistoriqueImporterTableWidget->item(i, 2)->text();
         QString dateDiffusion = ui->pageHistoriqueImporterTableWidget->item(i, 3)->text();
-        QString vu = ui->pageHistoriqueImporterTableWidget->item(i, 4)->text();
+        QString etat = ui->pageHistoriqueImporterTableWidget->item(i, 4)->text();
 
         QList<QString> champs;
         QList<QString> valeurs;
@@ -2456,11 +2628,13 @@ void FenetrePrincipale::on_pageHistoriqueImporterPushButtonImporter_clicked() {
         valeurs.append(episode);
         champs.append(bdd->HISTORIQUE_DATE_AJOUT);
         valeurs.append(methodeDiverses.jmaToDate(dateDiffusion).toString("yyyy-MM-dd"));
-        champs.append(bdd->HISTORIQUE_VU);
-        if(vu.toLower() == "vu") {
-            valeurs.append("1");
+        champs.append(bdd->HISTORIQUE_ETAT);
+        if(etat.toLower() == "vu") {
+            valeurs.append("V");
+        } else if(etat.toLower() == "téléchargé" || etat.toLower() == "telecharge") {
+            valeurs.append("T");
         } else {
-            valeurs.append("0");
+            valeurs.append("NV");
         }
 
         this->bdd->requeteInsert(champs, valeurs, bdd->HISTORIQUE_TABLE);

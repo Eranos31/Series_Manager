@@ -37,15 +37,17 @@ public:
     int getConfig(QString config, int valeur);
     void setConfig(QString config, QString valeur);
     QString getDossierSerie();
-
+    BaseDeDonnees *getBdd();
+public slots:
+    void refresh();
 private slots:
     void premiereConnexion();
-    void refresh();
     void initialisation();
     void bouton_lien_clicked(QString nom);
     void bouton_dossier_clicked(QString nom);
     void bouton_reporter_clicked(QString nom);
     void checkBox_vu_clicked(QString nom);
+    void comboBox_etat_changed(QString nom);
     void majIndicateur();
     void chargementConfiguration();
     void majEpisode();
@@ -82,7 +84,6 @@ private slots:
     void on_pageConfigurationBoutonParcourir_2_clicked();
     void on_pageConfigurationBoutonTerminer_clicked();
     // PAGE PRINCIPALE
-    void on_pagePrincipaleTableWidgetDisplay_clicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_doubleClicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(const QModelIndex &index);
     void on_pagePrincipaleTableWidgetDisplay_customContextMenuRequested(const QPoint &pos);
@@ -133,16 +134,12 @@ private slots:
     void on_pageHistoriqueModifierSpinBoxRechercheSaison_valueChanged(int arg1);
     // PAGE HISTORIQUE CONSULTER
     void on_pageHistoriqueTableWidget_customContextMenuRequested(const QPoint &pos);
-    void on_pageHistoriqueTableWidget_clicked(const QModelIndex &index);
     // PAGE HISTORIQUE IMPORTER
     void on_pageHistoriqueImporterPushButtonParcourir_clicked();
     void on_pageHistoriqueImporterPushButtonChargerFichier_clicked();
     void on_pageHistoriqueImporterPushButtonImporter_clicked();
 
-
-
-
-    void on_pagePrincipaleTableWidgetDisplay_2_clicked(const QModelIndex &index);
+    void on_pageHistoriqueComboBoxEtat_currentTextChanged(const QString &arg1);
 
 private:
     Ui::FenetrePrincipale *ui;

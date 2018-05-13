@@ -35,3 +35,6 @@ RC_ICONS = SeriesManager.ico
 
 RESOURCES += \
     ressource.qrc
+
+win32:LIBS += -lpsapi -luser32
+

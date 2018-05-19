@@ -97,6 +97,7 @@ private slots:
     void on_pagePrincipaleBoutonDeplacerFichier_clicked();
     // PAGE TOUTES LES SERIES
     void on_pageVosSeriesDisplay_doubleClicked(const QModelIndex &index);
+    void on_pageVosSeriesDisplay_customContextMenuRequested(const QPoint &pos);
     void on_pageVosSeriesComboBox_currentIndexChanged(const QString &arg1);
     // PAGE AJOUT MODIFICATION
     void on_pageAjoutModifButtonWiki_clicked();
@@ -134,13 +135,11 @@ private slots:
     void on_pageHistoriqueModifierSpinBoxRechercheSaison_valueChanged(int arg1);
     // PAGE HISTORIQUE CONSULTER
     void on_pageHistoriqueTableWidget_customContextMenuRequested(const QPoint &pos);
+    void on_pageHistoriqueComboBoxEtat_currentTextChanged(const QString &arg1);
     // PAGE HISTORIQUE IMPORTER
     void on_pageHistoriqueImporterPushButtonParcourir_clicked();
     void on_pageHistoriqueImporterPushButtonChargerFichier_clicked();
     void on_pageHistoriqueImporterPushButtonImporter_clicked();
-
-    void on_pageHistoriqueComboBoxEtat_currentTextChanged(const QString &arg1);
-
 private:
     Ui::FenetrePrincipale *ui;
     BaseDeDonnees *bdd;
@@ -155,7 +154,6 @@ private:
     QTime heureVersion;
     QString lien;
     FileDownloader *m_pImgCtrl;
-
     // IMAGE
     QPixmap i_seriesManager = QPixmap(":/images/SeriesManager.png");
     QIcon i_ajouter = QIcon(":/images/ajouter.png");

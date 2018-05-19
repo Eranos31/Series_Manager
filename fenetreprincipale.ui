@@ -704,6 +704,9 @@
           </item>
           <item>
            <widget class="QTableWidget" name="pageVosSeriesDisplay">
+            <property name="contextMenuPolicy">
+             <enum>Qt::CustomContextMenu</enum>
+            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>

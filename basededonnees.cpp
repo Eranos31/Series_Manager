@@ -151,7 +151,11 @@ QList<QMap<QString, QString> > BaseDeDonnees::requeteSelect(QList<QString> champ
             while(query.next()) {
                 QMap<QString, QString> map;
                 for(int i = 0; i < champs.count(); i++) {
-                    map[champs.at(i)] = query.value(i).toString();
+                    if(query.record().fieldName(i).startsWith("MAX(") || query.record().fieldName(i).startsWith("MAX(")) {
+                        map[query.record().fieldName(i)] = query.value(i).toString();
+                    } else {
+                        map["`" + query.record().fieldName(i) + "`"] = query.value(i).toString();
+                    }
                 }
                 liste.append(map);
             }
@@ -202,7 +206,11 @@ QList<QMap<QString, QString> > BaseDeDonnees::requeteSelect(QList<QString> champ
             while(query.next()) {
                 QMap<QString, QString> map;
                 for(int i = 0; i < champs.count(); i++) {
-                    map[champs.at(i)] = query.value(i).toString();
+                    if(query.record().fieldName(i).startsWith("MAX(") || query.record().fieldName(i).startsWith("MAX(")) {
+                        map[query.record().fieldName(i)] = query.value(i).toString();
+                    } else {
+                        map["`" + query.record().fieldName(i) + "`"] = query.value(i).toString();
+                    }
                 }
                 liste.append(map);
             }

@@ -163,20 +163,23 @@ void FenetrePrincipale::refresh() {
     champs.append(bdd->SAISON_NB_EPISODE);
     champs.append(bdd->SAISON_EPISODE_COURANT);
     champs.append(bdd->SAISON_DATE_SORTIE);
-    champs.append(bdd->SAISON_DATE_MODIF);
+    champs.append("CASE WHEN " + bdd->SAISON_DATE_MODIF + " IS NULL THEN '3000-01-01' ELSE " + bdd->SAISON_DATE_MODIF + " END " + bdd->SAISON_DATE_MODIF);
     champs.append(bdd->SAISON_WIKI);
     champs.append(bdd->SAISON_EPISODE_EN_PLUS);
     champs.append(bdd->SAISON_ETAT);
-    conditions.append(bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
+    jointures.append("LEFT JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
     ordres.append(bdd->SAISON_DATE_MODIF);
+    ordres.append(bdd->FICHE_SERIE_NOM);
 
-    listeGlobal = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE + ", " + bdd->SAISON_TABLE, jointures, conditions, ordres);
+    listeGlobal = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, jointures, conditions, ordres);
 
     ordres.clear();
+    jointures.clear();
+    jointures.append("INNER JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
     ordres.append(bdd->FICHE_SERIE_NOM);
     conditions.append(bdd->SAISON_DATE_MODIF + " = '" + QDate::currentDate().addDays(-7).toString("yyyy-MM-dd") + "' ");
 
-    listeQuoti = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE + ", " + bdd->SAISON_TABLE, conditions, ordres);
+    listeQuoti = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, jointures, conditions, ordres);
 
     int indice = 0;
     bool activationBoutonWikiGlobal = false;
@@ -769,7 +772,7 @@ void FenetrePrincipale::majEpisode() {
                     champs.append(bdd->SAISON_EPISODE_COURANT + " = '" + methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + list.value(bdd->SAISON_EPISODE_EN_PLUS).toInt() + 1) + "'");
                     champs.append(bdd->SAISON_EPISODE_EN_PLUS + " = 0" );
                 }
-                champs.append(bdd->SAISON_ETAT + " = 0");
+                champs.append(bdd->SAISON_ETAT + " = 'NV'");
                 champs.append(bdd->SAISON_DATE_MODIF + " = '" + dateDerniereOuverture.toString("yyyy-MM-dd") + "'");
                 conditions.append(bdd->SAISON_ID + " = '" + list.value(bdd->FICHE_SERIE_ID) + "'");
                 bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
@@ -968,6 +971,7 @@ void FenetrePrincipale::closeEvent(QCloseEvent *event) {
 }
 
 void FenetrePrincipale::resizeEvent(QResizeEvent *event) {
+    QWidget::resizeEvent(event);
     redimensionnerTableau();
 }
 
@@ -981,7 +985,6 @@ void FenetrePrincipale::loadImage() {
     } else {
         QMessageBox::information(this, this->windowTitle(), "Impossible de télécharger l'image !\nChoississez une autre image ou enregistrer l'image sur votre ordinateur.");
     }
-
 }
 
 /*******************************************************\
@@ -1007,7 +1010,7 @@ void FenetrePrincipale::on_menuFichierHistoriqueRechercher_triggered() {
         champs.append("DISTINCT " + bdd->HISTORIQUE_NOM);
         QList<QMap<QString, QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
         for(int i = 0; i < liste.count(); i++) {
-            ui->pageHistoriqueRechercherComboBoxNomSerie->addItem(liste.at(i).value("DISTINCT " + bdd->HISTORIQUE_NOM));
+            ui->pageHistoriqueRechercherComboBoxNomSerie->addItem(liste.at(i).value(bdd->HISTORIQUE_NOM));
         }
         ui->pageHistoriqueRechercherTableWidget->resizeColumnsToContents();
     }
@@ -1041,7 +1044,7 @@ void FenetrePrincipale::on_menuFichierHistoriqueModifier_triggered() {
         QList<QMap<QString, QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
         ui->pageHistoriqueModifierComboBoxRechercheNom->clear();
         for(int i = 0; i < liste.count(); i++) {
-            ui->pageHistoriqueModifierComboBoxRechercheNom->addItem(liste.at(i).value("DISTINCT " + bdd->HISTORIQUE_NOM));
+            ui->pageHistoriqueModifierComboBoxRechercheNom->addItem(liste.at(i).value(bdd->HISTORIQUE_NOM));
         }
         ui->pageHistoriqueModifierDateEditModificationDateDiffusion->setDate(QDate());
         ui->pageHistoriqueModifierDateEditModificationDateDiffusion->setEnabled(false);
@@ -1378,6 +1381,9 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_doubleClicked(cons
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_customContextMenuRequested(const QPoint &pos) {
     if(ui->pagePrincipaleTableWidgetDisplay->rowCount() > 0 && !ui->pagePrincipaleTableWidgetDisplay->selectedRanges().isEmpty()) {
         QMenu menuContextuel(this);
+        int ligne = ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow();
+        QAction *modifier = menuContextuel.addAction(QIcon(), "Modifier la fiche série");
+        menuContextuel.addSeparator();
         QAction *copier = menuContextuel.addAction(QIcon(), "Copier le nom de la série");
         QAction *copierComplet = menuContextuel.addAction(QIcon(), "Copier le nom, la saison et l'épisode de la série");
         QAction *dossier;
@@ -1399,6 +1405,10 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_customContextMenuReq
                 QMessageBox::warning(this, this->windowTitle(), "Le dossier n'a pas pu être ouvert");
                 log->ecrire("Le dossier n'a pas pu être ouvert");
             }
+        } else if(a == modifier) {
+            on_menuFichierModifier_triggered();
+            ui->pageAjoutModifComboFicheSerieNom->setCurrentText(ui->pagePrincipaleTableWidgetDisplay->item(ligne, 0)->text());
+            ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
         } else {}
     }
 }
@@ -1406,6 +1416,9 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_customContextMenuReq
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_customContextMenuRequested(const QPoint &pos) {
     if(ui->pagePrincipaleTableWidgetDisplay_2->rowCount() > 0 && !ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().isEmpty()) {
         QMenu menuContextuel(this);
+        int ligne = ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow();
+        QAction *modifier = menuContextuel.addAction(QIcon(), "Modifier la fiche série");
+        menuContextuel.addSeparator();
         QAction *copier = menuContextuel.addAction(QIcon(), "Copier le nom de la série");
         QAction *copierComplet = menuContextuel.addAction(QIcon(), "Copier le nom, la saison et l'épisode de la série");
         QAction *dossier;
@@ -1427,6 +1440,10 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_customContextMenuR
                 QMessageBox::warning(this, this->windowTitle(), "Le dossier " + this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text() + " n'a pas pu être ouvert");
                 log->ecrire("Le dossier " + this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text() + " n'a pas pu être ouvert");
             }
+        } else if(a == modifier) {
+            on_menuFichierModifier_triggered();
+            ui->pageAjoutModifComboFicheSerieNom->setCurrentText(ui->pagePrincipaleTableWidgetDisplay_2->item(ligne, 0)->text());
+            ui->pageAjoutModifLabelRetour->setText("pagePrincipale");
         } else {}
     }
 }
@@ -1522,6 +1539,33 @@ void FenetrePrincipale::on_pageVosSeriesDisplay_doubleClicked(const QModelIndex 
     ui->pageAjoutModifLabelRetour->setText("pageVosSeries");
 }
 
+void FenetrePrincipale::on_pageVosSeriesDisplay_customContextMenuRequested(const QPoint &pos) {
+    if(ui->pageVosSeriesDisplay->rowCount() > 0 && !ui->pageVosSeriesDisplay->selectedRanges().isEmpty()) {
+        QMenu menuContextuel(this);
+        int ligne = ui->pageVosSeriesDisplay->selectedRanges().at(0).topRow();
+        QString serie = ui->pageVosSeriesDisplay->item(ligne, 0)->text();
+        QAction *ajouter = menuContextuel.addAction(QIcon(), "Ajouter une nouvelle saison");
+        QAction *modifier = menuContextuel.addAction(QIcon(), "Modifier une fiche série");;
+        if(ui->pageVosSeriesDisplay->item(ligne, 1)->backgroundColor() == QColor("black")) {
+            ajouter->setEnabled(true);
+        } else {
+            ajouter->setEnabled(false);
+        }
+
+        QAction *a = menuContextuel.exec(ui->pageVosSeriesDisplay->viewport()->mapToGlobal(pos));
+
+        if(a == ajouter) {
+            ui->stackedWidget->setCurrentWidget(ui->pageAjoutModification);
+            on_menuFichierAjouter_triggered();
+            ui->pageAjoutModifComboFicheSerieNom->setCurrentText(serie);
+        } else if (a == modifier){
+            on_menuFichierModifier_triggered();
+            ui->pageAjoutModifComboFicheSerieNom->setCurrentText(ui->pageVosSeriesDisplay->item(ligne, 0)->text());
+        } else {}
+        ui->pageAjoutModifLabelRetour->setText("pageVosSeries");
+    }
+}
+
 void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QString &arg1) {
     ui->pageVosSeriesDisplay->setRowCount(0);
 
@@ -1550,30 +1594,57 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
             continue;
         } else if (selection == 3 && methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)) > QDate::currentDate()) {
             continue;
+        } else if(list.value(bdd->SAISON_DATE_MODIF) == "3000-01-01" && (selection == 2 || selection == 3)) {
+            continue;
         }
 
         ui->pageVosSeriesDisplay->setRowCount(indice + 1);
-        ui->pageVosSeriesDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(list.value(bdd->FICHE_SERIE_NOM), false));
-        ui->pageVosSeriesDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget(list.value(bdd->SAISON_SAISON), true));
-        ui->pageVosSeriesDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(list.value(bdd->SAISON_EPISODE_COURANT), true));
-        ui->pageVosSeriesDisplay->setItem(indice, 3, methodeDiverses.itemForTableWidget(methodeDiverses.dayToString(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).dayOfWeek()), true));
 
-        if(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)) <= QDate::currentDate() &&
-           (selection == 1 || selection == 3)) {
-            ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget("En cours", true));
-        } else {
-            ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
-        }
+        if(list.value(bdd->SAISON_DATE_MODIF) == "3000-01-01" && list.value(bdd->FICHE_SERIE_TERMINE) == "0") {
+            ui->pageVosSeriesDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(list.value(bdd->FICHE_SERIE_NOM), false));
+            ui->pageVosSeriesDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget("", true));
+            ui->pageVosSeriesDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget("", true));
+            ui->pageVosSeriesDisplay->setItem(indice, 3, methodeDiverses.itemForTableWidget("", true));
+            ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget("", true));
+            ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget("", true));
+            ui->pageVosSeriesDisplay->item(indice, 1)->setBackgroundColor(QColor("black"));
+            ui->pageVosSeriesDisplay->item(indice, 2)->setBackgroundColor(QColor("black"));
+            ui->pageVosSeriesDisplay->item(indice, 3)->setBackgroundColor(QColor("black"));
+            ui->pageVosSeriesDisplay->item(indice, 4)->setBackgroundColor(QColor("black"));
+            ui->pageVosSeriesDisplay->item(indice, 5)->setBackgroundColor(QColor("black"));
+        } else if(list.value(bdd->SAISON_DATE_MODIF) != "3000-01-01"){
+            ui->pageVosSeriesDisplay->setItem(indice, 0, methodeDiverses.itemForTableWidget(list.value(bdd->FICHE_SERIE_NOM), false));
+            ui->pageVosSeriesDisplay->setItem(indice, 1, methodeDiverses.itemForTableWidget(list.value(bdd->SAISON_SAISON), true));
+            ui->pageVosSeriesDisplay->setItem(indice, 2, methodeDiverses.itemForTableWidget(list.value(bdd->SAISON_EPISODE_COURANT), true));
+            ui->pageVosSeriesDisplay->setItem(indice, 3, methodeDiverses.itemForTableWidget(methodeDiverses.dayToString(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).dayOfWeek()), true));
 
-        if(list.value(bdd->SAISON_DATE_MODIF) == "0") {
-            ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
-        } else {
-            ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).addDays(7).toString("dd/MM/yy"), true));
+            if(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)) <= QDate::currentDate() &&
+               (selection == 1 || selection == 3)) {
+                ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget("En cours", true));
+            } else {
+                ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
+            }
+
+            if(list.value(bdd->SAISON_DATE_MODIF) == "0") {
+                ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_SORTIE)).toString("dd/MM/yy"), true));
+            } else {
+                ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).addDays(7).toString("dd/MM/yy"), true));
+            }
+
+            if(list.value(bdd->SAISON_EPISODE_COURANT) == list.value(bdd->SAISON_NB_EPISODE)) {
+                for(int j = 0; j <= 5; j++) {
+                    ui->pageVosSeriesDisplay->item(indice, j)->setBackgroundColor(QColor(240,63,63));
+                }
+            }
         }
 
         QSignalMapper* mapper = new QSignalMapper();
         QPushButton* dossier = new QPushButton(i_dossier,"");
-        mapper->setMapping(dossier, "/" + list.value(bdd->FICHE_SERIE_NOM) + "/Saison " + list.value(bdd->SAISON_SAISON));
+        if(list.value(bdd->SAISON_DATE_MODIF) == "3000-01-01") {
+            mapper->setMapping(dossier, "/" + list.value(bdd->FICHE_SERIE_NOM));
+        } else {
+            mapper->setMapping(dossier, "/" + list.value(bdd->FICHE_SERIE_NOM) + "/Saison " + list.value(bdd->SAISON_SAISON));
+        }
         connect(mapper, SIGNAL(mapped(QString)), this, SLOT(bouton_dossier_clicked(QString)));
         connect(dossier, SIGNAL(clicked(bool)), mapper, SLOT(map()));
         ui->pageVosSeriesDisplay->setCellWidget(indice, 6, dossier);
@@ -1597,8 +1668,8 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
         connect(wiki, SIGNAL(clicked(bool)), mapper1, SLOT(map()));
         ui->pageVosSeriesDisplay->setCellWidget(indice, 7, wiki);
 
-
-        indice++;
+        if((list.value(bdd->SAISON_DATE_MODIF) == "3000-01-01" && list.value(bdd->FICHE_SERIE_TERMINE) == "0" && selection == 1) || (list.value(bdd->SAISON_DATE_MODIF) != "3000-01-01"))
+            indice++;
     }
 
     ui->pageVosSeriesDisplay->resizeColumnsToContents();
@@ -2125,7 +2196,7 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
         ui->pageAjoutModifComboBoxListeSaison->setEnabled(true);
         ui->pageAjoutModifTableWidgetListeSaison->setEnabled(true);
         for (int i = 0; i < listeSaison.count(); i++) {
-            ui->pageAjoutModifComboBoxListeSaison->addItem("Saison " + listeSaison.at(i).value("DISTINCT " + bdd->HISTORIQUE_SAISON));
+            ui->pageAjoutModifComboBoxListeSaison->addItem("Saison " + listeSaison.at(i).value(bdd->HISTORIQUE_SAISON));
         }
         ui->pageAjoutModifComboBoxListeSaison->setCurrentIndex(ui->pageAjoutModifComboBoxListeSaison->count() - 1);
     }

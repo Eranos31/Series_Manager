@@ -5,7 +5,7 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::FenetrePrincipale) {
     ui->setupUi(this);
-    this->version = "2.8";
+    this->version = "2.8.1";
 
     QDir dir;
 #ifdef QT_DEBUG
@@ -2170,7 +2170,6 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
         ui->pageAjoutModifDateEditSaisonDateSortie->setEnabled(true);
         ui->pageAjoutModifLineEditFicheSerieWiki->setText("");
         ui->pageAjoutModifLineEditAddicted->setText("");
-        ui->pageAjoutModifCheckBoxCreerSaison->setChecked(true);
         ui->pageAjoutModifLabelPhoto->setPixmap(i_seriesManager);
         ui->pageAjoutModifLabelCheminPhoto->setText("");
         ui->pageAjoutModifLineEditDepuisURL->setText("");

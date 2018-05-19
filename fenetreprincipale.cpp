@@ -5,7 +5,7 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::FenetrePrincipale) {
     ui->setupUi(this);
-    this->version = "2.7";
+    this->version = "2.8";
 
     QDir dir;
 #ifdef QT_DEBUG

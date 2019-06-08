@@ -7,7 +7,6 @@
 #include <QTimer>
 #include <QFileIconProvider>
 #include "fenetreprincipale.h"
-#include "log.h"
 #include "methodediverses.h"
 
 class FenetrePrincipale;
@@ -44,8 +43,7 @@ private slots:
 
 private:
     Ui::Dialog *ui;
-    FenetrePrincipale *pere;
-    Log *log;
+    BaseDeDonnees *bdd;
     MethodeDiverses methodeDiverses;
     QFileInfoList listeInfoFichier;
     QTimer *timer;

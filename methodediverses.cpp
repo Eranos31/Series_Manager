@@ -133,3 +133,88 @@ QString MethodeDiverses::monthToString(int mois) {
     }
 }
 
+void MethodeDiverses::ecrireLog(QString message) {
+#ifdef QT_DEBUG
+    QFile log(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/logs/" + "SeriesManager_" + QDate::currentDate().toString("yyyy_MM_dd") + ".log");
+#else
+    QFile log(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/logs/" + "SeriesManager_" + QDate::currentDate().toString("yyyy_MM_dd") + ".log");
+#endif
+    bool nouveau = false;
+    if(!log.exists()) {
+        nouveau = true;
+    }
+    if(log.open(QIODevice::WriteOnly|QIODevice::Append|QIODevice::Text)) {
+        QTextStream flux(&log);
+        flux.setCodec("UTF-8");
+        if(nouveau) {
+            flux << "---------------------------------------------" << endl;
+            flux << "-                                           -" << endl;
+            flux << "-  #### ##### ####   ###  #####  ####       -" << endl;
+            flux << "- #     #     #   #   #   #     #           -" << endl;
+            flux << "- #     #     #   #   #   #     #           -" << endl;
+            flux << "-  ###  ####  ####    #   ####   ###        -" << endl;
+            flux << "-     # #     # #     #   #         #       -" << endl;
+            flux << "-     # #     #  #    #   #         #       -" << endl;
+            flux << "- ####  ##### #   #  ###  ##### ####        -" << endl;
+            flux << "-                                           -" << endl;
+            flux << "- #   #  ###  #   #  ###   ###  ##### ####  -" << endl;
+            flux << "- ## ## #   # #   # #   # #   # #     #   # -" << endl;
+            flux << "- # # # #   # ##  # #   # #     #     #   # -" << endl;
+            flux << "- # # # ##### # # # ##### #     ####  ####  -" << endl;
+            flux << "- #   # #   # #  ## #   # #  ## #     # #   -" << endl;
+            flux << "- #   # #   # #   # #   # #   # #     #  #  -" << endl;
+            flux << "- #   # #   # #   # #   #  ###  ##### #   # -" << endl;
+            flux << "-                                           -" << endl;
+            flux << "---------------------------------------------" << endl << "" << endl;
+            supprimerAncienFichier();
+        }
+        flux << "[" << QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss:zzz") << "] " << message << endl;
+    }
+}
+
+void MethodeDiverses::supprimerAncienFichier() {
+    QStringList liste;
+#ifdef QT_DEBUG
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
+#else
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
+#endif
+    int max = settings.value("Configuration/PurgeLog", 7).toInt();
+    for(int i = 0; i <= max; i++) {
+        liste.append("SeriesManager_" + QDate::currentDate().addDays(-i).toString("yyyy_MM_dd") + ".log");
+    }
+
+    foreach (QFileInfo info, QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/logs/").entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
+        if(info.fileName().contains("SeriesManager_") && !liste.contains(info.fileName())) {
+            QFile(info.absoluteFilePath()).remove();
+        }
+    }
+}
+
+QString MethodeDiverses::getConfig(QString config) {
+#ifdef QT_DEBUG
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
+#else
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
+#endif
+    return settings.value(config).toString();
+}
+
+int MethodeDiverses::getConfig(QString config, int valeur) {
+#ifdef QT_DEBUG
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
+#else
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
+#endif
+    return settings.value(config, valeur).toInt();
+}
+
+void MethodeDiverses::setConfig(QString config, QString valeur) {
+#ifdef QT_DEBUG
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
+#else
+    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
+#endif
+    settings.setValue(config, valeur);
+}
+

@@ -16,14 +16,12 @@ CONFIG -= console
 SOURCES += main.cpp\
         fenetreprincipale.cpp \
     basededonnees.cpp \
-    log.cpp \
     methodediverses.cpp \
     dialog.cpp \
     filedownloader.cpp
 
 HEADERS  += fenetreprincipale.h \
     basededonnees.h \
-    log.h \
     methodediverses.h \
     dialog.h \
     filedownloader.h

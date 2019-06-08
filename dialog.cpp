@@ -6,14 +6,12 @@ Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog) {
     ui->setupUi(this);
-    pere = (FenetrePrincipale *)parent;
-    this->setWindowTitle(pere->windowTitle());
-    log = new Log();
+    bdd = ((FenetrePrincipale *)parent)->getBdd();
+    this->setWindowTitle(((FenetrePrincipale *)parent)->windowTitle());
     this->setFixedHeight(700);
     this->setFixedWidth(1200);
     ui->tableWidget->setRowCount(0);
-    refresh(pere->getConfig("Configuration/Telechargement"));
-
+    refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(verificationChangementDossierTelechargement()));
@@ -91,13 +89,13 @@ void Dialog::on_pushButtonDeplacerFichier_clicked() {
         if(ui->tableWidget->cellWidget(i, 0) != NULL) {
             QCheckBox *checkBoxDeplacer = (QCheckBox *)ui->tableWidget->cellWidget(i, 0)->layout()->itemAt(0)->widget();
             if(checkBoxDeplacer->isChecked()) {
-                listeFichierADeplacer.append(pere->getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
+                listeFichierADeplacer.append(MethodeDiverses::getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
             }
         }
         if(ui->tableWidget->cellWidget(i, 2) != NULL) {
             QCheckBox *checkBoxSupprimer = (QCheckBox *)ui->tableWidget->cellWidget(i, 2)->layout()->itemAt(0)->widget();
             if(checkBoxSupprimer->isChecked()) {
-                listeFichierASupprimer.append(pere->getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
+                listeFichierASupprimer.append(MethodeDiverses::getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
             }
         }
     }
@@ -107,7 +105,7 @@ void Dialog::on_pushButtonDeplacerFichier_clicked() {
 
     fichierCharge.clear();
     ui->tableWidget->setRowCount(0);
-    refresh(pere->getConfig("Configuration/Telechargement"));
+    refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
     timer->start(500);
 }
 
@@ -117,7 +115,7 @@ void Dialog::on_pushButtonRetour_clicked() {
 
 
 void Dialog::deplacerFichier(QList<QString> liste) {
-    QString dossierSerie = pere->getDossierSerie();
+    QString dossierSerie = MethodeDiverses::getConfig("Configuration/Chemin");
     QList<QString> listeSerie = getListeSerie();
 
 
@@ -137,53 +135,52 @@ void Dialog::deplacerFichier(QList<QString> liste) {
                     if(!methodeDiverses.msgBoxQuestion("Le fichier " + newFichier->fileName() + " existe déjà dans le dossier de la série.\nVoulez vous le remplacer ?")) {
                         newFichier->remove();
                     } else {
-                        log->ecrire("Le fichier " + infoFichier.fileName() + " existe déjà et n'a pas été déplacé");
+                        MethodeDiverses::ecrireLog("Le fichier " + infoFichier.fileName() + " existe déjà et n'a pas été déplacé");
                         ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " existe déjà et n'a pas été déplacé");
                     }
                 }
 
                 if(fichier.rename(dossierSerie + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix())) {
-                    log->ecrire("\tEmplacement du nouveau fichier : " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix());
+                    MethodeDiverses::ecrireLog("\tEmplacement du nouveau fichier : " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison + "/" + listeSerie.at(i) + " " + infoFichier.fileName().mid(infoFichier.fileName().indexOf(QRegularExpression("[Ss][0-9]{2}[Ee][0-9]{2}"), 0), 6).toUpper() + "." + infoFichier.suffix());
                     ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
 
                     // Vérifier s'il existe une ligne dans la table historique
-                    QList<QString> champs;
-                    QList<QString> conditions;
-                    QList<QString> ordres;
+                    QStringList champs, jointures, conditions, ordres;
 
-                    champs.append(pere->getBdd()->HISTORIQUE_NOM);
-                    champs.append(pere->getBdd()->HISTORIQUE_SAISON);
-                    champs.append(pere->getBdd()->HISTORIQUE_EPISODE);
-                    champs.append(pere->getBdd()->HISTORIQUE_ETAT);
-                    conditions.append(pere->getBdd()->HISTORIQUE_NOM + " = '" + listeSerie.at(i) + "'");
-                    conditions.append(pere->getBdd()->HISTORIQUE_SAISON + " = '" + saison + "'");
-                    conditions.append(pere->getBdd()->HISTORIQUE_EPISODE + " = '" + episode + "'");
+                    champs.append(bdd->HISTORIQUE_NOM);
+                    champs.append(bdd->HISTORIQUE_SAISON);
+                    champs.append(bdd->HISTORIQUE_EPISODE);
+                    champs.append(bdd->HISTORIQUE_ETAT);
+                    conditions.append(bdd->HISTORIQUE_NOM + " = '" + listeSerie.at(i) + "'");
+                    conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison + "'");
+                    conditions.append(bdd->HISTORIQUE_EPISODE + " = '" + episode + "'");
 
-                    QList<QMap<QString,QString> > liste = pere->getBdd()->requeteSelect(champs, pere->getBdd()->HISTORIQUE_TABLE, conditions, ordres);
+                    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+                    QList<QMap<QString,QString> > liste = retour.liste;
                     if(liste.count()) {
                         // Si oui on l'a met a jour si l'état n'est pas Vu
                         champs.clear();
                         conditions.clear();
 
-                        champs.append(pere->getBdd()->HISTORIQUE_ETAT + " = CASE WHEN " + pere->getBdd()->HISTORIQUE_ETAT + " = 'NV' THEN 'T' ELSE " + pere->getBdd()->HISTORIQUE_ETAT + " END");
-                        conditions.append(pere->getBdd()->HISTORIQUE_NOM + " = '" + listeSerie.at(i) + "'");
-                        conditions.append(pere->getBdd()->HISTORIQUE_SAISON + " = '" + saison + "'");
-                        conditions.append(pere->getBdd()->HISTORIQUE_EPISODE + " = '" + episode + "'");
+                        champs.append(bdd->HISTORIQUE_ETAT + " = CASE WHEN " + bdd->HISTORIQUE_ETAT + " = 'NV' THEN 'T' ELSE " + bdd->HISTORIQUE_ETAT + " END");
+                        conditions.append(bdd->HISTORIQUE_NOM + " = '" + listeSerie.at(i) + "'");
+                        conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison + "'");
+                        conditions.append(bdd->HISTORIQUE_EPISODE + " = '" + episode + "'");
 
-                        pere->getBdd()->requeteUpdate(champs, pere->getBdd()->HISTORIQUE_TABLE, conditions);
+                        bdd->requeteUpdate(champs, bdd->TABLE_HISTORIQUE, conditions);
                     } else {
                         // Sinon on met à jour dans la table saison a la condition que l'épisode soit celui courant
                         champs.clear();
                         conditions.clear();
 
-                        champs.append(pere->getBdd()->SAISON_ETAT + " = CASE WHEN " + pere->getBdd()->SAISON_ETAT + " = 'NV' THEN 'T' ELSE " + pere->getBdd()->SAISON_ETAT + " END");
-                        conditions.append(pere->getBdd()->SAISON_ID + " = (SELECT " + pere->getBdd()->FICHE_SERIE_ID + " FROM " + pere->getBdd()->FICHE_SERIE_TABLE + " WHERE " + pere->getBdd()->FICHE_SERIE_NOM + " = '" + listeSerie.at(i) + "')");
-                        conditions.append(pere->getBdd()->SAISON_EPISODE_COURANT + " = '" + episode + "'");
+                        champs.append(bdd->SAISON_ETAT + " = CASE WHEN " + bdd->SAISON_ETAT + " = 'NV' THEN 'T' ELSE " + bdd->SAISON_ETAT + " END");
+                        conditions.append(bdd->SAISON_ID + " = (SELECT " + bdd->FICHE_SERIE_ID + " FROM " + bdd->TABLE_FICHE_SERIE + " WHERE " + bdd->FICHE_SERIE_NOM + " = '" + listeSerie.at(i) + "')");
+                        conditions.append(bdd->SAISON_EPISODE_COURANT + " = '" + episode + "'");
 
-                        pere->getBdd()->requeteUpdate(champs, pere->getBdd()->SAISON_TABLE, conditions);
+                        bdd->requeteUpdate(champs, bdd->TABLE_SAISON, conditions);
                     }
                 } else {
-                    log->ecrire("\tLe fichier " + infoFichier.fileName() + " n'a pas été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
+                    MethodeDiverses::ecrireLog("\tLe fichier " + infoFichier.fileName() + " n'a pas été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
                     ui->textBrowser->append("Le fichier " + infoFichier.fileName() + " n'a été déplacé dans le dossier " + dossierSerie + "/" + listeSerie.at(i) + "/Saison " + saison);
                 }
             }
@@ -193,18 +190,17 @@ void Dialog::deplacerFichier(QList<QString> liste) {
             if(!chemin.isNull()) {
                 if(QFile(nomFichier).rename(chemin)) {
                     ui->textBrowser->append("Le fichier " + QFileInfo(nomFichier).fileName() + " a été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
-                    log->ecrire("Le fichier " + QFileInfo(nomFichier).fileName() + " a été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
+                    MethodeDiverses::ecrireLog("Le fichier " + QFileInfo(nomFichier).fileName() + " a été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
                 } else {
                     ui->textBrowser->append("Le fichier " + QFileInfo(nomFichier).fileName() + " n'a pas été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
-                    log->ecrire("Le fichier " + QFileInfo(nomFichier).fileName() + " n'a pas été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
+                    MethodeDiverses::ecrireLog("Le fichier " + QFileInfo(nomFichier).fileName() + " n'a pas été déplacé dans le dossier " + QFileInfo(chemin).absolutePath());
                 }
             } else {
                 ui->textBrowser->append("Aucun chemin n'a été choisi pour le fichier " + QFileInfo(nomFichier).fileName());
-                log->ecrire("Aucun chemin n'a été choisi pour le fichier " + QFileInfo(nomFichier).fileName());
+                MethodeDiverses::ecrireLog("Aucun chemin n'a été choisi pour le fichier " + QFileInfo(nomFichier).fileName());
             }
         }
     }
-    pere->refresh();
 }
 
 void Dialog::supprimerFichier(QList<QString> liste) {
@@ -215,14 +211,14 @@ void Dialog::supprimerFichier(QList<QString> liste) {
         } else if(infoFile.isFile()) {
             if(infoFile.exists()) {
                 if(!QFile(infoFile.absoluteFilePath()).remove()) {
-                    log->ecrire("WARNING : le fichier " + infoFile.fileName() + " n'a pas été supprimé.");
+                    MethodeDiverses::ecrireLog("WARNING : le fichier " + infoFile.fileName() + " n'a pas été supprimé.");
                     ui->textBrowser->append("WARNING : le fichier " + infoFile.fileName() + " n'a pas été supprimé.");
                 } else {
-                    log->ecrire("Le fichier " + infoFile.fileName() + " a été supprimé.");
+                    MethodeDiverses::ecrireLog("Le fichier " + infoFile.fileName() + " a été supprimé.");
                     ui->textBrowser->append("Le fichier " + infoFile.fileName() + " a été supprimé.");
                 }
             } else {
-                log->ecrire("Le fichier " + infoFile.fileName() + " a déjà été supprimé");
+                MethodeDiverses::ecrireLog("Le fichier " + infoFile.fileName() + " a déjà été supprimé");
             }
         }
     }
@@ -268,10 +264,10 @@ void Dialog::refresh(QString dossier) {
             QTableWidgetItem *itemSeriePresente = new QTableWidgetItem();
             itemSeriePresente->setBackgroundColor(QColor("red"));
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 7, itemSeriePresente);
-            if(dossier == pere->getConfig("Configuration/Telechargement")) {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(pere->getConfig("Configuration/Telechargement"),"")));
+            if(dossier == MethodeDiverses::getConfig("Configuration/Telechargement")) {
+                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),"")));
             } else {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(pere->getConfig("Configuration/Telechargement"),".")));
+                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),".")));
             }
             refresh(info.absoluteFilePath());
         } else if (info.isFile()) {
@@ -325,10 +321,10 @@ void Dialog::refresh(QString dossier) {
                 }
             }
             ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 7, itemSeriePresente);
-            if(dossier == pere->getConfig("Configuration/Telechargement")) {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(pere->getConfig("Configuration/Telechargement"),"")));
+            if(dossier == MethodeDiverses::getConfig("Configuration/Telechargement")) {
+                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),"")));
             } else {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(pere->getConfig("Configuration/Telechargement"),".")));
+                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),".")));
             }
         }
     }
@@ -340,7 +336,7 @@ void Dialog::refresh(QString dossier) {
 void Dialog::on_tableWidget_clicked(const QModelIndex &index) {
     if(index.column() >= 0 && index.column() <= 2 && ui->tableWidget->cellWidget(index.row(), index.column()) != NULL) {
         QCheckBox *checkBox;
-        if(index.column() == 2 && ui->tableWidget->cellWidget(index.row(), 0) == NULL && QDir(pere->getConfig("Configuration/Telechargement") + ui->tableWidget->item(index.row(), 8)->text().replace(".","") + "/" + ui->tableWidget->item(index.row(), 3)->text()).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() != 0) {
+        if(index.column() == 2 && ui->tableWidget->cellWidget(index.row(), 0) == NULL && QDir(MethodeDiverses::getConfig("Configuration/Telechargement") + ui->tableWidget->item(index.row(), 8)->text().replace(".","") + "/" + ui->tableWidget->item(index.row(), 3)->text()).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() != 0) {
             QMessageBox::information(this, this->windowTitle(), "Le dossier contient des fichiers. Si vous le supprimer tous les fichiers et dossiers présent dedans seront supprimés");
         }
         checkBox = (QCheckBox *)ui->tableWidget->cellWidget(index.row(), index.column())->layout()->itemAt(0)->widget();
@@ -351,13 +347,13 @@ void Dialog::on_tableWidget_clicked(const QModelIndex &index) {
 
 void Dialog::verificationChangementDossierTelechargement() {
     fichierTrouve.clear();
-    nombreFichier(pere->getConfig("Configuration/Telechargement"));
+    nombreFichier(MethodeDiverses::getConfig("Configuration/Telechargement"));
     bool res = contenuIdentique();
     if(fichierCharge.count() != fichierTrouve.count() || !res) {
         QMessageBox::information(this, this->windowTitle(), "Les fichiers ont été modifié. Le tableau va être rechargé.");
         fichierCharge.clear();
         ui->tableWidget->setRowCount(0);
-        refresh(pere->getConfig("Configuration/Telechargement"));
+        refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
     }
 }
 
@@ -382,6 +378,7 @@ bool Dialog::contenuIdentique() {
 }
 
 void Dialog::closeEvent(QCloseEvent *event) {
+    QWidget::closeEvent(event);
     timer->stop();
 }
 
@@ -403,16 +400,16 @@ void Dialog::supprimerDossierEtContenu(QString dossier) {
             supprimerDossierEtContenu(fileInfo.absoluteFilePath());
             if(dir.rmdir(fileInfo.absoluteFilePath())) {
                 ui->textBrowser->append("Le dossier " + fileInfo.fileName() + " a été supprimé");
-                log->ecrire("Le dossier " + fileInfo.fileName() + " a été supprimé");
+                MethodeDiverses::ecrireLog("Le dossier " + fileInfo.fileName() + " a été supprimé");
             } else {
                 ui->textBrowser->append("Le dossier " + fileInfo.fileName() + " n'a pas été supprimé");
-                log->ecrire("Le dossier " + fileInfo.fileName() + " n'a pas été supprimé");
+                MethodeDiverses::ecrireLog("Le dossier " + fileInfo.fileName() + " n'a pas été supprimé");
 
             }
         } else if(fileInfo.isFile()) {
             if(QFile(fileInfo.absoluteFilePath()).remove()) {
                 ui->textBrowser->append("Le fichier " + fileInfo.fileName() + " a été supprimé");
-                log->ecrire("Le fichier " + fileInfo.fileName() + " a été supprimé");
+                MethodeDiverses::ecrireLog("Le fichier " + fileInfo.fileName() + " a été supprimé");
             }
         }
     }
@@ -421,11 +418,11 @@ void Dialog::supprimerDossierEtContenu(QString dossier) {
 
 QList<QString> Dialog::getListeSerie() {
     QList<QString> listeSerie;
-    foreach (QFileInfo file, QDir(pere->getDossierSerie()).entryInfoList(QDir::NoDotAndDotDot|QDir::AllDirs)) {
-        if(file.isDir() && file.absoluteFilePath() != pere->getConfig("Configuration/Telechargement")) {
+    foreach (QFileInfo file, QDir(MethodeDiverses::getConfig("Configuration/Chemin")).entryInfoList(QDir::NoDotAndDotDot|QDir::AllDirs)) {
+        if(file.isDir() && file.absoluteFilePath() != MethodeDiverses::getConfig("Configuration/Telechargement")) {
             QString nom;
             nom = file.absoluteFilePath();
-            nom.replace(pere->getDossierSerie(), "");
+            nom.replace(MethodeDiverses::getConfig("Configuration/Chemin"), "");
             listeSerie.append(nom);
 
         }

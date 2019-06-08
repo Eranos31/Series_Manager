@@ -43,8 +43,11 @@ bool processExiste(QString nomProcess) {
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QString nomProcess = QFileInfo(argv[0]).fileName();
     FenetrePrincipale w;
+#ifdef QT_DEBUG
+    w.show();
+#else
+    QString nomProcess = QFileInfo(argv[0]).fileName();
     if(!processExiste(nomProcess)) {
         w.show();
     } else {
@@ -64,7 +67,7 @@ int main(int argc, char *argv[])
         }
         return 1;
     }
-
+#endif
     return a.exec();
 }
 

@@ -2,9 +2,15 @@
 #define METHODEDIVERSES_H
 #include <QString>
 #include <QDate>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
 #include <QTableWidgetItem>
 #include <QMessageBox>
 #include <QHBoxLayout>
+#include <QStandardPaths>
+#include <QSettings>
+#include <QFileInfo>
 
 class MethodeDiverses
 {
@@ -22,6 +28,11 @@ public:
     QString formatDate(QDate date);
     QString formatDateJJMMAA(QDate date);
     QString monthToString(int mois);
+    static void ecrireLog(QString message);
+    static void supprimerAncienFichier();
+    static QString getConfig(QString config);
+    static int getConfig(QString config, int valeur);
+    static void setConfig(QString config, QString valeur);
 };
 
 #endif // METHODEDIVERSES_H

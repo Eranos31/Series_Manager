@@ -10,17 +10,23 @@ Dialog::Dialog(QWidget *parent) :
     this->setWindowTitle(((FenetrePrincipale *)parent)->windowTitle());
     this->setFixedHeight(700);
     this->setFixedWidth(1200);
-    ui->tableWidget->setRowCount(0);
-    refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
     majTreeWidget();
-
-    timer = new QTimer();
-    connect(timer, SIGNAL(timeout()), this, SLOT(verificationChangementDossierTelechargement()));
-    timer->start(500);
 }
 
 Dialog::~Dialog() {
     delete ui;
+}
+
+bool Dialog::event(QEvent *event) {
+    switch (event->type()) {
+    case QEvent::WindowActivate:
+        verificationChangementDossierTelechargement();
+        break;
+    default:
+        break;
+    }
+
+    return QWidget::event(event);
 }
 
 QString Dialog::tailleFichier(double taille, QString unite) {
@@ -51,69 +57,75 @@ QString Dialog::tailleFichier(double taille, QString unite) {
 }
 
 void Dialog::on_pushButtonDeplacerTout_clicked() {
-    for (int i = 0; i < ui->tableWidget->rowCount(); ++i) {
-        QCheckBox *checkBox;
-        if(ui->tableWidget->cellWidget(i, 0) != NULL) {
-            checkBox = (QCheckBox *)ui->tableWidget->cellWidget(i, 0)->layout()->itemAt(0)->widget();
-        } else {
-            checkBox = (QCheckBox *)ui->tableWidget->cellWidget(i, 1)->layout()->itemAt(0)->widget();
-        }
-        checkBox->setChecked(true);
-    }
+    QTreeWidgetItem *itemPere = ui->treeWidget->topLevelItem(0);
+    modifierTouteCheckBox(itemPere, TREE_WIDGET_DEPLACER);
     activationBoutonDeplacer();
 }
 
 void Dialog::on_pushButtonSupprimerTout_clicked() {
-    for (int i = 0; i < ui->tableWidget->rowCount(); ++i) {
-        QCheckBox *checkBox = (QCheckBox *)ui->tableWidget->cellWidget(i, 2)->layout()->itemAt(0)->widget();
-        checkBox->setChecked(true);
-    }
+    QTreeWidgetItem *itemPere = ui->treeWidget->topLevelItem(0);
+    modifierTouteCheckBox(itemPere, TREE_WIDGET_SUPPRIMER);
     activationBoutonDeplacer();
 }
 
 void Dialog::on_pushButtonNeRienFaire_clicked() {
-    for (int i = 0; i < ui->tableWidget->rowCount(); ++i) {
-        QCheckBox *checkBox = (QCheckBox *)ui->tableWidget->cellWidget(i, 1)->layout()->itemAt(0)->widget();
-        checkBox->setChecked(true);
-    }
+    QTreeWidgetItem *itemPere = ui->treeWidget->topLevelItem(0);
+    modifierTouteCheckBox(itemPere, TREE_WIDGET_NE_RIEN_FAIRE);
     activationBoutonDeplacer();
 }
 
-void Dialog::on_pushButtonDeplacerFichier_clicked() {
-    QList<QString> listeFichierADeplacer;
-    QList<QString> listeFichierASupprimer;
-    timer->stop();
-    ui->textBrowser->clear();
-
-    for(int i = 0; i < ui->tableWidget->rowCount(); i++) {
-        QString nomFichier = ui->tableWidget->item(i, 3)->text();
-        if(ui->tableWidget->cellWidget(i, 0) != NULL) {
-            QCheckBox *checkBoxDeplacer = (QCheckBox *)ui->tableWidget->cellWidget(i, 0)->layout()->itemAt(0)->widget();
-            if(checkBoxDeplacer->isChecked()) {
-                listeFichierADeplacer.append(MethodeDiverses::getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
-            }
+void Dialog::modifierTouteCheckBox(QTreeWidgetItem *itemPere, int colonne) {
+    for(int i = 0; i < itemPere->childCount(); i++) {
+        QTreeWidgetItem *itemFils = itemPere->child(i);
+        QCheckBox *checkBox;
+        if(ui->treeWidget->itemWidget(itemFils, colonne) != NULL) {
+            checkBox = (QCheckBox *)ui->treeWidget->itemWidget(itemFils, colonne)->layout()->itemAt(0)->widget();
+        } else {
+            checkBox = (QCheckBox *)ui->treeWidget->itemWidget(itemFils, TREE_WIDGET_NE_RIEN_FAIRE)->layout()->itemAt(0)->widget();
         }
-        if(ui->tableWidget->cellWidget(i, 2) != NULL) {
-            QCheckBox *checkBoxSupprimer = (QCheckBox *)ui->tableWidget->cellWidget(i, 2)->layout()->itemAt(0)->widget();
-            if(checkBoxSupprimer->isChecked()) {
-                listeFichierASupprimer.append(MethodeDiverses::getConfig("Configuration/Telechargement") + ui->tableWidget->item(i,8)->text() + "/" + nomFichier);
-            }
+        checkBox->setChecked(true);
+        if(itemFils->childCount()) {
+            modifierTouteCheckBox(itemFils, colonne);
         }
     }
+}
 
+void Dialog::on_pushButtonDeplacerFichier_clicked() {
+    QStringList listeFichierADeplacer, listeFichierASupprimer;
+    ui->textBrowser->clear();
+    preTraitementDeplacerFichier(ui->treeWidget->topLevelItem(0), &listeFichierADeplacer, &listeFichierASupprimer);
     deplacerFichier(listeFichierADeplacer);
     supprimerFichier(listeFichierASupprimer);
 
     fichierCharge.clear();
-    ui->tableWidget->setRowCount(0);
-    refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
-    timer->start(500);
+    majTreeWidget();
+}
+
+void Dialog::preTraitementDeplacerFichier(QTreeWidgetItem *itemPere, QStringList *listeFichierADeplacer, QStringList *listeFichierASupprimer) {
+    for(int i = 0; i < itemPere->childCount(); i++) {
+        QTreeWidgetItem *itemFils = itemPere->child(i);
+        if(ui->treeWidget->itemWidget(itemFils, TREE_WIDGET_DEPLACER) != NULL && ((QCheckBox *)ui->treeWidget->itemWidget(itemFils, TREE_WIDGET_DEPLACER)->layout()->itemAt(0)->widget())->isChecked()) {
+            listeFichierADeplacer->append(getChemin(itemFils));
+        } else if (((QCheckBox *)ui->treeWidget->itemWidget(itemFils, TREE_WIDGET_SUPPRIMER)->layout()->itemAt(0)->widget())->isChecked()) {
+            listeFichierASupprimer->append(getChemin(itemFils));
+        }
+        if(itemFils->childCount()) {
+            preTraitementDeplacerFichier(itemFils, listeFichierADeplacer, listeFichierASupprimer);
+        }
+    }
+}
+
+QString Dialog::getChemin(QTreeWidgetItem *item) {
+    if(item->parent() == NULL) {
+        return item->text(TREE_WIDGET_NOM);
+    } else {
+        return getChemin(item->parent()) + "/" + item->text(TREE_WIDGET_NOM);
+    }
 }
 
 void Dialog::on_pushButtonRetour_clicked() {
     this->close();
 }
-
 
 void Dialog::deplacerFichier(QList<QString> liste) {
     QString dossierSerie = MethodeDiverses::getConfig("Configuration/Chemin");
@@ -225,115 +237,6 @@ void Dialog::supprimerFichier(QList<QString> liste) {
     }
 }
 
-void Dialog::refresh(QString dossier) {
-    QList<QString> listeSerie = getListeSerie();
-    foreach (QFileInfo info, QDir(dossier).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
-        if(info.isDir()) {
-            ui->tableWidget->setRowCount(ui->tableWidget->rowCount()+1);
-            fichierCharge.append(info.fileName());
-            QCheckBox *checkNeRienFaire = new QCheckBox();
-            QCheckBox *checkSupprimer = new QCheckBox();
-            QWidget *widgetNeRienFaire = new QWidget();
-            QWidget *widgetSupprimer = new QWidget();
-            QHBoxLayout *layoutNeRienFaire = new QHBoxLayout(widgetNeRienFaire);
-            QHBoxLayout *layoutSupprimer = new QHBoxLayout(widgetSupprimer);
-            QButtonGroup *group = new QButtonGroup();
-
-            layoutNeRienFaire->addWidget(checkNeRienFaire);
-            layoutSupprimer->addWidget(checkSupprimer);
-            layoutNeRienFaire->setAlignment(Qt::AlignCenter);
-            layoutSupprimer->setAlignment(Qt::AlignCenter);
-            layoutNeRienFaire->setContentsMargins(0,0,0,0);
-            layoutSupprimer->setContentsMargins(0,0,0,0);
-            widgetNeRienFaire->setLayout(layoutNeRienFaire);
-            widgetSupprimer->setLayout(layoutSupprimer);
-            group->addButton(checkNeRienFaire);
-            group->addButton(checkSupprimer);
-            group->setExclusive(true);
-            checkNeRienFaire->setChecked(true);
-
-            QTableWidgetItem *itemTailleFichier = new QTableWidgetItem(tailleFichier(info.size(), ""));
-            itemTailleFichier->setTextAlignment(Qt::AlignRight|Qt::AlignCenter);
-
-            ui->tableWidget->setCellWidget(ui->tableWidget->rowCount()-1, 1, widgetNeRienFaire);
-            ui->tableWidget->setCellWidget(ui->tableWidget->rowCount()-1, 2, widgetSupprimer);
-            QFileIconProvider iconProvider;
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 3, new QTableWidgetItem(QIcon(iconProvider.icon(info)), info.fileName()));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 4, new QTableWidgetItem(info.created().toString("dd/MM/yyyy hh:mm:ss")));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 5, new QTableWidgetItem(info.lastModified().toString("dd/MM/yyyy hh:mm:ss")));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 6, itemTailleFichier);
-            QTableWidgetItem *itemSeriePresente = new QTableWidgetItem();
-            itemSeriePresente->setBackgroundColor(QColor("red"));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 7, itemSeriePresente);
-            if(dossier == MethodeDiverses::getConfig("Configuration/Telechargement")) {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),"")));
-            } else {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),".")));
-            }
-            refresh(info.absoluteFilePath());
-        } else if (info.isFile()) {
-            ui->tableWidget->setRowCount(ui->tableWidget->rowCount()+1);
-            fichierCharge.append(info.fileName());
-            QCheckBox *checkDeplacer = new QCheckBox();
-            QCheckBox *checkNeRienFaire = new QCheckBox();
-            QCheckBox *checkSupprimer = new QCheckBox();
-            QWidget *widgetDeplacer = new QWidget();
-            QWidget *widgetNeRienFaire = new QWidget();
-            QWidget *widgetSupprimer = new QWidget();
-            QHBoxLayout *layoutDeplacer = new QHBoxLayout(widgetDeplacer);
-            QHBoxLayout *layoutNeRienFaire = new QHBoxLayout(widgetNeRienFaire);
-            QHBoxLayout *layoutSupprimer = new QHBoxLayout(widgetSupprimer);
-            QButtonGroup *group = new QButtonGroup();
-
-            layoutDeplacer->addWidget(checkDeplacer);
-            layoutNeRienFaire->addWidget(checkNeRienFaire);
-            layoutSupprimer->addWidget(checkSupprimer);
-            layoutDeplacer->setAlignment(Qt::AlignCenter);
-            layoutNeRienFaire->setAlignment(Qt::AlignCenter);
-            layoutSupprimer->setAlignment(Qt::AlignCenter);
-            layoutDeplacer->setContentsMargins(0,0,0,0);
-            layoutNeRienFaire->setContentsMargins(0,0,0,0);
-            layoutSupprimer->setContentsMargins(0,0,0,0);
-            widgetDeplacer->setLayout(layoutDeplacer);
-            widgetNeRienFaire->setLayout(layoutNeRienFaire);
-            widgetSupprimer->setLayout(layoutSupprimer);
-            group->addButton(checkDeplacer);
-            group->addButton(checkNeRienFaire);
-            group->addButton(checkSupprimer);
-            group->setExclusive(true);
-            checkNeRienFaire->setChecked(true);
-
-            QTableWidgetItem *itemTailleFichier = new QTableWidgetItem(tailleFichier(info.size(), ""));
-            itemTailleFichier->setTextAlignment(Qt::AlignRight|Qt::AlignCenter);
-
-            ui->tableWidget->setCellWidget(ui->tableWidget->rowCount()-1, 0, widgetDeplacer);
-            ui->tableWidget->setCellWidget(ui->tableWidget->rowCount()-1, 1, widgetNeRienFaire);
-            ui->tableWidget->setCellWidget(ui->tableWidget->rowCount()-1, 2, widgetSupprimer);
-            QFileIconProvider iconProvider;
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 3, new QTableWidgetItem(QIcon(iconProvider.icon(info)), info.fileName()));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 4, new QTableWidgetItem(info.created().toString("dd/MM/yyyy hh:mm:ss")));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 5, new QTableWidgetItem(info.lastModified().toString("dd/MM/yyyy hh:mm:ss")));
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 6, itemTailleFichier);
-            QTableWidgetItem *itemSeriePresente = new QTableWidgetItem();
-            itemSeriePresente->setBackgroundColor(QColor("red"));
-            foreach (QString serie, listeSerie) {
-                 if(info.fileName().contains(serie, Qt::CaseInsensitive) || info.fileName().contains(QString(serie).replace(" ","."), Qt::CaseInsensitive)) {
-                    itemSeriePresente->setBackgroundColor(QColor("green"));
-                }
-            }
-            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 7, itemSeriePresente);
-            if(dossier == MethodeDiverses::getConfig("Configuration/Telechargement")) {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),"")));
-            } else {
-                ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 8, new QTableWidgetItem(dossier.replace(MethodeDiverses::getConfig("Configuration/Telechargement"),".")));
-            }
-        }
-    }
-    ui->tableWidget->resizeColumnsToContents();
-    ui->tableWidget->resizeRowsToContents();
-    activationBoutonDeplacer();
-}
-
 void Dialog::majTreeWidget() {
     ui->treeWidget->clear();
     QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -344,64 +247,79 @@ void Dialog::majTreeWidget() {
     ui->treeWidget->resizeColumnToContents(TREE_WIDGET_DATE_CREATION);
     ui->treeWidget->resizeColumnToContents(TREE_WIDGET_DATE_MODIFICATION);
     ui->treeWidget->resizeColumnToContents(TREE_WIDGET_TAILLE);
+
 }
 
 void Dialog::remplirTreeWidget(QTreeWidgetItem *itemPere, QString chemin) {
     foreach (QFileInfo fileInfo, QDir(chemin).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
         QFileIconProvider iconProvider;
+        QCheckBox *checkDeplacer = new QCheckBox();
+        QCheckBox *checkNeRienFaire = new QCheckBox();
+        QCheckBox *checkSupprimer = new QCheckBox();
+        QWidget *widgetDeplacer = new QWidget();
+        QWidget *widgetNeRienFaire = new QWidget();
+        QWidget *widgetSupprimer = new QWidget();
+        QHBoxLayout *layoutDeplacer = new QHBoxLayout(widgetDeplacer);
+        QHBoxLayout *layoutNeRienFaire = new QHBoxLayout(widgetNeRienFaire);
+        QHBoxLayout *layoutSupprimer = new QHBoxLayout(widgetSupprimer);
+        QButtonGroup *group = new QButtonGroup();
+
+        // On ajoute les checkbox dans le layout
+        layoutDeplacer->addWidget(checkDeplacer);
+        layoutNeRienFaire->addWidget(checkNeRienFaire);
+        layoutSupprimer->addWidget(checkSupprimer);
+        // On met l'alignement
+        layoutDeplacer->setAlignment(Qt::AlignCenter);
+        layoutNeRienFaire->setAlignment(Qt::AlignCenter);
+        layoutSupprimer->setAlignment(Qt::AlignCenter);
+        // On met les marges
+        layoutDeplacer->setContentsMargins(0,0,0,0);
+        layoutNeRienFaire->setContentsMargins(0,0,0,0);
+        layoutSupprimer->setContentsMargins(0,0,0,0);
+        // On met le layout dans le widget
+        widgetDeplacer->setLayout(layoutDeplacer);
+        widgetNeRienFaire->setLayout(layoutNeRienFaire);
+        widgetSupprimer->setLayout(layoutSupprimer);
+        // On met les checkbox dans un groupe
+        group->addButton(checkDeplacer);
+        group->addButton(checkNeRienFaire);
+        group->addButton(checkSupprimer);
+        // Une seule checkbox peut être activé
+        group->setExclusive(true);
+        // On checke la checkbox ne rien faire
+        checkNeRienFaire->setChecked(true);
+
+        fichierCharge.append(fileInfo.fileName());
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(TREE_WIDGET_NOM, fileInfo.fileName());
+        item->setIcon(TREE_WIDGET_NOM, QIcon(iconProvider.icon(fileInfo)));
+        item->setText(TREE_WIDGET_DATE_CREATION, fileInfo.created().toString("dd/MM/yyyy hh:mm:ss"));
+        item->setText(TREE_WIDGET_DATE_MODIFICATION, fileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss"));
+        itemPere->addChild(item);
+        ui->treeWidget->setItemWidget(item, TREE_WIDGET_NE_RIEN_FAIRE, widgetNeRienFaire);
+        ui->treeWidget->setItemWidget(item, TREE_WIDGET_SUPPRIMER, widgetSupprimer);
         if(fileInfo.isDir()) {
             // Si c'est un dossier
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(TREE_WIDGET_NOM, fileInfo.fileName());
-            item->setIcon(TREE_WIDGET_NOM, QIcon(iconProvider.icon(fileInfo)));
-            item->setText(TREE_WIDGET_DATE_CREATION, fileInfo.created().toString("dd/MM/yyyy hh:mm:ss"));
-            item->setText(TREE_WIDGET_DATE_MODIFICATION, fileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss"));
-            item->setCheckState(TREE_WIDGET_NE_RIEN_FAIRE, Qt::Checked);
-            item->setCheckState(TREE_WIDGET_SUPPRIMER, Qt::Unchecked);
-            itemPere->addChild(item);
             remplirTreeWidget(item, chemin + "/" + fileInfo.fileName());
         } else {
             // Si c'est un fichier
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(TREE_WIDGET_NOM, fileInfo.fileName());
-            item->setIcon(TREE_WIDGET_NOM, QIcon(iconProvider.icon(fileInfo)));
-            item->setText(TREE_WIDGET_DATE_CREATION, fileInfo.created().toString("dd/MM/yyyy hh:mm:ss"));
-            item->setText(TREE_WIDGET_DATE_MODIFICATION, fileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss"));
             item->setText(TREE_WIDGET_TAILLE, tailleFichier(fileInfo.size(), ""));
-            item->setCheckState(TREE_WIDGET_DEPLACER, Qt::Unchecked);
-            item->setCheckState(TREE_WIDGET_NE_RIEN_FAIRE, Qt::Checked);
-            item->setCheckState(TREE_WIDGET_SUPPRIMER, Qt::Unchecked);
-            itemPere->addChild(item);
-            // TODO On ajoute les autres informations et les checkbox
+            item->setTextAlignment(TREE_WIDGET_TAILLE, Qt::AlignRight|Qt::AlignCenter);
+            ui->treeWidget->setItemWidget(item, TREE_WIDGET_DEPLACER, widgetDeplacer);
             itemPere->addChild(item);
         }
     }
     itemPere->setExpanded(true);
-}
-
-void Dialog::on_tableWidget_clicked(const QModelIndex &index) {
-    if(index.column() >= 0 && index.column() <= 2 && ui->tableWidget->cellWidget(index.row(), index.column()) != NULL) {
-        QCheckBox *checkBox;
-        if(index.column() == 2 && ui->tableWidget->cellWidget(index.row(), 0) == NULL && QDir(MethodeDiverses::getConfig("Configuration/Telechargement") + ui->tableWidget->item(index.row(), 8)->text().replace(".","") + "/" + ui->tableWidget->item(index.row(), 3)->text()).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() != 0) {
-            QMessageBox::information(this, this->windowTitle(), "Le dossier contient des fichiers. Si vous le supprimer tous les fichiers et dossiers présent dedans seront supprimés");
-        }
-        checkBox = (QCheckBox *)ui->tableWidget->cellWidget(index.row(), index.column())->layout()->itemAt(0)->widget();
-        checkBox->setChecked(true);
-    }
     activationBoutonDeplacer();
 }
 
 void Dialog::verificationChangementDossierTelechargement() {
     fichierTrouve.clear();
     nombreFichier(MethodeDiverses::getConfig("Configuration/Telechargement"));
-    bool res = contenuIdentique();
-    if(fichierCharge.count() != fichierTrouve.count() || !res) {
-        QMessageBox::information(this, this->windowTitle(), "Les fichiers ont été modifié. Le tableau va être rechargé.");
+    if(fichierCharge.count() != fichierTrouve.count() || !contenuIdentique()) {
         fichierCharge.clear();
-        ui->tableWidget->setRowCount(0);
-        refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
-
         majTreeWidget();
+        QMessageBox::information(this, this->windowTitle(), "Les fichiers ont été modifié. Le tableau a été rechargé.");
     }
 }
 
@@ -425,20 +343,22 @@ bool Dialog::contenuIdentique() {
     return true;
 }
 
-void Dialog::closeEvent(QCloseEvent *event) {
-    QWidget::closeEvent(event);
-    timer->stop();
+void Dialog::activationBoutonDeplacer() {
+    ui->pushButtonDeplacerFichier->setEnabled(verificationCheckBox(ui->treeWidget->topLevelItem(0)));
 }
 
-void Dialog::activationBoutonDeplacer() {
-    bool actif = false;
-    for (int i = 0; i < ui->tableWidget->rowCount(); ++i) {
-        QCheckBox *checkBox = (QCheckBox *)ui->tableWidget->cellWidget(i,1)->layout()->itemAt(0)->widget();
-        if(!checkBox->isChecked()) {
-            actif = true;
+bool Dialog::verificationCheckBox(QTreeWidgetItem *itemPere) {
+    for(int i = 0; i < itemPere->childCount(); i++) {
+        QTreeWidgetItem *itemFils = itemPere->child(i);
+        if(ui->treeWidget->itemWidget(itemFils,TREE_WIDGET_DEPLACER) != NULL && ((QCheckBox *)ui->treeWidget->itemWidget(itemFils,TREE_WIDGET_DEPLACER)->layout()->itemAt(0)->widget())->isChecked() ||
+                ui->treeWidget->itemWidget(itemFils,TREE_WIDGET_SUPPRIMER) != NULL && ((QCheckBox *)ui->treeWidget->itemWidget(itemFils,TREE_WIDGET_SUPPRIMER)->layout()->itemAt(0)->widget())->isChecked()) {
+            return true;
+        }
+        if(itemFils->childCount() && verificationCheckBox(itemFils)) {
+            return true;
         }
     }
-    ui->pushButtonDeplacerFichier->setEnabled(actif);
+    return false;
 }
 
 void Dialog::supprimerDossierEtContenu(QString dossier) {

@@ -22,6 +22,7 @@ class Dialog : public QDialog
 public:
     explicit Dialog(QWidget *parent = 0);
     ~Dialog();
+    bool event(QEvent *event);
 
     const int TREE_WIDGET_NOM =                 0;
     const int TREE_WIDGET_DATE_CREATION =       1;
@@ -37,19 +38,20 @@ private slots:
     void on_pushButtonDeplacerTout_clicked();
     void on_pushButtonSupprimerTout_clicked();
     void on_pushButtonNeRienFaire_clicked();
+    void modifierTouteCheckBox(QTreeWidgetItem *itemPere, int colonne);
     void on_pushButtonDeplacerFichier_clicked();
+    void preTraitementDeplacerFichier(QTreeWidgetItem *itemPere, QStringList *listeFichierADeplacer, QStringList *listeFichierASupprimer);
+    QString getChemin(QTreeWidgetItem *item);
     void on_pushButtonRetour_clicked();
     void deplacerFichier(QList<QString> liste);
     void supprimerFichier(QList<QString> liste);
-    void refresh(QString dossier);
     void majTreeWidget();
     void remplirTreeWidget(QTreeWidgetItem *itemPere, QString chemin);
-    void on_tableWidget_clicked(const QModelIndex &index);
     void verificationChangementDossierTelechargement();
-    void closeEvent(QCloseEvent *event);
     void nombreFichier(QString chemin);
     bool contenuIdentique();
     void activationBoutonDeplacer();
+    bool verificationCheckBox(QTreeWidgetItem *itemPere);
     void supprimerDossierEtContenu(QString dossier);
     QList<QString> getListeSerie();
 
@@ -58,7 +60,6 @@ private:
     BaseDeDonnees *bdd;
     MethodeDiverses methodeDiverses;
     QFileInfoList listeInfoFichier;
-    QTimer *timer;
     QList<QString> fichierCharge;
     QList<QString> fichierTrouve;
 };

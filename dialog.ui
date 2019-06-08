@@ -75,61 +75,6 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="tableWidget">
-     <property name="columnCount">
-      <number>9</number>
-     </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Déplacer</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Ne rien faire</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Supprimer</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Nom</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Date création</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Date modification</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Taille</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Série présente</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Sous-dossier</string>
-      </property>
-     </column>
-    </widget>
-   </item>
-   <item>
     <widget class="QTreeWidget" name="treeWidget">
      <column>
       <property name="text">
@@ -164,6 +109,11 @@
      <column>
       <property name="text">
        <string>Supprimer</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string/>
       </property>
      </column>
     </widget>

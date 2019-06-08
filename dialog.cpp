@@ -12,6 +12,7 @@ Dialog::Dialog(QWidget *parent) :
     this->setFixedWidth(1200);
     ui->tableWidget->setRowCount(0);
     refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
+    majTreeWidget();
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(verificationChangementDossierTelechargement()));
@@ -333,6 +334,51 @@ void Dialog::refresh(QString dossier) {
     activationBoutonDeplacer();
 }
 
+void Dialog::majTreeWidget() {
+    ui->treeWidget->clear();
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    item->setText(TREE_WIDGET_NOM, MethodeDiverses::getConfig("Configuration/Telechargement"));
+    ui->treeWidget->addTopLevelItem(item);
+    remplirTreeWidget(item, MethodeDiverses::getConfig("Configuration/Telechargement"));
+    ui->treeWidget->resizeColumnToContents(TREE_WIDGET_NOM);
+    ui->treeWidget->resizeColumnToContents(TREE_WIDGET_DATE_CREATION);
+    ui->treeWidget->resizeColumnToContents(TREE_WIDGET_DATE_MODIFICATION);
+    ui->treeWidget->resizeColumnToContents(TREE_WIDGET_TAILLE);
+}
+
+void Dialog::remplirTreeWidget(QTreeWidgetItem *itemPere, QString chemin) {
+    foreach (QFileInfo fileInfo, QDir(chemin).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries)) {
+        QFileIconProvider iconProvider;
+        if(fileInfo.isDir()) {
+            // Si c'est un dossier
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(TREE_WIDGET_NOM, fileInfo.fileName());
+            item->setIcon(TREE_WIDGET_NOM, QIcon(iconProvider.icon(fileInfo)));
+            item->setText(TREE_WIDGET_DATE_CREATION, fileInfo.created().toString("dd/MM/yyyy hh:mm:ss"));
+            item->setText(TREE_WIDGET_DATE_MODIFICATION, fileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss"));
+            item->setCheckState(TREE_WIDGET_NE_RIEN_FAIRE, Qt::Checked);
+            item->setCheckState(TREE_WIDGET_SUPPRIMER, Qt::Unchecked);
+            itemPere->addChild(item);
+            remplirTreeWidget(item, chemin + "/" + fileInfo.fileName());
+        } else {
+            // Si c'est un fichier
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(TREE_WIDGET_NOM, fileInfo.fileName());
+            item->setIcon(TREE_WIDGET_NOM, QIcon(iconProvider.icon(fileInfo)));
+            item->setText(TREE_WIDGET_DATE_CREATION, fileInfo.created().toString("dd/MM/yyyy hh:mm:ss"));
+            item->setText(TREE_WIDGET_DATE_MODIFICATION, fileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss"));
+            item->setText(TREE_WIDGET_TAILLE, tailleFichier(fileInfo.size(), ""));
+            item->setCheckState(TREE_WIDGET_DEPLACER, Qt::Unchecked);
+            item->setCheckState(TREE_WIDGET_NE_RIEN_FAIRE, Qt::Checked);
+            item->setCheckState(TREE_WIDGET_SUPPRIMER, Qt::Unchecked);
+            itemPere->addChild(item);
+            // TODO On ajoute les autres informations et les checkbox
+            itemPere->addChild(item);
+        }
+    }
+    itemPere->setExpanded(true);
+}
+
 void Dialog::on_tableWidget_clicked(const QModelIndex &index) {
     if(index.column() >= 0 && index.column() <= 2 && ui->tableWidget->cellWidget(index.row(), index.column()) != NULL) {
         QCheckBox *checkBox;
@@ -354,6 +400,8 @@ void Dialog::verificationChangementDossierTelechargement() {
         fichierCharge.clear();
         ui->tableWidget->setRowCount(0);
         refresh(MethodeDiverses::getConfig("Configuration/Telechargement"));
+
+        majTreeWidget();
     }
 }
 

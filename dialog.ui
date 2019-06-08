@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>849</width>
-    <height>489</height>
+    <width>970</width>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -125,6 +125,45 @@
      <column>
       <property name="text">
        <string>Sous-dossier</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="treeWidget">
+     <column>
+      <property name="text">
+       <string>Nom</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Date création</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Date modification</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Taille</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Déplacer</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Ne rien faire</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Supprimer</string>
       </property>
      </column>
     </widget>

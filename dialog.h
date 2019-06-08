@@ -6,6 +6,7 @@
 #include <QButtonGroup>
 #include <QTimer>
 #include <QFileIconProvider>
+#include <QTreeWidget>
 #include "fenetreprincipale.h"
 #include "methodediverses.h"
 
@@ -22,6 +23,15 @@ public:
     explicit Dialog(QWidget *parent = 0);
     ~Dialog();
 
+    const int TREE_WIDGET_NOM =                 0;
+    const int TREE_WIDGET_DATE_CREATION =       1;
+    const int TREE_WIDGET_DATE_MODIFICATION =   2;
+    const int TREE_WIDGET_TAILLE =              3;
+    const int TREE_WIDGET_DEPLACER =            4;
+    const int TREE_WIDGET_NE_RIEN_FAIRE =       5;
+    const int TREE_WIDGET_SUPPRIMER =           6;
+
+
 private slots:
     QString tailleFichier(double taille, QString unite);
     void on_pushButtonDeplacerTout_clicked();
@@ -32,6 +42,8 @@ private slots:
     void deplacerFichier(QList<QString> liste);
     void supprimerFichier(QList<QString> liste);
     void refresh(QString dossier);
+    void majTreeWidget();
+    void remplirTreeWidget(QTreeWidgetItem *itemPere, QString chemin);
     void on_tableWidget_clicked(const QModelIndex &index);
     void verificationChangementDossierTelechargement();
     void closeEvent(QCloseEvent *event);

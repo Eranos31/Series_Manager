@@ -289,6 +289,10 @@ void Dialog::remplirTreeWidget(QTreeWidgetItem *itemPere, QString chemin) {
         // On checke la checkbox ne rien faire
         checkNeRienFaire->setChecked(true);
 
+        connect(checkDeplacer, SIGNAL(clicked(bool)), this, SLOT(activationBoutonDeplacer()));
+        connect(checkNeRienFaire, SIGNAL(clicked(bool)), this, SLOT(activationBoutonDeplacer()));
+        connect(checkSupprimer, SIGNAL(clicked(bool)), this, SLOT(activationBoutonDeplacer()));
+
         fichierCharge.append(fileInfo.fileName());
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(TREE_WIDGET_NOM, fileInfo.fileName());

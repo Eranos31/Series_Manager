@@ -537,10 +537,11 @@ void FenetrePrincipale::refresh() {
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 5, wikiHier);
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 6, widgetEtatHier);
         // On met la couleur
-        ui->pagePrincipaleTableWidgetDisplay_2->item(indice, 0)->setBackgroundColor(QColor(mapHier.value(bdd->TYPE_SERIE_RED).toInt(), mapHier.value(bdd->TYPE_SERIE_GREEN).toInt(), mapHier.value(bdd->TYPE_SERIE_BLUE).toInt()));
+        // TODO A mettre lors de la nouvelle architecture de BDD
+        /*ui->pagePrincipaleTableWidgetDisplay_2->item(indice, 0)->setBackgroundColor(QColor(mapHier.value(bdd->TYPE_SERIE_RED).toInt(), mapHier.value(bdd->TYPE_SERIE_GREEN).toInt(), mapHier.value(bdd->TYPE_SERIE_BLUE).toInt()));
         ui->pagePrincipaleTableWidgetDisplay_2->item(indice, 1)->setBackgroundColor(QColor(mapHier.value(bdd->TYPE_SERIE_RED).toInt(), mapHier.value(bdd->TYPE_SERIE_GREEN).toInt(), mapHier.value(bdd->TYPE_SERIE_BLUE).toInt()));
         ui->pagePrincipaleTableWidgetDisplay_2->item(indice, 2)->setBackgroundColor(QColor(mapHier.value(bdd->TYPE_SERIE_RED).toInt(), mapHier.value(bdd->TYPE_SERIE_GREEN).toInt(), mapHier.value(bdd->TYPE_SERIE_BLUE).toInt()));
-
+        */
         indice++;
     }
 
@@ -832,11 +833,11 @@ void FenetrePrincipale::majEpisode() {
                 champs.append(bdd->HISTORIQUE_EPISODE);
                 champs.append(bdd->HISTORIQUE_DATE_AJOUT);
                 champs.append(bdd->HISTORIQUE_ETAT);
-                valeurs.append(list.value(bdd->FICHE_SERIE_NOM));
-                valeurs.append(list.value(bdd->SAISON_SAISON));
-                valeurs.append(list.value(bdd->SAISON_EPISODE_COURANT));
-                valeurs.append(dateDerniereOuverture.toString("yyyy-MM-dd"));
-                valeurs.append(list.value(bdd->SAISON_ETAT));
+                valeurs.append(bdd->entreQuotes(list.value(bdd->FICHE_SERIE_NOM)));
+                valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_SAISON)));
+                valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_EPISODE_COURANT)));
+                valeurs.append(bdd->entreQuotes(dateDerniereOuverture.toString("yyyy-MM-dd")));
+                valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_ETAT)));
                 retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_HISTORIQUE);
                 if(!retour.reussi) {
                     QString messageLog = "Impossible d'historiser l'épisode " + list.value(bdd->FICHE_SERIE_NOM) + " S" + list.value(bdd->SAISON_SAISON) + "E" + list.value(bdd->SAISON_EPISODE_COURANT);
@@ -851,10 +852,10 @@ void FenetrePrincipale::majEpisode() {
                     champs.append(bdd->HISTORIQUE_SAISON);
                     champs.append(bdd->HISTORIQUE_EPISODE);
                     champs.append(bdd->HISTORIQUE_DATE_AJOUT);
-                    valeurs.append(list.value(bdd->FICHE_SERIE_NOM));
-                    valeurs.append(list.value(bdd->SAISON_SAISON));
-                    valeurs.append(methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + j));
-                    valeurs.append(dateDerniereOuverture.toString("yyyy-MM-dd"));
+                    valeurs.append(bdd->entreQuotes(list.value(bdd->FICHE_SERIE_NOM)));
+                    valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_SAISON)));
+                    valeurs.append(bdd->entreQuotes(methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + j)));
+                    valeurs.append(bdd->entreQuotes(dateDerniereOuverture.toString("yyyy-MM-dd")));
                     bdd->requeteInsert(champs, valeurs, bdd->TABLE_HISTORIQUE);
                     if(!retour.reussi) {
                         QString messageLog = "Impossible d'historiser l'épisode " + list.value(bdd->FICHE_SERIE_NOM) + " S" + list.value(bdd->SAISON_SAISON) + "E" + methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + j);
@@ -964,8 +965,8 @@ void FenetrePrincipale::verificationSerieTerminer() {
     champs.append(bdd->SAISON_SAISON);
     champs.append(bdd->SAISON_NB_EPISODE);
     champs.append(bdd->SAISON_EPISODE_COURANT);
-    conditions.append(bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID);
-    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE + ", " + bdd->TABLE_SAISON, jointures, conditions, ordres);
+    jointures.append(bdd->INNER_JOIN + bdd->TABLE_SAISON + bdd->ON + bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID);
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
     QList<QMap<QString,QString> > liste = retour.liste;
     for (int i = 0; i < liste.count(); ++i) {
         QMap<QString,QString> list = liste.value(i);
@@ -2288,6 +2289,7 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
             ui->pageAjoutModifLabelCheminPhoto->setText(liste.at(0).value(bdd->FICHE_SERIE_IMAGE));
         } else {
             ui->pageAjoutModifLabelPhoto->setPixmap(i_seriesManager);
+            ui->pageAjoutModifLabelCheminPhoto->setText("");
         }
 
         champs.clear();

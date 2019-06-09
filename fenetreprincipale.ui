@@ -21,7 +21,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="pageConfig">
        <layout class="QGridLayout" name="gridLayout">
@@ -2392,7 +2392,7 @@ border-width: 1px;</string>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

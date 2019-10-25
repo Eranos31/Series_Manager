@@ -5,7 +5,7 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::FenetrePrincipale) {
     ui->setupUi(this);
-    this->version = "2.8.1";
+    this->version = "2.8.2";
 
     QDir dir;
 #ifdef QT_DEBUG
@@ -18,8 +18,6 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QFile *file = new QFile(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini");
 #endif
 
-    log = new Log();
-
     // Refresh automatique
     QTimer *timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(refresh()));
@@ -30,10 +28,10 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     timerIndicateur->start(1000);
 
     if(file->exists()) {
-        if(getConfig("Configuration/Chemin") == "" ||
-           getConfig("Configuration/Telechargement") == "" ||
-           getConfig("Configuration/Extension") == "" ||
-           getConfig("Configuration/PurgeLog") == "") {
+        if(MethodeDiverses::getConfig("Configuration/Chemin") == "" ||
+           MethodeDiverses::getConfig("Configuration/Telechargement") == "" ||
+           MethodeDiverses::getConfig("Configuration/Extension") == "" ||
+           MethodeDiverses::getConfig("Configuration/PurgeLog") == "") {
             premiereConnexion();
         } else {
             initialisation();
@@ -48,7 +46,7 @@ FenetrePrincipale::~FenetrePrincipale() {
 }
 
 void FenetrePrincipale::premiereConnexion() {
-    log->ecrire("FenetrePrincipale::premiereConnexion() : Début du paramétrage de première connexion");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::premiereConnexion() : Début du paramétrage de première connexion");
     ui->menuBar->setVisible(false);
     ui->mainToolBar->setVisible(false);
     ui->pagePrincipaleLabelDossierSerie->setVisible(false);
@@ -56,11 +54,11 @@ void FenetrePrincipale::premiereConnexion() {
     ui->pagePrincipaleLabelInternet->setVisible(false);
     ui->pagePrincipaleLabelInternet_2->setVisible(false);
     ui->stackedWidget->setCurrentWidget(ui->pageConfig);
-    ui->pageConfigurationSpinBoxLogEfface->setValue(getConfig("Configuration/PurgeLog").toInt());
-    ui->pageConfigurationLineDossierTelechargement->setText(getConfig("Configuration/Telechargement"));
-    ui->pageConfigurationLineDossierSerie->setText(getConfig("Configuration/Chemin"));
-    ui->pageConfigurationLineEditExtension->setText(getConfig("Configuration/Extension"));
-    switch (getConfig("Configuration/Qualite").toInt()) {
+    ui->pageConfigurationSpinBoxLogEfface->setValue(MethodeDiverses::getConfig("Configuration/PurgeLog").toInt());
+    ui->pageConfigurationLineDossierTelechargement->setText(MethodeDiverses::getConfig("Configuration/Telechargement"));
+    ui->pageConfigurationLineDossierSerie->setText(MethodeDiverses::getConfig("Configuration/Chemin"));
+    ui->pageConfigurationLineEditExtension->setText(MethodeDiverses::getConfig("Configuration/Extension"));
+    switch (MethodeDiverses::getConfig("Configuration/Qualite").toInt()) {
     case 0:
         ui->pageConfigurationRadioButtonQualiteToutes->setChecked(true);
         break;
@@ -71,7 +69,7 @@ void FenetrePrincipale::premiereConnexion() {
         ui->pageConfigurationRadioButtonQualite1080->setChecked(true);
         break;
     }
-    switch (getConfig("Configuration/SousTitres").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/SousTitres").toInt()) {
     case 0:
         ui->pageConfigurationRadioButtonSousTitresToutes->setChecked(true);
         break;
@@ -79,11 +77,11 @@ void FenetrePrincipale::premiereConnexion() {
         ui->pageConfigurationRadioButtonSousTitresVOSTFR->setChecked(true);
         break;
     }
-    log->ecrire("FenetrePrincipale::premiereConnexion() : Fin du paramétrage de première connexion");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::premiereConnexion() : Fin du paramétrage de première connexion");
 }
 
 void FenetrePrincipale::initialisation() {
-    log->ecrire("FenetrePrincipale::initialisation() : Début de l'initialisation");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::initialisation() : Début de l'initialisation");
     // Mettre le menu en visible
     ui->menuBar->setVisible(true);
     ui->mainToolBar->setVisible(true);
@@ -98,7 +96,7 @@ void FenetrePrincipale::initialisation() {
     ui->pageAjoutModifLabelCheminPhoto->setVisible(false);
     ui->pageAjoutModifSpinBoxEpisodeEnPlus->setEnabled(false);
     // Recuperation de la base de données ou création si elle n'existe pas
-    this->bdd = new BaseDeDonnees();
+    bdd = new BaseDeDonnees("./data");
     // Récupération de la version de l'appli
 #ifdef QT_DEBUG
     this->dateVersion = QFileInfo("./debug/Series_Manager.exe").lastModified().date();
@@ -131,30 +129,35 @@ void FenetrePrincipale::initialisation() {
     ui->pagePrincipaleBoutonLienEtAddicted->setLayout(layout);
     // Rafraichis les listes
     refresh();
-    log->ecrire("FenetrePrincipale::initialisation() : Fin de l'initialisation");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::initialisation() : Fin de l'initialisation");
 }
 
 void FenetrePrincipale::refresh() {
-    log->ecrire("FenetrePrincipale::refresh() : Début de l'actualisation");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::refresh() : Début de l'actualisation");
     // Met a jour les episodes de la veille
     majEpisode();
 
-    QList<QString> champs;
-    QList<QString> jointures;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
     champs.append(bdd->HISTORIQUE_NOM);
     champs.append(bdd->HISTORIQUE_SAISON);
     champs.append(bdd->HISTORIQUE_EPISODE);
     champs.append(bdd->HISTORIQUE_ETAT);
-    conditions.append(bdd->HISTORIQUE_DATE_AJOUT + " = '" + QDate::currentDate().addDays(-1).toString("yyyy-MM-dd") + "' ");
+    conditions.append(bdd->HISTORIQUE_DATE_AJOUT + bdd->EGALE + bdd->entreQuotes(QDate::currentDate().addDays(-1).toString("yyyy-MM-dd")));
     ordres.append(bdd->HISTORIQUE_NOM);
     ordres.append(bdd->HISTORIQUE_EPISODE);
-    QList<QMap<QString,QString>> listeHier = bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les séries de la veille";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::FenetrePrincipale::refresh() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString,QString>> listeHier = retour.liste;
 
     champs.clear();
     conditions.clear();
     ordres.clear();
+
     champs.append(bdd->FICHE_SERIE_NOM);
     champs.append(bdd->FICHE_SERIE_WIKI);
     champs.append(bdd->FICHE_SERIE_ADDICTED);
@@ -163,23 +166,44 @@ void FenetrePrincipale::refresh() {
     champs.append(bdd->SAISON_NB_EPISODE);
     champs.append(bdd->SAISON_EPISODE_COURANT);
     champs.append(bdd->SAISON_DATE_SORTIE);
-    champs.append("CASE WHEN " + bdd->SAISON_DATE_MODIF + " IS NULL THEN '3000-01-01' ELSE " + bdd->SAISON_DATE_MODIF + " END " + bdd->SAISON_DATE_MODIF);
+    champs.append(bdd->CASE + bdd->WHEN + bdd->SAISON_DATE_MODIF + bdd->IS_NULL + bdd->THEN + bdd->entreQuotes("3000-01-01") + bdd->ELSE + bdd->SAISON_DATE_MODIF + bdd->END + bdd->SAISON_DATE_MODIF);
     champs.append(bdd->SAISON_WIKI);
     champs.append(bdd->SAISON_EPISODE_EN_PLUS);
     champs.append(bdd->SAISON_ETAT);
-    jointures.append("LEFT JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
+    champs.append(bdd->TYPE_SERIE_NOM);
+    champs.append(bdd->TYPE_SERIE_RED);
+    champs.append(bdd->TYPE_SERIE_GREEN);
+    champs.append(bdd->TYPE_SERIE_BLUE);
+    jointures.append(bdd->LEFT_JOIN + bdd->TABLE_SAISON + bdd->ON + bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID);
+    jointures.append(bdd->INNER_JOIN + bdd->TABLE_TYPE_SERIE + bdd->ON + bdd->FICHE_SERIE_TYPE_SERIE_ID + bdd->EGALE + bdd->TYPE_SERIE_ID);
     ordres.append(bdd->SAISON_DATE_MODIF);
     ordres.append(bdd->FICHE_SERIE_NOM);
 
-    listeGlobal = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, jointures, conditions, ordres);
+    retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les séries";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::refresh() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    listeGlobal = retour.liste;
 
     ordres.clear();
     jointures.clear();
-    jointures.append("INNER JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
-    ordres.append(bdd->FICHE_SERIE_NOM);
-    conditions.append(bdd->SAISON_DATE_MODIF + " = '" + QDate::currentDate().addDays(-7).toString("yyyy-MM-dd") + "' ");
 
-    listeQuoti = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, jointures, conditions, ordres);
+    jointures.append(bdd->INNER_JOIN + bdd->TABLE_SAISON + bdd->ON + bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID);
+    jointures.append(bdd->INNER_JOIN + bdd->TABLE_TYPE_SERIE + bdd->ON + bdd->FICHE_SERIE_TYPE_SERIE_ID + bdd->EGALE + bdd->TYPE_SERIE_ID);
+    ordres.append(bdd->FICHE_SERIE_NOM);
+    conditions.append(bdd->SAISON_DATE_MODIF + bdd->EGALE + bdd->entreQuotes(QDate::currentDate().addDays(-7).toString("yyyy-MM-dd")));
+
+    retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les séries du jour";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::refresh() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    listeQuoti = retour.liste;
 
     int indice = 0;
     bool activationBoutonWikiGlobal = false;
@@ -187,7 +211,7 @@ void FenetrePrincipale::refresh() {
     QString sousTitres;
     QString fin = "&do=search&order=desc&sort=publish_date";
 
-    switch (getConfig("Configuration/Qualite").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/Qualite").toInt()) {
     case 0:
         qualite = "";
         break;
@@ -199,7 +223,7 @@ void FenetrePrincipale::refresh() {
         break;
     }
 
-    switch (getConfig("Configuration/SousTitres").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/SousTitres").toInt()) {
     case 0:
         sousTitres = "";
         break;
@@ -209,10 +233,10 @@ void FenetrePrincipale::refresh() {
     }
 
     //Effacement des tableau
-    log->ecrire("\tEffacement des liste effectué");
+    MethodeDiverses::ecrireLog("\tEffacement des liste effectué");
 
-    on_pageVosSeriesComboBox_currentIndexChanged(getConfig("Configuration/ListeSerie"));
-    log->ecrire("\tAjout des données dans le tableau vos séries");
+    on_pageVosSeriesComboBox_currentIndexChanged(MethodeDiverses::getConfig("Configuration/ListeSerie"));
+    MethodeDiverses::ecrireLog("\tAjout des données dans le tableau vos séries");
 
     // refresh de l'affichage
     ui->pagePrincipaleTableWidgetDisplay->setRowCount(0);
@@ -298,6 +322,10 @@ void FenetrePrincipale::refresh() {
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, wiki);
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 6, reporter);
         ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 7, widgetEtat);
+        // On met la couleur
+        ui->pagePrincipaleTableWidgetDisplay->item(indice, 0)->setBackgroundColor(QColor(map.value(bdd->TYPE_SERIE_RED).toInt(), map.value(bdd->TYPE_SERIE_GREEN).toInt(), map.value(bdd->TYPE_SERIE_BLUE).toInt()));
+        ui->pagePrincipaleTableWidgetDisplay->item(indice, 1)->setBackgroundColor(QColor(map.value(bdd->TYPE_SERIE_RED).toInt(), map.value(bdd->TYPE_SERIE_GREEN).toInt(), map.value(bdd->TYPE_SERIE_BLUE).toInt()));
+        ui->pagePrincipaleTableWidgetDisplay->item(indice, 2)->setBackgroundColor(QColor(map.value(bdd->TYPE_SERIE_RED).toInt(), map.value(bdd->TYPE_SERIE_GREEN).toInt(), map.value(bdd->TYPE_SERIE_BLUE).toInt()));
 
         if(map.value(bdd->SAISON_EPISODE_COURANT) == map.value(bdd->SAISON_NB_EPISODE)) {
             for(int j = 0; j < 3; j++) {
@@ -359,6 +387,10 @@ void FenetrePrincipale::refresh() {
             ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 4, addictedDouble);
             ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 5, wikiDouble);
             ui->pagePrincipaleTableWidgetDisplay->setCellWidget(indice, 6, reporterDouble);
+            // On met la couleur
+            ui->pagePrincipaleTableWidgetDisplay->item(indice, 0)->setBackgroundColor(QColor(map.value(bdd->TYPE_SERIE_RED).toInt(), map.value(bdd->TYPE_SERIE_GREEN).toInt(), map.value(bdd->TYPE_SERIE_BLUE).toInt()));
+            ui->pagePrincipaleTableWidgetDisplay->item(indice, 1)->setBackgroundColor(QColor(map.value(bdd->TYPE_SERIE_RED).toInt(), map.value(bdd->TYPE_SERIE_GREEN).toInt(), map.value(bdd->TYPE_SERIE_BLUE).toInt()));
+            ui->pagePrincipaleTableWidgetDisplay->item(indice, 2)->setBackgroundColor(QColor(map.value(bdd->TYPE_SERIE_RED).toInt(), map.value(bdd->TYPE_SERIE_GREEN).toInt(), map.value(bdd->TYPE_SERIE_BLUE).toInt()));
 
             if(methodeDiverses.formalismeEntier(map.value(bdd->SAISON_EPISODE_COURANT).toInt() + j) == map.value(bdd->SAISON_NB_EPISODE)) {
                 for(int j = 0; j < 3; j++) {
@@ -370,7 +402,7 @@ void FenetrePrincipale::refresh() {
         }
     }
 
-    log->ecrire("\tActualisation de l'onglet Aujourd'hui effectué");
+    MethodeDiverses::ecrireLog("\tActualisation de l'onglet Aujourd'hui effectué");
 
     if(listeQuoti.isEmpty()) {
         ui->pagePrincipaleBoutonLienEtAddicted->setEnabled(false);
@@ -385,7 +417,7 @@ void FenetrePrincipale::refresh() {
     }
     ui->pagePrincipaleBoutonWiki->setEnabled(activationBoutonWikiGlobal);
 
-    log->ecrire("\tParamètrage des boutons globaux");
+    MethodeDiverses::ecrireLog("\tParamètrage des boutons globaux");
 
     // Refresh de l'onglet hier
     ui->pagePrincipaleTableWidgetDisplay_2->setRowCount(0);
@@ -394,15 +426,23 @@ void FenetrePrincipale::refresh() {
 
     for(int i = 0; i < listeHier.count(); i++) {
         QMap<QString, QString> mapHier = listeHier.value(i);
-        QList<QString> jointures;
+        QStringList jointures;
         champs.clear();
         conditions.clear();
         ordres.clear();
         champs.append(bdd->FICHE_SERIE_WIKI);
         champs.append(bdd->SAISON_WIKI);
-        jointures.append("LEFT JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
-        conditions.append(bdd->FICHE_SERIE_NOM + " = '" + mapHier.value(bdd->HISTORIQUE_NOM) + "'");
-        QList<QMap<QString, QString> >listeWiki = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE/* + ", " + bdd->SAISON_TABLE*/, jointures, conditions, ordres);
+        jointures.append(bdd->LEFT_JOIN + bdd->TABLE_SAISON + bdd->ON + bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID);
+        conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(mapHier.value(bdd->HISTORIQUE_NOM)));
+
+        BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer les lien wikipédia de " + mapHier.value(bdd->HISTORIQUE_NOM);
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::refresh() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QList<QMap<QString, QString> >listeWiki = retour.liste;
 
         QSignalMapper* mapper1 = new QSignalMapper();
         QSignalMapper* mapper2 = new QSignalMapper();
@@ -437,11 +477,20 @@ void FenetrePrincipale::refresh() {
         }
 
         champs.clear();
+        jointures.clear();
         conditions.clear();
         ordres.clear();
         champs.append(bdd->FICHE_SERIE_ADDICTED);
-        conditions.append(bdd->FICHE_SERIE_NOM + " = '" + mapHier.value(bdd->HISTORIQUE_NOM) + "'");
-        QString lienAddicted = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres).at(0).value(bdd->FICHE_SERIE_ADDICTED);
+        conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(mapHier.value(bdd->HISTORIQUE_NOM)));
+
+        retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer le lien addicted de " + mapHier.value(bdd->HISTORIQUE_NOM);
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::refresh() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QString lienAddicted = retour.liste.at(0).value(bdd->FICHE_SERIE_ADDICTED);
 
         mapper1->setMapping(lienHier, lien + QString(mapHier.value(bdd->HISTORIQUE_NOM)).replace(" ", "+") + "+S" + mapHier.value(bdd->HISTORIQUE_SAISON) + "E" + mapHier.value(bdd->HISTORIQUE_EPISODE) + sousTitres + qualite + fin);
         mapper2->setMapping(wikiHier, lienWiki);
@@ -487,11 +536,16 @@ void FenetrePrincipale::refresh() {
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 4, addicted);
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 5, wikiHier);
         ui->pagePrincipaleTableWidgetDisplay_2->setCellWidget(indice, 6, widgetEtatHier);
-
+        // On met la couleur
+        // TODO A mettre lors de la nouvelle architecture de BDD
+        /*ui->pagePrincipaleTableWidgetDisplay_2->item(indice, 0)->setBackgroundColor(QColor(mapHier.value(bdd->TYPE_SERIE_RED).toInt(), mapHier.value(bdd->TYPE_SERIE_GREEN).toInt(), mapHier.value(bdd->TYPE_SERIE_BLUE).toInt()));
+        ui->pagePrincipaleTableWidgetDisplay_2->item(indice, 1)->setBackgroundColor(QColor(mapHier.value(bdd->TYPE_SERIE_RED).toInt(), mapHier.value(bdd->TYPE_SERIE_GREEN).toInt(), mapHier.value(bdd->TYPE_SERIE_BLUE).toInt()));
+        ui->pagePrincipaleTableWidgetDisplay_2->item(indice, 2)->setBackgroundColor(QColor(mapHier.value(bdd->TYPE_SERIE_RED).toInt(), mapHier.value(bdd->TYPE_SERIE_GREEN).toInt(), mapHier.value(bdd->TYPE_SERIE_BLUE).toInt()));
+        */
         indice++;
     }
 
-    log->ecrire("\tActualisation de l'onglet Hier effectué");
+    MethodeDiverses::ecrireLog("\tActualisation de l'onglet Hier effectué");
 
     // Dimensionner les colonnes
     ui->pagePrincipaleTableWidgetDisplay->resizeColumnsToContents();
@@ -505,7 +559,7 @@ void FenetrePrincipale::refresh() {
     ui->pagePrincipaleTableWidgetDisplay_2->setColumnWidth(4, 60);
     ui->pagePrincipaleTableWidgetDisplay_2->setColumnWidth(5, 60);
 
-    log->ecrire("\tDimensionnement des colonnes des tableaux effectué");
+    MethodeDiverses::ecrireLog("\tDimensionnement des colonnes des tableaux effectué");
 
     if(listeGlobal.isEmpty()) {
         ui->pagePrincipaleBoutonVosSeries->setEnabled(false);
@@ -517,54 +571,62 @@ void FenetrePrincipale::refresh() {
         ui->toolBarModifier->setEnabled(true);
     }
 
-    log->ecrire("\tAjout des noms de série pour les pages de sélection de modification et de suppression");
+    MethodeDiverses::ecrireLog("\tAjout des noms de série pour les pages de sélection de modification et de suppression");
 
-    log->ecrire("\tTri des liste de modification et de suppression");
+    MethodeDiverses::ecrireLog("\tTri des liste de modification et de suppression");
 
     ficheSerie.clear();
     champs.clear();
+    jointures.clear();
     conditions.clear();
     ordres.clear();
     champs.append(bdd->FICHE_SERIE_NOM);
-    QList<QMap<QString,QString> > listeFicheSerie = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres);
+    retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);;
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les nom des séries";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::refresh() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString,QString> > listeFicheSerie = retour.liste;
     for(int i = 0; i < listeFicheSerie.count(); i++) {
         ficheSerie.append(listeFicheSerie.at(i).value(bdd->FICHE_SERIE_NOM));
     }
 
-    log->ecrire("\tAjout des noms des séries du dossier des série dans la liste déroulante de l'ajout de série");
+    MethodeDiverses::ecrireLog("\tAjout des noms des séries du dossier des série dans la liste déroulante de l'ajout de série");
 
     ui->statusBar->showMessage("Actualisé à " + QTime::currentTime().toString("hh:mm:ss"));
-    log->ecrire("FenetrePrincipale::refresh() : Fin de l'actualisation");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::refresh() : Fin de l'actualisation");
 }
 
 void FenetrePrincipale::bouton_lien_clicked(QString nom) {
-    log->ecrire("FenetrePrincipale::bouton_lien_clicked() : Début de la génération du lien");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::bouton_lien_clicked() : Début de la génération du lien");
     if(QDesktopServices::openUrl(QUrl(nom))) {
-        log->ecrire("\tOuverture du lien " + nom);
+        MethodeDiverses::ecrireLog("\tOuverture du lien " + nom);
     } else {
         QMessageBox::warning(this, this->windowTitle(), "Le lien " + nom + " n'a pu être ouvert");
-        log->ecrire("\tLe lien " + nom + " n'a pu être ouvert");
+        MethodeDiverses::ecrireLog("\tLe lien " + nom + " n'a pu être ouvert");
     }
 
     QTime fin = QTime::currentTime().addMSecs(500);
     while (QTime::currentTime() < fin) {}
-    log->ecrire("FenetrePrincipale::bouton_lien_clicked() : Fin de la génération du lien");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::bouton_lien_clicked() : Fin de la génération du lien");
 
 }
 
 void FenetrePrincipale::bouton_dossier_clicked(QString nom) {
-    log->ecrire("FenetrePrincipale::bouton_dossier_clicked() : Début de l'ouverture du dossier");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::bouton_dossier_clicked() : Début de l'ouverture du dossier");
     if(!QDesktopServices::openUrl(QUrl::fromLocalFile(dossierSerie + nom))) {
         QMessageBox::warning(this,this->windowTitle(), "Le dossier " + dossierSerie + nom + " n'a pas pu être ouvert");
-        log->ecrire("\tLe dossier " + dossierSerie + nom + " n'a pas pu être ouvert");
+        MethodeDiverses::ecrireLog("\tLe dossier " + dossierSerie + nom + " n'a pas pu être ouvert");
     } else {
-        log->ecrire("\tLe dossier " + dossierSerie + nom + " a été ouvert");
+        MethodeDiverses::ecrireLog("\tLe dossier " + dossierSerie + nom + " a été ouvert");
     }
-    log->ecrire("FenetrePrincipale::bouton_dossier_clicked() : Fin de l'ouverture du dossier");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::bouton_dossier_clicked() : Fin de l'ouverture du dossier");
 }
 
 void FenetrePrincipale::bouton_reporter_clicked(QString nom) {
-    log->ecrire("FenetrePrincipale::bouton_reporter_clicked() : Ouverture de la page de report de série");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::bouton_reporter_clicked() : Ouverture de la page de report de série");
     on_pageReporterSpinBox_valueChanged(ui->pageReporterSpinBox->value());
     ui->stackedWidget->setCurrentWidget(ui->pageReporter);
     ui->pageReporterLabel->setText("De combien de semaines voulez vous reporter " + nom + " ?");
@@ -572,46 +634,11 @@ void FenetrePrincipale::bouton_reporter_clicked(QString nom) {
     ui->pageReporterSpinBox->setValue(1);
 }
 
-void FenetrePrincipale::checkBox_vu_clicked(QString nom) {
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
-    if(nom.contains(30)) {
-        QList<QString> liste = nom.split(30);
-
-        champs.append(bdd->HISTORIQUE_ETAT + " = CASE WHEN " + bdd->HISTORIQUE_ETAT + " = 0 THEN 1 "
-                                                   "WHEN " + bdd->HISTORIQUE_ETAT + " = 1 THEN 0 "
-                                                   "ELSE 0 "
-                                                   "END");
-        conditions.append(bdd->HISTORIQUE_NOM + " = '" + liste.at(0) + "'");
-        conditions.append(bdd->HISTORIQUE_SAISON + " = '" + liste.at(1) + "'");
-        conditions.append(bdd->HISTORIQUE_EPISODE + " = '" + liste.at(2) + "'");
-
-        bdd->requeteUpdate(champs, bdd->HISTORIQUE_TABLE, conditions);
-    } else {
-        champs.append(bdd->FICHE_SERIE_ID);
-        conditions.append(bdd->FICHE_SERIE_NOM + " = '" + nom + "'");
-
-        QString id = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres).at(0).value(bdd->FICHE_SERIE_ID);
-
-        champs.clear();
-        conditions.clear();
-
-        champs.append(bdd->SAISON_ETAT + " = CASE WHEN " + bdd->SAISON_ETAT + " = 0 THEN 1 "
-                                               "WHEN " + bdd->SAISON_ETAT + " = 1 THEN 0 "
-                                               "ELSE 0 "
-                                               "END");
-        conditions.append(bdd->SAISON_ID + " = '" + id + "'");
-
-        bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
-    }
-}
-
 void FenetrePrincipale::comboBox_etat_changed(QString nom) {
-    int ligne;
+    int ligne = 0;
     QString nouvelEtat, saison, episode;
-    QList<QString> champs;
-    QList<QString> conditions;
+    QStringList champs, conditions;
+    BaseDeDonnees::Retour retour;
     if(ui->stackedWidget->currentWidget() == ui->pagePrincipale && ui->pagePrincipaleTabWidget->currentWidget() == ui->pagePrincipaleTabWidgetTabAuj) {
         for(int i = 0; i < ui->pagePrincipaleTableWidgetDisplay->rowCount(); i++) {
             if(nom == ui->pagePrincipaleTableWidgetDisplay->item(i, 0)->text()) {
@@ -622,7 +649,7 @@ void FenetrePrincipale::comboBox_etat_changed(QString nom) {
 
         nouvelEtat = ((QComboBox *)ui->pagePrincipaleTableWidgetDisplay->cellWidget(ligne, 7)->layout()->itemAt(0)->widget())->currentText();
     } else if (ui->stackedWidget->currentWidget() == ui->pagePrincipale && ui->pagePrincipaleTabWidget->currentWidget() == ui->pagePrincipaleTabWidgetTabHier){
-        QList<QString> liste = nom.split(30);
+        QStringList liste = nom.split(30);
         nom = liste.at(0);
         saison = liste.at(1);
         episode = liste.at(2);
@@ -635,7 +662,7 @@ void FenetrePrincipale::comboBox_etat_changed(QString nom) {
 
         nouvelEtat = ((QComboBox *)ui->pagePrincipaleTableWidgetDisplay_2->cellWidget(ligne, 6)->layout()->itemAt(0)->widget())->currentText();
     } else if (ui->stackedWidget->currentWidget() == ui->pageHistorique) {
-        QList<QString> liste = nom.split(30);
+        QStringList liste = nom.split(30);
         nom = liste.at(0);
         saison = liste.at(1);
         episode = liste.at(2);
@@ -648,7 +675,7 @@ void FenetrePrincipale::comboBox_etat_changed(QString nom) {
 
         nouvelEtat = ((QComboBox *)ui->pageHistoriqueTableWidget->cellWidget(ligne, 5)->layout()->itemAt(0)->widget())->currentText();
     } else if (ui->stackedWidget->currentWidget() == ui->pageAjoutModification) {
-        QList<QString> liste = nom.split(30);
+        QStringList liste = nom.split(30);
         nom = liste.at(0);
         saison = liste.at(1);
         episode = liste.at(2);
@@ -672,17 +699,29 @@ void FenetrePrincipale::comboBox_etat_changed(QString nom) {
 
 
     if(ui->stackedWidget->currentWidget() == ui->pagePrincipale && ui->pagePrincipaleTabWidget->currentWidget() == ui->pagePrincipaleTabWidgetTabAuj) {
-        champs.append(bdd->SAISON_ETAT + " = '" + nouvelEtat + "'");
-        conditions.append(bdd->SAISON_ID + " = (SELECT " + bdd->FICHE_SERIE_ID + " FROM " + bdd->FICHE_SERIE_TABLE + " WHERE " + bdd->FICHE_SERIE_NOM + " = '" + nom + "')");
+        champs.append(bdd->SAISON_ETAT + bdd->EGALE + bdd->entreQuotes(nouvelEtat));
+        conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreParentheses(bdd->SELECT + bdd->FICHE_SERIE_ID + bdd->FROM + bdd->TABLE_FICHE_SERIE + bdd->WHERE + bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(nom)));
 
-        bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
+        retour = bdd->requeteUpdate(champs, bdd->TABLE_SAISON, conditions);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de mettre à jour l'état de l'episode courant de " + nom;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::comboBox_etat_changed() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
     } else {
-        champs.append(bdd->HISTORIQUE_ETAT + " = '" + nouvelEtat + "'");
-        conditions.append(bdd->HISTORIQUE_NOM + " = '" + nom + "'");
-        conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison + "'");
-        conditions.append(bdd->HISTORIQUE_EPISODE + " = '" + episode + "'");
+        champs.append(bdd->HISTORIQUE_ETAT + bdd->EGALE + bdd->entreQuotes(nouvelEtat));
+        conditions.append(bdd->HISTORIQUE_NOM + bdd->EGALE + bdd->entreQuotes(nom));
+        conditions.append(bdd->HISTORIQUE_SAISON + bdd->EGALE + bdd->entreQuotes(saison));
+        conditions.append(bdd->HISTORIQUE_EPISODE + bdd->EGALE + bdd->entreQuotes(episode));
 
-        bdd->requeteUpdate(champs, bdd->HISTORIQUE_TABLE, conditions);
+        retour = bdd->requeteUpdate(champs, bdd->TABLE_HISTORIQUE, conditions);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de mettre à jour l'état de l'episode " + nom + " S" + saison + "E" + episode;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::comboBox_etat_changed() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
     }
 }
 
@@ -700,7 +739,7 @@ void FenetrePrincipale::majIndicateur() {
         ui->pagePrincipaleLabelInternet_2->setPixmap(i_feuRouge);
     }
 
-    if(QDir(getConfig("Configuration/Telechargement")).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() > 0) {
+    if(QDir(MethodeDiverses::getConfig("Configuration/Telechargement")).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() > 0) {
         ui->pagePrincipaleBoutonDeplacerFichier->setEnabled(true);
         ui->toolBarDeplcerFichiers->setEnabled(true);
     } else {
@@ -710,8 +749,8 @@ void FenetrePrincipale::majIndicateur() {
 }
 
 void FenetrePrincipale::chargementConfiguration() {
-    log->ecrire("FenetrePrincipale::chargementConfiguration() : Début du chargement du fichier de configuration");
-    QString listeSerie = getConfig("Configuration/ListeSerie");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::chargementConfiguration() : Début du chargement du fichier de configuration");
+    QString listeSerie = MethodeDiverses::getConfig("Configuration/ListeSerie");
 
     if(listeSerie == "Toutes") {
         ui->pageVosSeriesComboBox->setCurrentIndex(0);
@@ -721,29 +760,26 @@ void FenetrePrincipale::chargementConfiguration() {
         ui->pageVosSeriesComboBox->setCurrentIndex(2);
     }
 
-    this->dossierSerie = getConfig("Configuration/Chemin");
-    if(getConfig("Dimension/Fullscreen").toInt()) {
+    this->dossierSerie = MethodeDiverses::getConfig("Configuration/Chemin");
+    if(MethodeDiverses::getConfig("Dimension/Fullscreen").toInt()) {
         this->setWindowState(this->windowState()|Qt::WindowMaximized);
     } else {
-        this->setGeometry(getConfig("Dimension/X", 724), getConfig("Dimension/Y", 303), getConfig("Dimension/W", 472), getConfig("Dimension/H", 434));
+        this->setGeometry(MethodeDiverses::getConfig("Dimension/X", 724), MethodeDiverses::getConfig("Dimension/Y", 303), MethodeDiverses::getConfig("Dimension/W", 472), MethodeDiverses::getConfig("Dimension/H", 434));
     }
 
-    lien = ui->pageConfigurationLineEditSite->text() + getConfig("Configuration/Extension") + "/engine/search?name=";
+    lien = ui->pageConfigurationLineEditSite->text() + MethodeDiverses::getConfig("Configuration/Extension") + "/engine/search?name=";
 
-    log->ecrire("FenetrePrincipale::chargementConfiguration() : Fin du chargement du fichier de configuration");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::chargementConfiguration() : Fin du chargement du fichier de configuration");
 }
 
 void FenetrePrincipale::majEpisode() {
-    log->ecrire("FenetrePrincipale::majEpisode() : Début de mise à jour des episodes de la veille");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::majEpisode() : Début de mise à jour des episodes de la veille");
 
     QDate dateDerniereOuverture = bdd->derniereOuvertureBDD();
     QDate dateDerniereOuverturePlus1 = dateDerniereOuverture.addDays(1);
 
     while(dateDerniereOuverture <= QDate::currentDate().addDays(-1)) {
-        QList<QString> champs;
-        QList<QString> valeurs;
-        QList<QString> conditions;
-        QList<QString> ordres;
+        QStringList champs, jointures, conditions, ordres, valeurs;
         champs.append(bdd->FICHE_SERIE_ID);
         champs.append(bdd->FICHE_SERIE_NOM);
         champs.append(bdd->FICHE_SERIE_WIKI);
@@ -755,27 +791,40 @@ void FenetrePrincipale::majEpisode() {
         champs.append(bdd->SAISON_WIKI);
         champs.append(bdd->SAISON_EPISODE_EN_PLUS);
         champs.append(bdd->SAISON_ETAT);
-        conditions.append(bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
-        conditions.append(bdd->SAISON_DATE_MODIF + " = '" + methodeDiverses.dateToString(dateDerniereOuverture.addDays(-7)) + "'");
-        QList<QMap<QString,QString> > liste = bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE + ", " + bdd->SAISON_TABLE, conditions, ordres);
+        conditions.append(bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID);
+        conditions.append(bdd->SAISON_DATE_MODIF + bdd->EGALE + bdd->entreQuotes(methodeDiverses.dateToString(dateDerniereOuverture.addDays(-7))));
+        BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE + ", " + bdd->TABLE_SAISON, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer les séries à mettre à jour";
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::majEpisode() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QList<QMap<QString,QString> > liste = retour.liste;
 
         if(!liste.isEmpty()) {
             for (int i = 0; i < liste.count(); ++i) {
                 QMap<QString, QString> list = liste.value(i);
 
-                log->ecrire("\tMise à jour de " + list.value(bdd->FICHE_SERIE_NOM));
+                MethodeDiverses::ecrireLog("\tMise à jour de " + list.value(bdd->FICHE_SERIE_NOM));
                 champs.clear();
                 conditions.clear();
                 if(!list.value(bdd->SAISON_EPISODE_EN_PLUS).toInt()) {
-                    champs.append(bdd->SAISON_EPISODE_COURANT + " = '" + methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + 1) + "'");
+                    champs.append(bdd->SAISON_EPISODE_COURANT + bdd->EGALE + bdd->entreQuotes(methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + 1)));
                 } else {
-                    champs.append(bdd->SAISON_EPISODE_COURANT + " = '" + methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + list.value(bdd->SAISON_EPISODE_EN_PLUS).toInt() + 1) + "'");
-                    champs.append(bdd->SAISON_EPISODE_EN_PLUS + " = 0" );
+                    champs.append(bdd->SAISON_EPISODE_COURANT + bdd->EGALE + bdd->entreQuotes(methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + list.value(bdd->SAISON_EPISODE_EN_PLUS).toInt() + 1)));
+                    champs.append(bdd->SAISON_EPISODE_EN_PLUS + bdd->EGALE + "0");
                 }
-                champs.append(bdd->SAISON_ETAT + " = 'NV'");
-                champs.append(bdd->SAISON_DATE_MODIF + " = '" + dateDerniereOuverture.toString("yyyy-MM-dd") + "'");
-                conditions.append(bdd->SAISON_ID + " = '" + list.value(bdd->FICHE_SERIE_ID) + "'");
-                bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
+                champs.append(bdd->SAISON_ETAT + bdd->EGALE + bdd->entreQuotes("NV"));
+                champs.append(bdd->SAISON_DATE_MODIF + bdd->EGALE + bdd->entreQuotes(dateDerniereOuverture.toString("yyyy-MM-dd")));
+                conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(list.value(bdd->FICHE_SERIE_ID)));
+                retour = bdd->requeteUpdate(champs, bdd->TABLE_SAISON, conditions);
+                if(!retour.reussi) {
+                    QString messageLog = "Impossible de mettre à jour l'épisode " + list.value(bdd->FICHE_SERIE_NOM) + " S" + list.value(bdd->SAISON_SAISON) + "E" + list.value(bdd->SAISON_EPISODE_COURANT);
+                    QMessageBox::critical(this, this->windowTitle(), messageLog);
+                    MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::majEpisode() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                    throw new QException();
+                }
 
                 champs.clear();
                 valeurs.clear();
@@ -784,12 +833,18 @@ void FenetrePrincipale::majEpisode() {
                 champs.append(bdd->HISTORIQUE_EPISODE);
                 champs.append(bdd->HISTORIQUE_DATE_AJOUT);
                 champs.append(bdd->HISTORIQUE_ETAT);
-                valeurs.append(list.value(bdd->FICHE_SERIE_NOM));
-                valeurs.append(list.value(bdd->SAISON_SAISON));
-                valeurs.append(list.value(bdd->SAISON_EPISODE_COURANT));
-                valeurs.append(dateDerniereOuverture.toString("yyyy-MM-dd"));
-                valeurs.append(list.value(bdd->SAISON_ETAT));
-                bdd->requeteInsert(champs, valeurs, bdd->HISTORIQUE_TABLE);
+                valeurs.append(bdd->entreQuotes(list.value(bdd->FICHE_SERIE_NOM)));
+                valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_SAISON)));
+                valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_EPISODE_COURANT)));
+                valeurs.append(bdd->entreQuotes(dateDerniereOuverture.toString("yyyy-MM-dd")));
+                valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_ETAT)));
+                retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_HISTORIQUE);
+                if(!retour.reussi) {
+                    QString messageLog = "Impossible d'historiser l'épisode " + list.value(bdd->FICHE_SERIE_NOM) + " S" + list.value(bdd->SAISON_SAISON) + "E" + list.value(bdd->SAISON_EPISODE_COURANT);
+                    QMessageBox::critical(this, this->windowTitle(), messageLog);
+                    MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::majEpisode() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                    throw new QException();
+                }
                 for(int j = 1; j <= list.value(bdd->SAISON_EPISODE_EN_PLUS).toInt(); j++) {
                     champs.clear();
                     valeurs.clear();
@@ -797,11 +852,17 @@ void FenetrePrincipale::majEpisode() {
                     champs.append(bdd->HISTORIQUE_SAISON);
                     champs.append(bdd->HISTORIQUE_EPISODE);
                     champs.append(bdd->HISTORIQUE_DATE_AJOUT);
-                    valeurs.append(list.value(bdd->FICHE_SERIE_NOM));
-                    valeurs.append(list.value(bdd->SAISON_SAISON));
-                    valeurs.append(methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + j));
-                    valeurs.append(dateDerniereOuverture.toString("yyyy-MM-dd"));
-                    bdd->requeteInsert(champs, valeurs, bdd->HISTORIQUE_TABLE);
+                    valeurs.append(bdd->entreQuotes(list.value(bdd->FICHE_SERIE_NOM)));
+                    valeurs.append(bdd->entreQuotes(list.value(bdd->SAISON_SAISON)));
+                    valeurs.append(bdd->entreQuotes(methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + j)));
+                    valeurs.append(bdd->entreQuotes(dateDerniereOuverture.toString("yyyy-MM-dd")));
+                    bdd->requeteInsert(champs, valeurs, bdd->TABLE_HISTORIQUE);
+                    if(!retour.reussi) {
+                        QString messageLog = "Impossible d'historiser l'épisode " + list.value(bdd->FICHE_SERIE_NOM) + " S" + list.value(bdd->SAISON_SAISON) + "E" + methodeDiverses.formalismeEntier(list.value(bdd->SAISON_EPISODE_COURANT).toInt() + j);
+                        QMessageBox::critical(this, this->windowTitle(), messageLog);
+                        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::majEpisode() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                        throw new QException();
+                    }
                 }
             }
             bdd->majDerniereOuvertureBDD();
@@ -812,7 +873,7 @@ void FenetrePrincipale::majEpisode() {
         dateDerniereOuverture = dateDerniereOuverture.addDays(1);
         dateDerniereOuverturePlus1 = dateDerniereOuverturePlus1.addDays(1);
     }
-    log->ecrire("FenetrePrincipale::majEpisode() : Fin de mise à jour des episodes de la veille");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::majEpisode() : Fin de mise à jour des episodes de la veille");
 }
 
 void FenetrePrincipale::redimensionnerTableau() {
@@ -897,77 +958,51 @@ void FenetrePrincipale::redimensionnerTableau() {
 }
 
 void FenetrePrincipale::verificationSerieTerminer() {
-    log->ecrire("FenetrePrincipale::verificationSerieTerminer() : Début de vérification des séries terminées");
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    MethodeDiverses::ecrireLog("FenetrePrincipale::verificationSerieTerminer() : Début de vérification des séries terminées");
+    QStringList champs, jointures, conditions, ordres;
     champs.append(bdd->FICHE_SERIE_ID);
     champs.append(bdd->FICHE_SERIE_NOM);
     champs.append(bdd->SAISON_SAISON);
     champs.append(bdd->SAISON_NB_EPISODE);
     champs.append(bdd->SAISON_EPISODE_COURANT);
-    conditions.append(bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID);
-    QList<QMap<QString,QString> > liste = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE + ", " + bdd->SAISON_TABLE, conditions, ordres);
+    jointures.append(bdd->INNER_JOIN + bdd->TABLE_SAISON + bdd->ON + bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID);
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+    QList<QMap<QString,QString> > liste = retour.liste;
     for (int i = 0; i < liste.count(); ++i) {
         QMap<QString,QString> list = liste.value(i);
 
         if(list.value(bdd->SAISON_NB_EPISODE).toInt() < list.value(bdd->SAISON_EPISODE_COURANT).toInt()){
-            log->ecrire("\tSuppression de " + list.value(bdd->FICHE_SERIE_NOM));
+            MethodeDiverses::ecrireLog("\tSuppression de " + list.value(bdd->FICHE_SERIE_NOM));
             conditions.clear();
-            conditions.append(bdd->SAISON_ID + " = '" + list.value(bdd->FICHE_SERIE_ID) + "'");
-            bdd->requeteDelete(bdd->SAISON_TABLE, conditions);
+            conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(list.value(bdd->FICHE_SERIE_ID)));
+            retour = bdd->requeteDelete(bdd->TABLE_SAISON, conditions);
+            if(!retour.reussi) {
+                QString messageLog = "Impossible de supprimer la saison courante de la série " + list.value(bdd->FICHE_SERIE_NOM);
+                QMessageBox::critical(this, this->windowTitle(), messageLog);
+                MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::verificationSerieTerminer() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                throw new QException();
+            }
         }
     }
-    log->ecrire("FenetrePrincipale::verificationSerieTerminer() : Fin de vérification des séries terminées");
-}
-
-QString FenetrePrincipale::getConfig(QString config) {
-#ifdef QT_DEBUG
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
-#else
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
-#endif
-    return settings.value(config).toString();
-}
-
-int FenetrePrincipale::getConfig(QString config, int valeur) {
-#ifdef QT_DEBUG
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
-#else
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
-#endif
-    return settings.value(config, valeur).toInt();
-}
-
-void FenetrePrincipale::setConfig(QString config, QString valeur) {
-#ifdef QT_DEBUG
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/debug/config.ini", QSettings::IniFormat);
-#else
-    QSettings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/config.ini", QSettings::IniFormat);
-#endif
-    settings.setValue(config, valeur);
-}
-
-QString FenetrePrincipale::getDossierSerie() {
-    return this->dossierSerie;
+    MethodeDiverses::ecrireLog("FenetrePrincipale::verificationSerieTerminer() : Fin de vérification des séries terminées");
 }
 
 BaseDeDonnees *FenetrePrincipale::getBdd() {
-    return this->bdd;
+    return bdd;
 }
 
 void FenetrePrincipale::closeEvent(QCloseEvent *event) {
     QWidget::closeEvent(event);
-    if(getConfig("Dimension/W", 472) != this->geometry().width())
-        setConfig("Dimension/W", QString::number(this->geometry().width()));
-    if(getConfig("Dimension/H", 434) != this->geometry().height())
-        setConfig("Dimension/H", QString::number(this->geometry().height()));
-    if(getConfig("Dimension/X",724) != this->geometry().x())
-        setConfig("Dimension/X", QString::number(this->geometry().x()));
-    if(getConfig("Dimension/Y", 303) != this->geometry().y())
-        setConfig("Dimension/Y",QString::number(this->geometry().y()));
-    if(getConfig("Dimension/Fullscreen", 0) != this->isMaximized())
-        setConfig("Dimension/Fullscreen", QString::number(this->isMaximized()));
+    if(MethodeDiverses::getConfig("Dimension/W", 472) != this->geometry().width())
+        MethodeDiverses::setConfig("Dimension/W", QString::number(this->geometry().width()));
+    if(MethodeDiverses::getConfig("Dimension/H", 434) != this->geometry().height())
+        MethodeDiverses::setConfig("Dimension/H", QString::number(this->geometry().height()));
+    if(MethodeDiverses::getConfig("Dimension/X",724) != this->geometry().x())
+        MethodeDiverses::setConfig("Dimension/X", QString::number(this->geometry().x()));
+    if(MethodeDiverses::getConfig("Dimension/Y", 303) != this->geometry().y())
+        MethodeDiverses::setConfig("Dimension/Y",QString::number(this->geometry().y()));
+    if(MethodeDiverses::getConfig("Dimension/Fullscreen", 0) != this->isMaximized())
+        MethodeDiverses::setConfig("Dimension/Fullscreen", QString::number(this->isMaximized()));
 }
 
 void FenetrePrincipale::resizeEvent(QResizeEvent *event) {
@@ -987,6 +1022,9 @@ void FenetrePrincipale::loadImage() {
     }
 }
 
+void FenetrePrincipale::fermetureFenetre() {
+    refresh();
+}
 /*******************************************************\
 *                                                       *
 *                          MENU                         *
@@ -1004,11 +1042,16 @@ void FenetrePrincipale::on_menuFichierHistoriqueRechercher_triggered() {
         ui->pageHistoriqueRechercherComboBoxNomSerie->setCurrentIndex(0);
         ui->pageHistoriqueRechercherLabelAffichage->setText("");
         ui->pageHistoriqueRechercherTableWidget->setRowCount(0);
-        QList<QString> champs;
-        QList<QString> conditions;
-        QList<QString> ordres;
-        champs.append("DISTINCT " + bdd->HISTORIQUE_NOM);
-        QList<QMap<QString, QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+        QStringList champs, jointures, conditions, ordres;
+        champs.append(bdd->DISTINCT + bdd->HISTORIQUE_NOM);
+        BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer les séries";
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_menuFichierHistoriqueRechercher_triggered() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QList<QMap<QString, QString> > liste = retour.liste;
         for(int i = 0; i < liste.count(); i++) {
             ui->pageHistoriqueRechercherComboBoxNomSerie->addItem(liste.at(i).value(bdd->HISTORIQUE_NOM));
         }
@@ -1022,11 +1065,16 @@ void FenetrePrincipale::on_menuFichierHistoriqueAjouter_triggered() {
         ui->pageHistoriqueAjouterPushButtonAjouter->setEnabled(false);
         ui->pageHistoriqueAjouterComboBoxSerie->setCurrentIndex(0);
         ui->pageHistoriqueAjouterTableWidget->setRowCount(0);
-        QList<QString> champs;
-        QList<QString> conditions;
-        QList<QString> ordres;
+        QStringList champs, jointures, conditions, ordres;
         champs.append(bdd->FICHE_SERIE_NOM);
-        QList<QMap<QString,QString> > liste = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres);
+        BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer les séries";
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_menuFichierHistoriqueAjouter_triggered() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QList<QMap<QString,QString> > liste = retour.liste;
         for(int i = 0; i < liste.count(); i++) {
             ui->pageHistoriqueAjouterComboBoxSerie->addItem(liste.at(i).value(bdd->FICHE_SERIE_NOM));
         }
@@ -1037,11 +1085,16 @@ void FenetrePrincipale::on_menuFichierHistoriqueModifier_triggered() {
     if(ui->stackedWidget->currentWidget() != ui->pageHistoriqueModifier) {
         ui->stackedWidget->setCurrentWidget(ui->pageHistoriqueModifier);
         ui->pageHistoriqueModifierComboBoxRechercheNom->setCurrentIndex(0);
-        QList<QString> champs;
-        QList<QString> conditions;
-        QList<QString> ordres;
-        champs.append("DISTINCT " + bdd->HISTORIQUE_NOM);
-        QList<QMap<QString, QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+        QStringList champs, jointures, conditions, ordres;
+        champs.append(bdd->DISTINCT + bdd->HISTORIQUE_NOM);
+        BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer les séries";
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_menuFichierHistoriqueModifier_triggered() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QList<QMap<QString, QString> > liste = retour.liste;
         ui->pageHistoriqueModifierComboBoxRechercheNom->clear();
         for(int i = 0; i < liste.count(); i++) {
             ui->pageHistoriqueModifierComboBoxRechercheNom->addItem(liste.at(i).value(bdd->HISTORIQUE_NOM));
@@ -1091,18 +1144,45 @@ void FenetrePrincipale::on_menuFichierAjouter_triggered() {
     ui->pageAjoutModifCheckBoxTermine->setVisible(false);
     ui->pageAjoutModifLabelTermine->setVisible(false);
     // Ajout des séries dans le comboBox
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
     champs.append(bdd->FICHE_SERIE_NOM);
-    conditions.append(bdd->FICHE_SERIE_NOM + " NOT IN (SELECT " + bdd->FICHE_SERIE_NOM + " FROM " + bdd->FICHE_SERIE_TABLE + " INNER JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID + ") AND " + bdd->FICHE_SERIE_TERMINE + " = 0");
+    conditions.append(bdd->FICHE_SERIE_NOM + bdd->NOT + bdd->IN + bdd->entreParentheses(bdd->SELECT + bdd->FICHE_SERIE_NOM + bdd->FROM + bdd->TABLE_FICHE_SERIE + bdd->INNER_JOIN + bdd->TABLE_SAISON + bdd->ON + bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID));
+    conditions.append(bdd->FICHE_SERIE_TERMINE + bdd->EGALE + "0");
     ordres.append(bdd->FICHE_SERIE_NOM);
-    QList<QMap<QString, QString> > serieSansSaison = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres);
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les séries";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_menuFichierAjouter_triggered() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString, QString> > serieSansSaison = retour.liste;
     if(!serieSansSaison.isEmpty())
         ui->pageAjoutModifComboFicheSerieNom->addItem("");
     for(int i = 0; i < serieSansSaison.count(); i++) {
         ui->pageAjoutModifComboFicheSerieNom->addItem(serieSansSaison.at(i).value(bdd->FICHE_SERIE_NOM));
     }
+
+    ui->pageAjoutModifComboBoxTypeSerie->clear();
+    champs.clear();
+    jointures.clear();
+    conditions.clear();
+    ordres.clear();
+
+    champs.append(bdd->TYPE_SERIE_NOM);
+
+    retour = bdd->requeteSelect(champs, bdd->TABLE_TYPE_SERIE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les types de séries";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_menuFichierAjouter_triggered() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+
+    for(int i = 0; i < retour.liste.count(); i++) {
+        ui->pageAjoutModifComboBoxTypeSerie->addItem(retour.liste.at(i).value(bdd->TYPE_SERIE_NOM));
+    }
+
     // Mise a zéro des champs
     ui->pageAjoutModifComboFicheSerieNom->setCurrentIndex(0);
     ui->pageAjoutModifLineEditFicheSerieWiki->setText("");
@@ -1118,6 +1198,7 @@ void FenetrePrincipale::on_menuFichierAjouter_triggered() {
     ui->pageAjoutModifLineEditSaisonWiki->setText("");
     ui->pageAjoutModifSpinBoxSaisonEpisodeCourant->setValue(ui->pageAjoutModifSpinBoxSaisonEpisodeCourant->minimum());
     ui->pageAjoutModifDateEditSaisonDateProchain->setDate(QDate::currentDate());
+    ui->pageAjoutModifLineEditCheminPhoto->setText("");
 
     //Gestion des visibilité
     ui->pageAjoutModifGroupBoxSaison->setVisible(true);
@@ -1152,8 +1233,7 @@ void FenetrePrincipale::on_menuFichierModifier_triggered() {
     ui->pageAjoutModifComboFicheSerieNom->setEditable(false);
     ui->pageAjoutModifCheckBoxTermine->setVisible(true);
     ui->pageAjoutModifLabelTermine->setVisible(true);
-    QList<QString> champs;
-    QList<QString> conditions;
+    QStringList champs, jointures, conditions, ordres;
     champs.append(bdd->FICHE_SERIE_NOM);
     // Ajout des  Serie dans le comboBox
     if(!ficheSerie.isEmpty())
@@ -1170,6 +1250,26 @@ void FenetrePrincipale::on_menuFichierModifier_triggered() {
         ui->pageAjoutModifBoutonWiki->setEnabled(false);
     }
 
+    ui->pageAjoutModifComboBoxTypeSerie->clear();
+    champs.clear();
+    jointures.clear();
+    conditions.clear();
+    ordres.clear();
+
+    champs.append(bdd->TYPE_SERIE_NOM);
+
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_TYPE_SERIE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les types de séries";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_menuFichierAjouter_triggered() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+
+    for(int i = 0; i < retour.liste.count(); i++) {
+        ui->pageAjoutModifComboBoxTypeSerie->addItem(retour.liste.at(i).value(bdd->TYPE_SERIE_NOM));
+    }
+
     // Mise a zéro des champs
     ui->pageAjoutModifLabelPhoto->setPixmap(i_seriesManager);
     ui->pageAjoutModifLabelCheminPhoto->setText("");
@@ -1181,6 +1281,7 @@ void FenetrePrincipale::on_menuFichierModifier_triggered() {
     ui->pageAjoutModifLineEditSaisonWiki->setText("");
     ui->pageAjoutModifSpinBoxSaisonEpisodeCourant->setValue(ui->pageAjoutModifSpinBoxSaisonEpisodeCourant->minimum());
     ui->pageAjoutModifDateEditSaisonDateProchain->setDate(QDate::currentDate());
+    ui->pageAjoutModifLineEditCheminPhoto->setText("");
 
     //Gestion des visibilité
     ui->pageAjoutModifBoutonDossier->setVisible(true);
@@ -1205,7 +1306,7 @@ void FenetrePrincipale::on_menuFichierModifier_triggered() {
 }
 
 void FenetrePrincipale::on_menuFichierQuitter_triggered() {
-    log->ecrire("Fermeture de l'application");
+    MethodeDiverses::ecrireLog("Fermeture de l'application");
     closeEvent(new QCloseEvent());
     QCoreApplication::quit();
 }
@@ -1217,11 +1318,11 @@ void FenetrePrincipale::on_menuOptionsActualiser_triggered() {
 void FenetrePrincipale::on_menuOptionsParam_tres_triggered() {
     ui->stackedWidget->setCurrentWidget(ui->pageConfig);
     ui->pageConfigurationLabelConsigne->setVisible(false);
-    ui->pageConfigurationSpinBoxLogEfface->setValue(getConfig("Configuration/PurgeLog").toInt());
-    ui->pageConfigurationLineDossierTelechargement->setText(getConfig("Configuration/Telechargement"));
+    ui->pageConfigurationSpinBoxLogEfface->setValue(MethodeDiverses::getConfig("Configuration/PurgeLog").toInt());
+    ui->pageConfigurationLineDossierTelechargement->setText(MethodeDiverses::getConfig("Configuration/Telechargement"));
     ui->pageConfigurationLineDossierTelechargement->setCursorPosition(0);
-    ui->pageConfigurationLineDossierSerie->setText(getConfig("Configuration/Chemin"));
-    switch (getConfig("Configuration/Qualite").toInt()) {
+    ui->pageConfigurationLineDossierSerie->setText(MethodeDiverses::getConfig("Configuration/Chemin"));
+    switch (MethodeDiverses::getConfig("Configuration/Qualite").toInt()) {
     case 0:
         ui->pageConfigurationRadioButtonQualiteToutes->setChecked(true);
         break;
@@ -1232,7 +1333,7 @@ void FenetrePrincipale::on_menuOptionsParam_tres_triggered() {
         ui->pageConfigurationRadioButtonQualite1080->setChecked(true);
         break;
     }
-    switch (getConfig("Configuration/SousTitres").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/SousTitres").toInt()) {
     case 0:
         ui->pageConfigurationRadioButtonSousTitresToutes->setChecked(true);
         break;
@@ -1240,7 +1341,7 @@ void FenetrePrincipale::on_menuOptionsParam_tres_triggered() {
         ui->pageConfigurationRadioButtonSousTitresVOSTFR->setChecked(true);
         break;
     }
-    ui->pageConfigurationLineEditExtension->setText(getConfig("Configuration/Extension"));
+    ui->pageConfigurationLineEditExtension->setText(MethodeDiverses::getConfig("Configuration/Extension"));
 }
 
 void FenetrePrincipale::on_menuOptionsDossier_de_log_triggered() {
@@ -1327,29 +1428,29 @@ void FenetrePrincipale::on_pageConfigurationBoutonParcourir_2_clicked() {
 
 void FenetrePrincipale::on_pageConfigurationBoutonTerminer_clicked() {
     if(ui->pageConfigurationLineDossierSerie->text() != "" && ui->pageConfigurationLineDossierTelechargement->text() != "" && ui->pageConfigurationLineEditExtension->text() != "") {
-        setConfig("Configuration/Chemin", ui->pageConfigurationLineDossierSerie->text());
-        setConfig("Configuration/Extension", ui->pageConfigurationLineEditExtension->text());
+        MethodeDiverses::setConfig("Configuration/Chemin", ui->pageConfigurationLineDossierSerie->text());
+        MethodeDiverses::setConfig("Configuration/Extension", ui->pageConfigurationLineEditExtension->text());
         lien = ui->pageConfigurationLineEditSite->text() + ui->pageConfigurationLineEditExtension->text() + "/engine/search?name=";
-        setConfig("Configuration/ListeSerie", "Toutes");
-        setConfig("Configuration/PurgeLog", QString::number(ui->pageConfigurationSpinBoxLogEfface->value()));
+        MethodeDiverses::setConfig("Configuration/ListeSerie", "Toutes");
+        MethodeDiverses::setConfig("Configuration/PurgeLog", QString::number(ui->pageConfigurationSpinBoxLogEfface->value()));
         if(ui->pageConfigurationRadioButtonQualiteToutes->isChecked()) {
-            setConfig("Configuration/Qualite", "0");
+            MethodeDiverses::setConfig("Configuration/Qualite", "0");
         } else if(ui->pageConfigurationRadioButtonQualite720->isChecked()) {
-            setConfig("Configuration/Qualite", "1");
+            MethodeDiverses::setConfig("Configuration/Qualite", "1");
         } else if(ui->pageConfigurationRadioButtonQualite1080->isChecked()) {
-            setConfig("Configuration/Qualite", "2");
+            MethodeDiverses::setConfig("Configuration/Qualite", "2");
         }
         if(ui->pageConfigurationRadioButtonSousTitresToutes->isChecked()) {
-            setConfig("Configuration/SousTitres", "0");
+            MethodeDiverses::setConfig("Configuration/SousTitres", "0");
         } else {
-            setConfig("Configuration/SousTitres", "1");
+            MethodeDiverses::setConfig("Configuration/SousTitres", "1");
         }
-        setConfig("Configuration/Telechargement", ui->pageConfigurationLineDossierTelechargement->text());
-        setConfig("Dimension/Fullscreen", QString::number(this->isMaximized()));
-        setConfig("Dimension/H", QString::number(this->geometry().height()));
-        setConfig("Dimension/W", QString::number(this->geometry().width()));
-        setConfig("Dimension/X", QString::number(this->geometry().x()));
-        setConfig("Dimension/Y", QString::number(this->geometry().y()));
+        MethodeDiverses::setConfig("Configuration/Telechargement", ui->pageConfigurationLineDossierTelechargement->text());
+        MethodeDiverses::setConfig("Dimension/Fullscreen", QString::number(this->isMaximized()));
+        MethodeDiverses::setConfig("Dimension/H", QString::number(this->geometry().height()));
+        MethodeDiverses::setConfig("Dimension/W", QString::number(this->geometry().width()));
+        MethodeDiverses::setConfig("Dimension/X", QString::number(this->geometry().x()));
+        MethodeDiverses::setConfig("Dimension/Y", QString::number(this->geometry().y()));
         if(!ui->mainToolBar->isVisible()) {
             initialisation();
         }
@@ -1386,7 +1487,7 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_customContextMenuReq
         menuContextuel.addSeparator();
         QAction *copier = menuContextuel.addAction(QIcon(), "Copier le nom de la série");
         QAction *copierComplet = menuContextuel.addAction(QIcon(), "Copier le nom, la saison et l'épisode de la série");
-        QAction *dossier;
+        QAction *dossier = NULL;
         if(QDir(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 1)->text()).exists()) {
             menuContextuel.addSeparator();
             dossier = menuContextuel.addAction(QIcon(), "Ouvrir le dossier de la série");
@@ -1400,10 +1501,10 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_customContextMenuReq
             QApplication::clipboard()->setText(ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text() + " S" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 1)->text() + "E" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 2)->text());
         } else if(a == dossier) {
             if(QDesktopServices::openUrl(QUrl::fromLocalFile(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 1)->text()))) {
-                log->ecrire("Ouverture du dossier de " + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text());
+                MethodeDiverses::ecrireLog("Ouverture du dossier de " + ui->pagePrincipaleTableWidgetDisplay->item(ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow(), 0)->text());
             } else {
                 QMessageBox::warning(this, this->windowTitle(), "Le dossier n'a pas pu être ouvert");
-                log->ecrire("Le dossier n'a pas pu être ouvert");
+                MethodeDiverses::ecrireLog("Le dossier n'a pas pu être ouvert");
             }
         } else if(a == modifier) {
             on_menuFichierModifier_triggered();
@@ -1416,12 +1517,12 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_customContextMenuReq
 void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_customContextMenuRequested(const QPoint &pos) {
     if(ui->pagePrincipaleTableWidgetDisplay_2->rowCount() > 0 && !ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().isEmpty()) {
         QMenu menuContextuel(this);
-        int ligne = ui->pagePrincipaleTableWidgetDisplay->selectedRanges().at(0).topRow();
+        int ligne = ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow();
         QAction *modifier = menuContextuel.addAction(QIcon(), "Modifier la fiche série");
         menuContextuel.addSeparator();
         QAction *copier = menuContextuel.addAction(QIcon(), "Copier le nom de la série");
         QAction *copierComplet = menuContextuel.addAction(QIcon(), "Copier le nom, la saison et l'épisode de la série");
-        QAction *dossier;
+        QAction *dossier = NULL;
         if(QDir(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text()).exists()) {
             menuContextuel.addSeparator();
             dossier = menuContextuel.addAction(QIcon(), "Ouvrir le dossier de la série");
@@ -1435,10 +1536,10 @@ void FenetrePrincipale::on_pagePrincipaleTableWidgetDisplay_2_customContextMenuR
             QApplication::clipboard()->setText(ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + " S" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text() + "E" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 2)->text());
         } else if(a == dossier) {
             if(QDesktopServices::openUrl(QUrl::fromLocalFile(this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text()))) {
-                log->ecrire("Ouverture du dossier de " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text());
+                MethodeDiverses::ecrireLog("Ouverture du dossier de " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text());
             } else {
                 QMessageBox::warning(this, this->windowTitle(), "Le dossier " + this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text() + " n'a pas pu être ouvert");
-                log->ecrire("Le dossier " + this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text() + " n'a pas pu être ouvert");
+                MethodeDiverses::ecrireLog("Le dossier " + this->dossierSerie + "/" + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 0)->text() + "/Saison " + ui->pagePrincipaleTableWidgetDisplay_2->item(ui->pagePrincipaleTableWidgetDisplay_2->selectedRanges().at(0).topRow(), 1)->text() + " n'a pas pu être ouvert");
             }
         } else if(a == modifier) {
             on_menuFichierModifier_triggered();
@@ -1468,13 +1569,13 @@ void FenetrePrincipale::on_pagePrincipaleBoutonLienEtAddicted_clicked() {
         QString sousTitres;
         QString fin = "&do=search&order=desc&sort=publish_date";
 
-        switch (getConfig("Configuration/Qualite").toInt()) {
+        switch (MethodeDiverses::getConfig("Configuration/Qualite").toInt()) {
         case 0: qualite = ""; break;
         case 1: qualite = "+720p"; break;
         case 2: qualite = "+1080p"; break;
         }
 
-        switch (getConfig("Configuration/SousTitres").toInt()) {
+        switch (MethodeDiverses::getConfig("Configuration/SousTitres").toInt()) {
         case 0: sousTitres = ""; break;
         case 1: sousTitres = "+VOSTFR"; break;
         }
@@ -1495,14 +1596,14 @@ void FenetrePrincipale::on_pagePrincipaleBoutonLienEtAddicted_clicked() {
 }
 
 void FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() {
-    log->ecrire("FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() : Début de l'ouverture du dossier de téléchargement");
-    if(QDesktopServices::openUrl(QUrl::fromLocalFile(getConfig("Configuration/Telechargement")))) {
-        log->ecrire("\tOuverture du dossier de téléchargement");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() : Début de l'ouverture du dossier de téléchargement");
+    if(QDesktopServices::openUrl(QUrl::fromLocalFile(MethodeDiverses::getConfig("Configuration/Telechargement")))) {
+        MethodeDiverses::ecrireLog("\tOuverture du dossier de téléchargement");
     } else {
         QMessageBox::warning(this, this->windowTitle(), "Le dossier de téléchargement n'a pas pu être ouvert");
-        log->ecrire("\tLe dossier de téléchargement n'a pas pu être ouvert");
+        MethodeDiverses::ecrireLog("\tLe dossier de téléchargement n'a pas pu être ouvert");
     }
-    log->ecrire("FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() : Début de l'ouverture du dossier de téléchargement");
+    MethodeDiverses::ecrireLog("FenetrePrincipale::on_pagePrincipaleBoutonDossierSerie_clicked() : Début de l'ouverture du dossier de téléchargement");
 }
 
 void FenetrePrincipale::on_pagePrincipaleBoutonWiki_clicked() {
@@ -1525,6 +1626,7 @@ void FenetrePrincipale::on_pagePrincipaleBoutonWiki_clicked() {
 void FenetrePrincipale::on_pagePrincipaleBoutonDeplacerFichier_clicked() {
     Dialog *dial = new Dialog(this);
     dial->open();
+    connect(dial, SIGNAL(finished(int)), this, SLOT(fermetureFenetre()));
 }
 
 /*******************************************************\
@@ -1570,18 +1672,18 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
     ui->pageVosSeriesDisplay->setRowCount(0);
 
     int selection = 1;
-    if(getConfig("Configuration/ListeSerie") == "") {
-        setConfig("Configuration/ListeSerie", "Toutes");
+    if(MethodeDiverses::getConfig("Configuration/ListeSerie") == "") {
+        MethodeDiverses::setConfig("Configuration/ListeSerie", "Toutes");
         selection = 1;
     } else {
         if(arg1 == "Toutes") {
-            setConfig("Configuration/ListeSerie", "Toutes");
+            MethodeDiverses::setConfig("Configuration/ListeSerie", "Toutes");
             selection = 1;
         } else if (arg1 == "Série à venir") {
-            setConfig("Configuration/ListeSerie", "Série à venir");
+            MethodeDiverses::setConfig("Configuration/ListeSerie", "Série à venir");
             selection = 2;
         } else if (arg1 == "Série en cours") {
-            setConfig("Configuration/ListeSerie", "Série en cours");
+            MethodeDiverses::setConfig("Configuration/ListeSerie", "Série en cours");
             selection = 3;
         }
     }
@@ -1607,6 +1709,7 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
             ui->pageVosSeriesDisplay->setItem(indice, 3, methodeDiverses.itemForTableWidget("", true));
             ui->pageVosSeriesDisplay->setItem(indice, 4, methodeDiverses.itemForTableWidget("", true));
             ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget("", true));
+            ui->pageVosSeriesDisplay->item(indice, 0)->setBackgroundColor(QColor(list.value(bdd->TYPE_SERIE_RED).toInt(), list.value(bdd->TYPE_SERIE_GREEN).toInt(), list.value(bdd->TYPE_SERIE_BLUE).toInt()));
             ui->pageVosSeriesDisplay->item(indice, 1)->setBackgroundColor(QColor("black"));
             ui->pageVosSeriesDisplay->item(indice, 2)->setBackgroundColor(QColor("black"));
             ui->pageVosSeriesDisplay->item(indice, 3)->setBackgroundColor(QColor("black"));
@@ -1631,8 +1734,16 @@ void FenetrePrincipale::on_pageVosSeriesComboBox_currentIndexChanged(const QStri
                 ui->pageVosSeriesDisplay->setItem(indice, 5, methodeDiverses.itemForTableWidget(methodeDiverses.stringToDate(list.value(bdd->SAISON_DATE_MODIF)).addDays(7).toString("dd/MM/yy"), true));
             }
 
+            // On met la couleur
+            ui->pageVosSeriesDisplay->item(indice, 0)->setBackgroundColor(QColor(list.value(bdd->TYPE_SERIE_RED).toInt(), list.value(bdd->TYPE_SERIE_GREEN).toInt(), list.value(bdd->TYPE_SERIE_BLUE).toInt()));
+            ui->pageVosSeriesDisplay->item(indice, 1)->setBackgroundColor(QColor(list.value(bdd->TYPE_SERIE_RED).toInt(), list.value(bdd->TYPE_SERIE_GREEN).toInt(), list.value(bdd->TYPE_SERIE_BLUE).toInt()));
+            ui->pageVosSeriesDisplay->item(indice, 2)->setBackgroundColor(QColor(list.value(bdd->TYPE_SERIE_RED).toInt(), list.value(bdd->TYPE_SERIE_GREEN).toInt(), list.value(bdd->TYPE_SERIE_BLUE).toInt()));
+            ui->pageVosSeriesDisplay->item(indice, 3)->setBackgroundColor(QColor(list.value(bdd->TYPE_SERIE_RED).toInt(), list.value(bdd->TYPE_SERIE_GREEN).toInt(), list.value(bdd->TYPE_SERIE_BLUE).toInt()));
+            ui->pageVosSeriesDisplay->item(indice, 4)->setBackgroundColor(QColor(list.value(bdd->TYPE_SERIE_RED).toInt(), list.value(bdd->TYPE_SERIE_GREEN).toInt(), list.value(bdd->TYPE_SERIE_BLUE).toInt()));
+            ui->pageVosSeriesDisplay->item(indice, 5)->setBackgroundColor(QColor(list.value(bdd->TYPE_SERIE_RED).toInt(), list.value(bdd->TYPE_SERIE_GREEN).toInt(), list.value(bdd->TYPE_SERIE_BLUE).toInt()));
+
             if(list.value(bdd->SAISON_EPISODE_COURANT) == list.value(bdd->SAISON_NB_EPISODE)) {
-                for(int j = 0; j <= 5; j++) {
+                for(int j = 1; j <= 5; j++) {
                     ui->pageVosSeriesDisplay->item(indice, j)->setBackgroundColor(QColor(240,63,63));
                 }
             }
@@ -1691,12 +1802,14 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
     QString saisonNbEpisode = methodeDiverses.formalismeEntier(ui->pageAjoutModifSpinBoxSaisonNbEpisode->value());
     QString saisonDateSortie = methodeDiverses.dateToString(ui->pageAjoutModifDateEditSaisonDateSortie->date());
     QString saisonWiki = ui->pageAjoutModifLineEditSaisonWiki->text();
+    QString type = ui->pageAjoutModifComboBoxTypeSerie->currentText();
     int termine = ui->pageAjoutModifCheckBoxTermine->isChecked();
     int saisonEpisodeEnPlus;
     QString saisonDateModif;
     bool saisonCreationDossier;
     QString saisonEpisodeCourant;
     QString cheminFichier;
+    BaseDeDonnees::Retour retour;
 
     if(ui->pageAjoutModifCheckBoxDoubleEpisode->isChecked()) {
         saisonEpisodeEnPlus = ui->pageAjoutModifSpinBoxEpisodeEnPlus->value();
@@ -1713,19 +1826,25 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
         cheminFichier = "";
     }
 
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
 
     if(ui->pageAjoutModifBoutonValider->text() == "Ajouter") {
-        QList<QString> valeurs;
+        QStringList valeurs;
 
         saisonDateModif = methodeDiverses.dateToString(ui->pageAjoutModifDateEditSaisonDateSortie->date().addDays(-7));
         saisonCreationDossier = ui->pageAjoutModifCheckBoxCreationDossierAuto->isChecked();
 
         champs.append(bdd->FICHE_SERIE_ID);
-        conditions.append(bdd->FICHE_SERIE_NOM + " = '" + ficheSerieNom + "'");
-        if(this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres).isEmpty()) {
+        conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ficheSerieNom));
+        retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer l'ID de " + ficheSerieNom;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QStringList champsType, jointuresType, conditionsType, ordresType;
+        if(retour.liste.isEmpty()) {
             champs.clear();
             valeurs.clear();
             champs.append(bdd->FICHE_SERIE_NOM);
@@ -1738,30 +1857,64 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
             valeurs.append(ficheSerieAddicted);
             champs.append(bdd->FICHE_SERIE_TERMINE);
             valeurs.append(QString::number(termine));
+            champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID);
+            champsType.append(bdd->TYPE_SERIE_ID);
+            conditionsType.append(bdd->TYPE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(type));
+            valeurs.append(bdd->getRequeteSelect(champsType, bdd->TABLE_TYPE_SERIE, jointuresType, conditionsType, ordresType));
 
-            this->bdd->requeteInsert(champs, valeurs, bdd->FICHE_SERIE_TABLE);
+            retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_FICHE_SERIE);
+            if(!retour.reussi) {
+                QString messageLog = "Impossible d'ajouter la série " + ficheSerieNom;
+                QMessageBox::critical(this, this->windowTitle(), messageLog);
+                MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                throw new QException();
+            }
         } else {
             champs.clear();
             conditions.clear();
-            champs.append(bdd->FICHE_SERIE_WIKI + " = '" + ficheSerieWiki + "'");
-            champs.append(bdd->FICHE_SERIE_IMAGE + " ='" + ficheSeriePhoto + "'");
-            champs.append(bdd->FICHE_SERIE_ADDICTED + " ='" + ficheSerieAddicted + "'");
-            champs.append(bdd->FICHE_SERIE_TERMINE + " = '" + QString::number(termine) + "'");
-            conditions.append(bdd->FICHE_SERIE_NOM + " = '" + ficheSerieNom + "'");
-            this->bdd->requeteUpdate(champs, bdd->FICHE_SERIE_TABLE, conditions);
+            champs.append(bdd->FICHE_SERIE_WIKI + bdd->EGALE + bdd->entreQuotes(ficheSerieWiki));
+            champs.append(bdd->FICHE_SERIE_IMAGE + bdd->EGALE + bdd->entreQuotes(ficheSeriePhoto));
+            champs.append(bdd->FICHE_SERIE_ADDICTED + bdd->EGALE + bdd->entreQuotes(ficheSerieAddicted));
+            champs.append(bdd->FICHE_SERIE_TERMINE + bdd->EGALE + bdd->entreQuotes(QString::number(termine)));
+            champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID);
+            champsType.append(bdd->TYPE_SERIE_ID);
+            conditionsType.append(bdd->TYPE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(type));
+            champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID + bdd->EGALE + bdd->getRequeteSelect(champsType, bdd->TABLE_TYPE_SERIE, jointuresType, conditionsType, ordresType));
+            conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ficheSerieNom));
+            retour = bdd->requeteUpdate(champs, bdd->TABLE_FICHE_SERIE, conditions);
+            if(!retour.reussi) {
+                QString messageLog = "Impossible de mettre à jour la série " + ficheSerieNom;
+                QMessageBox::critical(this, this->windowTitle(), messageLog);
+                MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                throw new QException();
+            }
         }
 
         if(ui->pageAjoutModifCheckBoxCreerSaison->isChecked()) {
             // On récupère l'ID de la fiche série
             champs.clear();
             champs.append(bdd->FICHE_SERIE_ID);
-            ficheSerieID = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres).at(0).value(bdd->FICHE_SERIE_ID).toInt();
+            retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+            if(!retour.reussi) {
+                QString messageLog = "Impossible de récupérer l'ID de la série " + ficheSerieNom;
+                QMessageBox::critical(this, this->windowTitle(), messageLog);
+                MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                throw new QException();
+            }
+            ficheSerieID = retour.liste.at(0).value(bdd->FICHE_SERIE_ID).toInt();
 
             champs.clear();
             conditions.clear();
             champs.append(bdd->SAISON_ID);
-            conditions.append(bdd->SAISON_ID + " = '" + QString::number(ficheSerieID) + "'");
-            if(this->bdd->requeteSelect(champs, bdd->SAISON_TABLE, conditions, ordres).isEmpty()) {
+            conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(QString::number(ficheSerieID)));
+            retour = bdd->requeteSelect(champs, bdd->TABLE_SAISON, jointures, conditions, ordres);
+            if(!retour.reussi) {
+                QString messageLog = "Impossible de récupérer l'ID de la saison courante de la série " + ficheSerieNom;
+                QMessageBox::critical(this, this->windowTitle(), messageLog);
+                MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                throw new QException();
+            }
+            if(retour.liste.isEmpty()) {
                 champs.clear();
                 valeurs.clear();
                 champs.append(bdd->SAISON_ID);
@@ -1778,7 +1931,13 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
                 valeurs.append(saisonDateModif);
                 champs.append(bdd->SAISON_WIKI);
                 valeurs.append(saisonWiki);
-                this->bdd->requeteInsert(champs, valeurs, bdd->SAISON_TABLE);
+                bdd->requeteInsert(champs, valeurs, bdd->TABLE_SAISON);
+                if(!retour.reussi) {
+                    QString messageLog = "Impossible d'ajouter la saison de la série " + ficheSerieNom;
+                    QMessageBox::critical(this, this->windowTitle(), messageLog);
+                    MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                    throw new QException();
+                }
                 ui->statusBar->showMessage("La série " + ficheSerieNom + " a été ajouté.", 5000);
             } else {
                 QMessageBox::information(this, this->windowTitle(), "Il existe déjà une saison pour cette série.\nLa saison n'a pas été créé.");
@@ -1787,7 +1946,7 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
             if(saisonCreationDossier) {
                 if(!QDir(dossierSerie + "/" + ficheSerieNom + "/Saison " + saisonSaison).exists()) {
                     QDir dir;
-                    if(dir.mkpath(dossierSerie + "/" + ficheSerieNom + "/Saison " + saisonSaison)) {
+                    if(!dir.mkpath(dossierSerie + "/" + ficheSerieNom + "/Saison " + saisonSaison)) {
                         QMessageBox::information(this, this->windowTitle(), "Impossible de créer le dossier suivant :" + dossierSerie + "/" + ficheSerieNom + "/Saison " + saisonSaison);
                     }
                 }
@@ -1797,9 +1956,17 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
         conditions.clear();
         ui->pageAjoutModifComboFicheSerieNom->clear();
         champs.append(bdd->FICHE_SERIE_NOM);
-        conditions.append(bdd->FICHE_SERIE_NOM + " NOT IN (SELECT " + bdd->FICHE_SERIE_NOM + " FROM " + bdd->FICHE_SERIE_TABLE + " INNER JOIN " + bdd->SAISON_TABLE + " ON " + bdd->FICHE_SERIE_ID + " = " + bdd->SAISON_ID + ") AND " + bdd->FICHE_SERIE_TERMINE + " = 0");
+        conditions.append(bdd->FICHE_SERIE_NOM + bdd->NOT + bdd->IN + bdd->entreParentheses(bdd->SELECT + bdd->FICHE_SERIE_NOM + bdd->FROM + bdd->TABLE_FICHE_SERIE + bdd->INNER_JOIN + bdd->TABLE_SAISON + bdd->ON + bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->SAISON_ID));
+        conditions.append(bdd->FICHE_SERIE_TERMINE + bdd->EGALE + "0");
         ordres.append(bdd->FICHE_SERIE_NOM);
-        QList<QMap<QString, QString> > serieSansSaison = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres);
+        retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de de récupérer les séries";
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QList<QMap<QString, QString> > serieSansSaison = retour.liste;
         ui->pageAjoutModifComboFicheSerieNom->addItem("");
         for(int i = 0; i < serieSansSaison.count(); i++) {
             ui->pageAjoutModifComboFicheSerieNom->addItem(serieSansSaison.at(i).value(bdd->FICHE_SERIE_NOM));
@@ -1811,32 +1978,51 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
         conditions.clear();
         champs.append(bdd->FICHE_SERIE_ID);
 
-        conditions.append(bdd->FICHE_SERIE_NOM + " = '" + ficheSerieNom + "'");
+        conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ficheSerieNom));
 
-        ficheSerieID = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres).at(0).value(bdd->FICHE_SERIE_ID).toInt();
-
-        champs.clear();
-        conditions.clear();
-        champs.append(bdd->FICHE_SERIE_NOM + " = '" + ficheSerieNom + "'");
-        champs.append(bdd->FICHE_SERIE_IMAGE + " = '" + cheminFichier + "'");
-        champs.append(bdd->FICHE_SERIE_WIKI + " = '" + ficheSerieWiki + "'");
-        champs.append(bdd->FICHE_SERIE_ADDICTED + " = '" + ficheSerieAddicted + "'");
-        champs.append(bdd->FICHE_SERIE_TERMINE + " = '" + QString::number(termine) + "'");
-        conditions.append(bdd->FICHE_SERIE_ID + " = '" + QString::number(ficheSerieID) + "'");
-        this->bdd->requeteUpdate(champs, bdd->FICHE_SERIE_TABLE, conditions);
+        retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer l'ID de la série " + ficheSerieNom;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        ficheSerieID = retour.liste.at(0).value(bdd->FICHE_SERIE_ID).toInt();
 
         champs.clear();
         conditions.clear();
+        champs.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ficheSerieNom));
+        champs.append(bdd->FICHE_SERIE_IMAGE + bdd->EGALE + bdd->entreQuotes(cheminFichier));
+        champs.append(bdd->FICHE_SERIE_WIKI + bdd->EGALE + bdd->entreQuotes(ficheSerieWiki));
+        champs.append(bdd->FICHE_SERIE_ADDICTED + bdd->EGALE + bdd->entreQuotes(ficheSerieAddicted));
+        champs.append(bdd->FICHE_SERIE_TERMINE + bdd->EGALE + bdd->entreQuotes(QString::number(termine)));
+        conditions.append(bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->entreQuotes(QString::number(ficheSerieID)));
+        bdd->requeteUpdate(champs, bdd->TABLE_FICHE_SERIE, conditions);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de mettre à jour la série " + ficheSerieNom;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
 
-        champs.append(bdd->SAISON_SAISON + " = '" + saisonSaison + "'");
-        champs.append(bdd->SAISON_NB_EPISODE + " = '" + saisonNbEpisode + "'");
-        champs.append(bdd->SAISON_EPISODE_COURANT + " = '" + saisonEpisodeCourant + "'");
-        champs.append(bdd->SAISON_DATE_SORTIE + " = '" + saisonDateSortie + "'");
-        champs.append(bdd->SAISON_DATE_MODIF + " = '" + saisonDateModif + "'");
-        champs.append(bdd->SAISON_WIKI + " = '" + saisonWiki + "'");
-        champs.append(bdd->SAISON_EPISODE_EN_PLUS + " = '" + QString::number(saisonEpisodeEnPlus) + "'");
-        conditions.append(bdd->SAISON_ID + " = '" + QString::number(ficheSerieID) + "'");
-        this->bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
+        champs.clear();
+        conditions.clear();
+
+        champs.append(bdd->SAISON_SAISON + bdd->EGALE + bdd->entreQuotes(saisonSaison));
+        champs.append(bdd->SAISON_NB_EPISODE + bdd->EGALE + bdd->entreQuotes(saisonNbEpisode));
+        champs.append(bdd->SAISON_EPISODE_COURANT + bdd->EGALE + bdd->entreQuotes(saisonEpisodeCourant));
+        champs.append(bdd->SAISON_DATE_SORTIE + bdd->EGALE + bdd->entreQuotes(saisonDateSortie));
+        champs.append(bdd->SAISON_DATE_MODIF + bdd->EGALE + bdd->entreQuotes(saisonDateModif));
+        champs.append(bdd->SAISON_WIKI + bdd->EGALE + bdd->entreQuotes(saisonWiki));
+        champs.append(bdd->SAISON_EPISODE_EN_PLUS + bdd->EGALE + bdd->entreQuotes(QString::number(saisonEpisodeEnPlus)));
+        conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(QString::number(ficheSerieID)));
+        bdd->requeteUpdate(champs, bdd->TABLE_SAISON, conditions);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de mettre à jour la saison de la série " + ficheSerieNom;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
 
         ui->statusBar->showMessage("La série " + ficheSerieNom + " a été modifié.", 5000);
     }
@@ -1855,20 +2041,32 @@ void FenetrePrincipale::on_pageAjoutModifPushButtonParcourirPhoto_clicked() {
 
 void FenetrePrincipale::on_pageAjoutModifBoutonDossier_clicked() {
     if(ui->pageAjoutModifComboFicheSerieNom->currentText() != "" && QDir(dossierSerie + "/" + ui->pageAjoutModifComboFicheSerieNom->currentText()).exists()) {
-        QList<QString> champs;
-        QList<QString> conditions;
-        QList<QString> ordres;
+        QStringList champs, jointures, conditions, ordres;
 
         champs.append(bdd->FICHE_SERIE_ID);
-        conditions.append(bdd->FICHE_SERIE_NOM + " = '" + ui->pageAjoutModifComboFicheSerieNom->currentText() + "'");
+        conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ui->pageAjoutModifComboFicheSerieNom->currentText()));
 
-        QList<QMap<QString,QString> > liste = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres);
+        BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer l'ID de la série " + ui->pageAjoutModifComboFicheSerieNom->currentText();
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonDossier_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        QList<QMap<QString,QString> > liste = retour.liste;
         champs.clear();
         conditions.clear();
         champs.append(bdd->SAISON_SAISON);
-        conditions.append(bdd->SAISON_ID + " = '" + liste.at(0).value(bdd->FICHE_SERIE_ID) + "'");
+        conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(liste.at(0).value(bdd->FICHE_SERIE_ID)));
 
-        liste = this->bdd->requeteSelect(champs, bdd->SAISON_TABLE, conditions, ordres);
+        retour = bdd->requeteSelect(champs, bdd->TABLE_SAISON, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer le numéro de saison de la série " + ui->pageAjoutModifComboFicheSerieNom->currentText();
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonDossier_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        liste = retour.liste;
 
         if(liste.isEmpty()) {
             QDesktopServices::openUrl(QUrl::fromLocalFile(dossierSerie + "/" + ui->pageAjoutModifComboFicheSerieNom->currentText()));
@@ -1917,37 +2115,33 @@ void FenetrePrincipale::on_pageAjoutModifButtonWiki_clicked() {
 }
 
 void FenetrePrincipale::on_pageAjoutModifCheckBoxCreerSaison_stateChanged(int arg1) {
-    ui->pageAjoutModifGroupBoxSaison->setVisible(arg1);/*
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
-    champs.append(bdd->FICHE_SERIE_NOM);
-    conditions.append(bdd->FICHE_SERIE_NOM + " = '" + ui->pageAjoutModifComboFicheSerieNom->currentText() + "'");
-    QList<QMap<QString,QString> > liste = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres);
-    if(liste.isEmpty()) {
-        ui->pageAjoutModifBoutonValider->setEnabled(true);
-    } else {
-        if(arg1) {
-            ui->pageAjoutModifBoutonValider->setEnabled(true);
-        } else {
-            ui->pageAjoutModifBoutonValider->setEnabled(false);
-        }
-    }*/
+    ui->pageAjoutModifGroupBoxSaison->setVisible(arg1);
 }
 
 void FenetrePrincipale::on_pageAjoutModifPushButtonSupprimerSaison_clicked() {
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
 
     champs.append(bdd->FICHE_SERIE_ID);
-    conditions.append(bdd->FICHE_SERIE_NOM + " = '" + ui->pageAjoutModifComboFicheSerieNom->currentText() + "'");
-    QString serieID = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres).at(0).value(bdd->FICHE_SERIE_ID);
+    conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ui->pageAjoutModifComboFicheSerieNom->currentText()));
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer l'ID de la série " + ui->pageAjoutModifComboFicheSerieNom->currentText();
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifPushButtonSupprimerSaison_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QString serieID = retour.liste.at(0).value(bdd->FICHE_SERIE_ID);
 
 
     conditions.clear();
-    conditions.append(bdd->SAISON_ID + " = '" + serieID + "'");
-    this->bdd->requeteDelete(bdd->SAISON_TABLE, conditions);
+    conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(serieID));
+    bdd->requeteDelete(bdd->TABLE_SAISON, conditions);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de mettre à jour la saison de la série " + ui->pageAjoutModifComboFicheSerieNom->currentText();
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifPushButtonSupprimerSaison_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
 
     on_pageAjoutModifComboFicheSerieNom_currentTextChanged(ui->pageAjoutModifComboFicheSerieNom->currentText());
 
@@ -1955,22 +2149,17 @@ void FenetrePrincipale::on_pageAjoutModifPushButtonSupprimerSaison_clicked() {
 }
 
 void FenetrePrincipale::on_pageAjoutModifComboBoxListeSaison_currentTextChanged(const QString &arg1) {
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
-    QString qualite;
-    QString sousTitres;
-    QString fin = "&do=search&order=desc&sort=publish_date";
+    QStringList champs, jointures, conditions, ordres;
+    QString qualite, sousTitres, fin = "&do=search&order=desc&sort=publish_date", saison = arg1;
     champs.append(bdd->HISTORIQUE_NOM);
     champs.append(bdd->HISTORIQUE_SAISON);
     champs.append(bdd->HISTORIQUE_EPISODE);
     champs.append(bdd->HISTORIQUE_DATE_AJOUT);
     champs.append(bdd->HISTORIQUE_ETAT);
-    conditions.append(bdd->HISTORIQUE_NOM + " = '" + ui->pageAjoutModifComboFicheSerieNom->currentText() + "'");
-    QString saison = arg1;
-    conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison.replace("Saison ", "") + "'");
+    conditions.append(bdd->HISTORIQUE_NOM + bdd->EGALE + bdd->entreQuotes(ui->pageAjoutModifComboFicheSerieNom->currentText()));
+    conditions.append(bdd->HISTORIQUE_SAISON + bdd->EGALE + bdd->entreQuotes(saison.replace("Saison ", "")));
 
-    switch (getConfig("Configuration/Qualite").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/Qualite").toInt()) {
     case 0:
         qualite = "";
         break;
@@ -1982,7 +2171,7 @@ void FenetrePrincipale::on_pageAjoutModifComboBoxListeSaison_currentTextChanged(
         break;
     }
 
-    switch (getConfig("Configuration/SousTitres").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/SousTitres").toInt()) {
     case 0:
         sousTitres = "";
         break;
@@ -1991,7 +2180,15 @@ void FenetrePrincipale::on_pageAjoutModifComboBoxListeSaison_currentTextChanged(
         break;
     }
 
-    QList<QMap<QString, QString> > listeEpisodeHistorique = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer l'historique de la saison " + saison.replace("Saison ", "") + " de la série " + ui->pageAjoutModifComboFicheSerieNom->currentText();
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifComboBoxListeSaison_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString, QString> > listeEpisodeHistorique = retour.liste;
     ui->pageAjoutModifTableWidgetListeSaison->setRowCount(0);
     for(int i = 0; i < listeEpisodeHistorique.count(); i++) {
         ui->pageAjoutModifTableWidgetListeSaison->setRowCount(ui->pageAjoutModifTableWidgetListeSaison->rowCount() + 1);
@@ -2042,16 +2239,23 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
     ui->pageAjoutModifTableWidgetListeSaison->setRowCount(0);
     ui->pageAjoutModifComboBoxListeSaison->clear();
 
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
     champs.append(bdd->FICHE_SERIE_WIKI);
     champs.append(bdd->FICHE_SERIE_IMAGE);
     champs.append(bdd->FICHE_SERIE_ADDICTED);
     champs.append(bdd->FICHE_SERIE_ID);
     champs.append(bdd->FICHE_SERIE_TERMINE);
-    conditions.append("UPPER(" + bdd->FICHE_SERIE_NOM + ") = UPPER('" + arg1 + "')");
-    QList<QMap<QString, QString> > liste = this->bdd->requeteSelect(champs, bdd->FICHE_SERIE_TABLE, conditions, ordres);
+    champs.append(bdd->TYPE_SERIE_NOM);
+    jointures.append(bdd->INNER_JOIN + bdd->TABLE_TYPE_SERIE + bdd->ON + bdd->FICHE_SERIE_TYPE_SERIE_ID + bdd->EGALE + bdd->TYPE_SERIE_ID);
+    conditions.append(bdd->UPPER + bdd->entreParentheses(bdd->FICHE_SERIE_NOM) + bdd->EGALE + bdd->UPPER + bdd->entreParentheses(bdd->entreQuotes(arg1)));
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_FICHE_SERIE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les informations de la série " + arg1;
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString, QString> > liste = retour.liste;
 
     if(arg1 != "") {
         ui->pageAjoutModifBoutonValider->setEnabled(true);
@@ -2079,14 +2283,17 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
         ui->pageAjoutModifLineEditAddicted->setText(liste.at(0).value(bdd->FICHE_SERIE_ADDICTED));
         ui->pageAjoutModifLineEditAddicted->setCursorPosition(0);
         ui->pageAjoutModifCheckBoxTermine->setChecked(liste.at(0).value(bdd->FICHE_SERIE_TERMINE).toInt());
+        ui->pageAjoutModifComboBoxTypeSerie->setCurrentText(liste.at(0).value(bdd->TYPE_SERIE_NOM));
         if(liste.at(0).value(bdd->FICHE_SERIE_IMAGE) != "") {
             ui->pageAjoutModifLabelPhoto->setPixmap(QPixmap(liste.at(0).value(bdd->FICHE_SERIE_IMAGE)).scaled(ui->pageAjoutModifLabelPhoto->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
             ui->pageAjoutModifLabelCheminPhoto->setText(liste.at(0).value(bdd->FICHE_SERIE_IMAGE));
         } else {
             ui->pageAjoutModifLabelPhoto->setPixmap(i_seriesManager);
+            ui->pageAjoutModifLabelCheminPhoto->setText("");
         }
 
         champs.clear();
+        jointures.clear();
         conditions.clear();
         champs.append(bdd->SAISON_SAISON);
         champs.append(bdd->SAISON_NB_EPISODE);
@@ -2095,9 +2302,16 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
         champs.append(bdd->SAISON_WIKI);
         champs.append(bdd->SAISON_DATE_MODIF);
         champs.append(bdd->SAISON_EPISODE_EN_PLUS);
-        conditions.append(bdd->SAISON_ID + " = " + liste.at(0).value(bdd->FICHE_SERIE_ID));
+        conditions.append(bdd->SAISON_ID + bdd->EGALE + liste.at(0).value(bdd->FICHE_SERIE_ID));
 
-        liste = this->bdd->requeteSelect(champs, bdd->SAISON_TABLE, conditions, ordres);
+        retour = bdd->requeteSelect(champs, bdd->TABLE_SAISON, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer la saison de la série " + arg1;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        liste = retour.liste;
 
         if(!liste.isEmpty()) {
             ui->pageAjoutModifSpinBoxSaisonSaison->setValue(liste.at(0).value(bdd->SAISON_SAISON).toInt());
@@ -2136,9 +2350,16 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
         champs.clear();
         conditions.clear();
         champs.append(bdd->SAISON_ID);
-        conditions.append(bdd->SAISON_ID + " = '" + liste.at(0).value(bdd->FICHE_SERIE_ID) + "'");
+        conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(liste.at(0).value(bdd->FICHE_SERIE_ID)));
 
-        if(this->bdd->requeteSelect(champs, bdd->SAISON_TABLE, conditions, ordres).isEmpty()) {
+        retour = bdd->requeteSelect(champs, bdd->TABLE_SAISON, jointures, conditions, ordres);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible de récupérer l'ID de la saison courante de la série " + arg1;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
+        if(retour.liste.isEmpty()) {
             ui->pageAjoutModifLineEditFicheSerieWiki->setText(liste.at(0).value(bdd->FICHE_SERIE_WIKI));
             ui->pageAjoutModifLineEditAddicted->setText(liste.at(0).value(bdd->FICHE_SERIE_ADDICTED));
             if(liste.at(0).value(bdd->FICHE_SERIE_IMAGE) != "") {
@@ -2183,11 +2404,19 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
     }
 
     champs.clear();
+    jointures.clear();
     conditions.clear();
-    champs.append("DISTINCT " + bdd->HISTORIQUE_SAISON);
-    conditions.append(bdd->HISTORIQUE_NOM + " = '" + arg1 + "'");
+    champs.append(bdd->DISTINCT + bdd->HISTORIQUE_SAISON);
+    conditions.append(bdd->HISTORIQUE_NOM + bdd->EGALE + bdd->entreQuotes(arg1));
 
-    QList<QMap<QString, QString> > listeSaison = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer les saisons de la série " + arg1 + " dans l'historique";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString, QString> > listeSaison = retour.liste;
     if(listeSaison.isEmpty()) {
         ui->pageAjoutModifComboBoxListeSaison->setEnabled(false);
         ui->pageAjoutModifTableWidgetListeSaison->setEnabled(false);
@@ -2235,12 +2464,17 @@ void FenetrePrincipale::on_pageAjoutModifCheckBoxDoubleEpisode_stateChanged(int 
 \*******************************************************/
 
 void FenetrePrincipale::on_pageReporterButtonValider_clicked() {
-    QList<QString> champs;
-    QList<QString> conditions;
-    champs.append(bdd->SAISON_DATE_MODIF + " = '" + QDate::currentDate().addDays(7 * (ui->pageReporterSpinBox->value() - 1)).toString("yyyy-MM-dd") + "'");
-    conditions.append(bdd->SAISON_ID + " = (SELECT " + bdd->FICHE_SERIE_ID + " FROM " + bdd->FICHE_SERIE_TABLE + " WHERE " + bdd->FICHE_SERIE_NOM + " = '" + ui->pageReporterLabelNomSerie->text() + "')");
+    QStringList champs, conditions;
+    champs.append(bdd->SAISON_DATE_MODIF + bdd->EGALE + bdd->entreQuotes(QDate::currentDate().addDays(7 * (ui->pageReporterSpinBox->value() - 1)).toString("yyyy-MM-dd")));
+    conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreParentheses(bdd->SELECT + bdd->FICHE_SERIE_ID + bdd->FROM + bdd->TABLE_FICHE_SERIE + bdd->WHERE + bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ui->pageReporterLabelNomSerie->text())));
 
-    this->bdd->requeteUpdate(champs, bdd->SAISON_TABLE, conditions);
+    BaseDeDonnees::Retour retour = bdd->requeteUpdate(champs, bdd->TABLE_SAISON, conditions);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de mettre à jour la série " + ui->pageReporterLabelNomSerie->text();
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageReporterButtonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
     refresh();
     on_pageReporterButtonRetour_clicked();
 }
@@ -2274,15 +2508,13 @@ void FenetrePrincipale::on_pageHistoriqueComboBoxEtat_currentTextChanged(const Q
     // Refresh de l'historique
     ui->pageHistoriqueTableWidget->setRowCount(0);
 
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
     int indice = 0;
     QString qualite;
     QString sousTitres;
     QString fin = "&do=search&order=desc&sort=publish_date";
 
-    switch (getConfig("Configuration/Qualite").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/Qualite").toInt()) {
     case 0:
         qualite = "";
         break;
@@ -2294,7 +2526,7 @@ void FenetrePrincipale::on_pageHistoriqueComboBoxEtat_currentTextChanged(const Q
         break;
     }
 
-    switch (getConfig("Configuration/SousTitres").toInt()) {
+    switch (MethodeDiverses::getConfig("Configuration/SousTitres").toInt()) {
     case 0:
         sousTitres = "";
         break;
@@ -2310,11 +2542,18 @@ void FenetrePrincipale::on_pageHistoriqueComboBoxEtat_currentTextChanged(const Q
     champs.append(bdd->HISTORIQUE_ETAT);
     if(!condition.isEmpty())
         conditions.append(condition);
-    ordres.append(bdd->HISTORIQUE_DATE_AJOUT + " DESC");
+    ordres.append(bdd->HISTORIQUE_DATE_AJOUT + bdd->DESC);
     ordres.append(bdd->HISTORIQUE_NOM);
-    ordres.append(bdd->HISTORIQUE_SAISON + " DESC");
-    ordres.append(bdd->HISTORIQUE_EPISODE + " DESC");
-    QList<QMap<QString, QString> > listeHistorique = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    ordres.append(bdd->HISTORIQUE_SAISON + bdd->DESC);
+    ordres.append(bdd->HISTORIQUE_EPISODE + bdd->DESC);
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer l'historique des séries";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueComboBoxEtat_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString, QString> > listeHistorique = retour.liste;
     for(int i = 0; i < listeHistorique.count(); i++) {
         QMap<QString, QString> map = listeHistorique.value(i);
 
@@ -2364,7 +2603,7 @@ void FenetrePrincipale::on_pageHistoriqueComboBoxEtat_currentTextChanged(const Q
         indice++;
     }
 
-    log->ecrire("\tActualisation du tableau de l'historique effectué");
+    MethodeDiverses::ecrireLog("\tActualisation du tableau de l'historique effectué");
 
     ui->pageHistoriqueTableWidget->resizeColumnsToContents();
     ui->pageHistoriqueTableWidget->setColumnWidth(4, 60);
@@ -2380,7 +2619,7 @@ void FenetrePrincipale::on_pageHistoriqueComboBoxEtat_currentTextChanged(const Q
 
 void FenetrePrincipale::on_pageHistoriqueRechercherPushButtonAjoutNomSerie_clicked() {
     QString nomSerie = ui->pageHistoriqueRechercherComboBoxNomSerie->currentText();
-    QList<QString> serieChoisi = ui->pageHistoriqueRechercherLabelAffichage->text().split(", ");
+    QStringList serieChoisi = ui->pageHistoriqueRechercherLabelAffichage->text().split(", ");
     if(!serieChoisi.contains(nomSerie)) {
         if(ui->pageHistoriqueRechercherLabelAffichage->text() == "") {
             ui->pageHistoriqueRechercherLabelAffichage->setText(ui->pageHistoriqueRechercherLabelAffichage->text() + nomSerie);
@@ -2393,7 +2632,7 @@ void FenetrePrincipale::on_pageHistoriqueRechercherPushButtonAjoutNomSerie_click
 
 void FenetrePrincipale::on_pageHistoriqueRechercherPushButtonSupprimerNomSerie_clicked() {
     QString nomSerie = ui->pageHistoriqueRechercherComboBoxNomSerie->currentText();
-    QList<QString> serieChoisi = ui->pageHistoriqueRechercherLabelAffichage->text().split(", ");
+    QStringList serieChoisi = ui->pageHistoriqueRechercherLabelAffichage->text().split(", ");
     serieChoisi.removeOne(nomSerie);
     ui->pageHistoriqueRechercherLabelAffichage->setText("");
     for(int i = 0; i < serieChoisi.count(); i++) {
@@ -2414,10 +2653,8 @@ void FenetrePrincipale::on_pageHistoriqueRechercherPushButtonSupprimerTout_click
 }
 
 void FenetrePrincipale::on_pageHistoriqueRechercherPushButtonRechercher_clicked() {
-    QList<QString> listeSerie = ui->pageHistoriqueRechercherLabelAffichage->text().split(", ");
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList listeSerie = ui->pageHistoriqueRechercherLabelAffichage->text().split(", ");
+    QStringList champs, jointures, conditions, ordres;
 
     champs.append(bdd->HISTORIQUE_NOM);
     champs.append(bdd->HISTORIQUE_SAISON);
@@ -2426,15 +2663,22 @@ void FenetrePrincipale::on_pageHistoriqueRechercherPushButtonRechercher_clicked(
     QString serie;
     for(int i = 0; i < listeSerie.count(); i++) {
         if(i == 0) {
-            serie.append("'" + listeSerie.at(i) + "'");
+            serie.append(bdd->entreQuotes(listeSerie.at(i)));
         } else {
-            serie.append(", '" + listeSerie.at(i) + "'");
+            serie.append(bdd->VIRGULE + bdd->entreQuotes(listeSerie.at(i)));
         }
     }
-    conditions.append(bdd->HISTORIQUE_NOM + " IN (" + serie + ")");
+    conditions.append(bdd->HISTORIQUE_NOM + bdd->IN + bdd->entreParentheses(serie));
     ordres.append(bdd->HISTORIQUE_DATE_AJOUT);
 
-    QList<QMap<QString, QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer l'historique des séries : " + ui->pageHistoriqueRechercherLabelAffichage->text();
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueRechercherPushButtonRechercher_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString, QString> > liste = retour.liste;
     ui->pageHistoriqueRechercherTableWidget->setRowCount(0);
     for(int i = 0; i < liste.count(); i++) {
         ui->pageHistoriqueRechercherTableWidget->setRowCount(ui->pageHistoriqueRechercherTableWidget->rowCount() + 1);
@@ -2514,8 +2758,7 @@ void FenetrePrincipale::on_pageHistoriqueAjouterPushButtonAjouter_clicked() {
             QDateEdit *dateEditDateDiffusion = (QDateEdit *)ui->pageHistoriqueAjouterTableWidget->cellWidget(i, 2)->layout()->itemAt(0)->widget();
             QComboBox *etat = (QComboBox *)ui->pageHistoriqueAjouterTableWidget->cellWidget(i, 3)->layout()->itemAt(0)->widget();
 
-            QList<QString> champs;
-            QList<QString> valeurs;
+            QStringList champs, valeurs;
             champs.append(bdd->HISTORIQUE_NOM);
             valeurs.append(ui->pageHistoriqueAjouterComboBoxSerie->currentText());
             champs.append(bdd->HISTORIQUE_SAISON);
@@ -2532,7 +2775,13 @@ void FenetrePrincipale::on_pageHistoriqueAjouterPushButtonAjouter_clicked() {
             } else {
                 valeurs.append("V");
             }
-            bdd->requeteInsert(champs, valeurs, bdd->HISTORIQUE_TABLE);
+            BaseDeDonnees::Retour retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_HISTORIQUE);
+            if(!retour.reussi) {
+                QString messageLog = "Impossible d'ajouter dans l'historique l'épisode " + ui->pageHistoriqueAjouterComboBoxSerie->currentText() + " S" + methodeDiverses.formalismeEntier(spinBoxSaison->value()) + "E" + methodeDiverses.formalismeEntier(spinBoxEpisode->value());
+                QMessageBox::critical(this, this->windowTitle(), messageLog);
+                MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueAjouterPushButtonAjouter_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+                throw new QException();
+            }
 
         }
         ui->pageHistoriqueAjouterTableWidget->setRowCount(0);
@@ -2551,15 +2800,20 @@ void FenetrePrincipale::on_pageHistoriqueModifierPushButtonRechercher_clicked() 
     QString saison = methodeDiverses.formalismeEntier(ui->pageHistoriqueModifierSpinBoxRechercheSaison->value());
     QString episode = methodeDiverses.formalismeEntier(ui->pageHistoriqueModifierSpinBoxRechercheEpisode->value());
 
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
     champs.append(bdd->HISTORIQUE_DATE_AJOUT);
-    conditions.append(bdd->HISTORIQUE_NOM + " = '" + nom + "'");
-    conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison + "'");
-    conditions.append(bdd->HISTORIQUE_EPISODE + " = '" + episode + "'");
+    conditions.append(bdd->HISTORIQUE_NOM + bdd->EGALE + bdd->entreQuotes(nom));
+    conditions.append(bdd->HISTORIQUE_SAISON + bdd->EGALE + bdd->entreQuotes(saison));
+    conditions.append(bdd->HISTORIQUE_EPISODE + bdd->EGALE + bdd->entreQuotes(episode));
 
-    QList<QMap<QString, QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer l'épisode " + nom + " S" + saison + "E" + episode;
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueModifierPushButtonRechercher_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString, QString> > liste = retour.liste;
 
     if(!liste.isEmpty()) {
         ui->pageHistoriqueModifierDateEditModificationDateDiffusion->setEnabled(true);
@@ -2575,50 +2829,79 @@ void FenetrePrincipale::on_pageHistoriqueModifierPushButtonModifier_clicked() {
     QString nom = ui->pageHistoriqueModifierComboBoxRechercheNom->currentText();
     QString saison = methodeDiverses.formalismeEntier(ui->pageHistoriqueModifierSpinBoxRechercheSaison->value());
     QString episode = methodeDiverses.formalismeEntier(ui->pageHistoriqueModifierSpinBoxRechercheEpisode->value());
-    QList<QString> champs;
-    QList<QString> conditions;
-    champs.append(bdd->HISTORIQUE_DATE_AJOUT + " = '" + ui->pageHistoriqueModifierDateEditModificationDateDiffusion->date().toString("yyyy-MM-dd") + "'");
-    conditions.append(bdd->HISTORIQUE_NOM + " = '" + nom + "'");
-    conditions.append(bdd->HISTORIQUE_SAISON + " = '" + saison + "'");
-    conditions.append(bdd->HISTORIQUE_EPISODE + " = '" + episode + "'");
-    this->bdd->requeteUpdate(champs, bdd->HISTORIQUE_TABLE, conditions);
+    QStringList champs, conditions;
+    champs.append(bdd->HISTORIQUE_DATE_AJOUT + bdd->EGALE + bdd->entreQuotes(ui->pageHistoriqueModifierDateEditModificationDateDiffusion->date().toString("yyyy-MM-dd")));
+    conditions.append(bdd->HISTORIQUE_NOM + bdd->EGALE + bdd->entreQuotes(nom));
+    conditions.append(bdd->HISTORIQUE_SAISON + bdd->EGALE + bdd->entreQuotes(saison));
+    conditions.append(bdd->HISTORIQUE_EPISODE + bdd->EGALE + bdd->entreQuotes(episode));
+    BaseDeDonnees::Retour retour = bdd->requeteUpdate(champs, bdd->TABLE_HISTORIQUE, conditions);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de mettre à jour l'épisode " + nom + " S" + saison + "E" + episode;
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueModifierPushButtonModifier_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
     ui->statusBar->showMessage("La date de l'épisode " + episode + " de la saison " + saison + " de la série " + nom + " a été modifié", 5000);
 }
 
 void FenetrePrincipale::on_pageHistoriqueModifierComboBoxRechercheNom_currentTextChanged(const QString &arg1) {
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
 
-    champs.append("MAX(" + bdd->HISTORIQUE_SAISON + ")");
-    conditions.append(bdd->HISTORIQUE_NOM + " = '" + arg1 + "'");
+    champs.append(bdd->MAX + bdd->entreParentheses(bdd->HISTORIQUE_SAISON));
+    conditions.append(bdd->HISTORIQUE_NOM + bdd->EGALE + bdd->entreQuotes(arg1));
 
-    QList<QMap<QString,QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
-    ui->pageHistoriqueModifierSpinBoxRechercheSaison->setMaximum(liste.at(0).value("MAX(" + bdd->HISTORIQUE_SAISON + ")").toInt());
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer la derniere saison de la série " + arg1 + " dans l'historique";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueModifierComboBoxRechercheNom_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString,QString> > liste = retour.liste;
+    ui->pageHistoriqueModifierSpinBoxRechercheSaison->setMaximum(liste.at(0).value(bdd->MAX + bdd->entreParentheses(bdd->HISTORIQUE_SAISON)).toInt());
 
     champs.clear();
-    champs.append("MIN(" + bdd->HISTORIQUE_SAISON + ")");
+    champs.append(bdd->MIN + bdd->entreParentheses(bdd->HISTORIQUE_SAISON));
 
-    liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer la première saison de la série " + arg1 + " dans l'historique";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueModifierComboBoxRechercheNom_currentTextChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    liste = retour.liste;
     ui->pageHistoriqueModifierSpinBoxRechercheSaison->setMinimum(liste.at(0).value("MIN(" + bdd->HISTORIQUE_SAISON + ")").toInt());
 }
 
 void FenetrePrincipale::on_pageHistoriqueModifierSpinBoxRechercheSaison_valueChanged(int arg1) {
-    QList<QString> champs;
-    QList<QString> conditions;
-    QList<QString> ordres;
+    QStringList champs, jointures, conditions, ordres;
 
-    champs.append("MAX(" + bdd->HISTORIQUE_EPISODE + ")");
-    conditions.append(bdd->HISTORIQUE_NOM + " = '" + ui->pageHistoriqueModifierComboBoxRechercheNom->currentText() + "'");
-    conditions.append(bdd->HISTORIQUE_SAISON + " = '" + methodeDiverses.formalismeEntier(arg1) + "'");
+    champs.append(bdd->MAX + bdd->entreParentheses(bdd->HISTORIQUE_EPISODE));
+    conditions.append(bdd->HISTORIQUE_NOM + bdd->EGALE + bdd->entreQuotes(ui->pageHistoriqueModifierComboBoxRechercheNom->currentText()));
+    conditions.append(bdd->HISTORIQUE_SAISON + bdd->EGALE + bdd->entreQuotes(methodeDiverses.formalismeEntier(arg1)));
 
-    QList<QMap<QString,QString> > liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
-    ui->pageHistoriqueModifierSpinBoxRechercheEpisode->setMaximum(liste.at(0).value("MAX(" + bdd->HISTORIQUE_EPISODE + ")").toInt());
+    BaseDeDonnees::Retour retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer la derniere saison de la série " + ui->pageHistoriqueModifierComboBoxRechercheNom->currentText() + " dans l'historique";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueModifierSpinBoxRechercheSaison_valueChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    QList<QMap<QString,QString> > liste = retour.liste;
+    ui->pageHistoriqueModifierSpinBoxRechercheEpisode->setMaximum(liste.at(0).value(bdd->MAX + bdd->entreParentheses(bdd->HISTORIQUE_EPISODE)).toInt());
 
     champs.clear();
-    champs.append("MIN(" + bdd->HISTORIQUE_EPISODE + ")");
+    champs.append(bdd->MIN + bdd->entreParentheses(bdd->HISTORIQUE_EPISODE));
 
-    liste = this->bdd->requeteSelect(champs, bdd->HISTORIQUE_TABLE, conditions, ordres);
+    retour = bdd->requeteSelect(champs, bdd->TABLE_HISTORIQUE, jointures, conditions, ordres);
+    if(!retour.reussi) {
+        QString messageLog = "Impossible de récupérer la première saison de la série " + ui->pageHistoriqueModifierComboBoxRechercheNom->currentText() + " dans l'historique";
+        QMessageBox::critical(this, this->windowTitle(), messageLog);
+        MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueModifierSpinBoxRechercheSaison_valueChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+        throw new QException();
+    }
+    liste = retour.liste;
     ui->pageHistoriqueModifierSpinBoxRechercheEpisode->setMinimum(liste.at(0).value("MIN(" + bdd->HISTORIQUE_EPISODE + ")").toInt());
 
 }
@@ -2664,7 +2947,7 @@ void FenetrePrincipale::on_pageHistoriqueImporterPushButtonChargerFichier_clicke
         QTextStream flux(&fichier);
         while(!flux.atEnd()) {
             QString texte = flux.readLine();
-            QList<QString> colonne = texte.split(";");
+            QStringList colonne = texte.split(";");
             if(!colonne.isEmpty()) {
                 int ligne = ui->pageHistoriqueImporterTableWidget->rowCount();
                 ui->pageHistoriqueImporterTableWidget->setRowCount(ui->pageHistoriqueImporterTableWidget->rowCount() + 1);
@@ -2687,8 +2970,7 @@ void FenetrePrincipale::on_pageHistoriqueImporterPushButtonImporter_clicked() {
         QString dateDiffusion = ui->pageHistoriqueImporterTableWidget->item(i, 3)->text();
         QString etat = ui->pageHistoriqueImporterTableWidget->item(i, 4)->text();
 
-        QList<QString> champs;
-        QList<QString> valeurs;
+        QStringList champs, valeurs;
 
         champs.append(bdd->HISTORIQUE_NOM);
         valeurs.append(nom);
@@ -2707,7 +2989,13 @@ void FenetrePrincipale::on_pageHistoriqueImporterPushButtonImporter_clicked() {
             valeurs.append("NV");
         }
 
-        this->bdd->requeteInsert(champs, valeurs, bdd->HISTORIQUE_TABLE);
+        BaseDeDonnees::Retour retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_HISTORIQUE);
+        if(!retour.reussi) {
+            QString messageLog = "Impossible d'ajouter dans l'historique l'épisode " + nom + " S" + saison + "E" + episode;
+            QMessageBox::critical(this, this->windowTitle(), messageLog);
+            MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageHistoriqueModifierSpinBoxRechercheSaison_valueChanged() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
+            throw new QException();
+        }
     }
     ui->statusBar->showMessage("Import effectué");
     ui->pageHistoriqueImporterLineEditCheminFichier->setText("");

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>849</width>
-    <height>489</height>
+    <width>970</width>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,28 +75,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="tableWidget">
-     <property name="columnCount">
-      <number>9</number>
-     </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Déplacer</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Ne rien faire</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Supprimer</string>
-      </property>
-     </column>
+    <widget class="QTreeWidget" name="treeWidget">
      <column>
       <property name="text">
        <string>Nom</string>
@@ -119,12 +98,22 @@
      </column>
      <column>
       <property name="text">
-       <string>Série présente</string>
+       <string>Déplacer</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Sous-dossier</string>
+       <string>Ne rien faire</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Supprimer</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string/>
       </property>
      </column>
     </widget>

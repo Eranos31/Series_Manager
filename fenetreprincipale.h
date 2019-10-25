@@ -18,7 +18,6 @@
 #include <QScrollBar>
 #include "basededonnees.h"
 #include "methodediverses.h"
-#include "log.h"
 #include "dialog.h"
 #include "filedownloader.h"
 
@@ -33,10 +32,6 @@ class FenetrePrincipale : public QMainWindow
 public:
     explicit FenetrePrincipale(QWidget *parent = 0);
     ~FenetrePrincipale();
-    QString getConfig(QString config);
-    int getConfig(QString config, int valeur);
-    void setConfig(QString config, QString valeur);
-    QString getDossierSerie();
     BaseDeDonnees *getBdd();
 public slots:
     void refresh();
@@ -46,7 +41,6 @@ private slots:
     void bouton_lien_clicked(QString nom);
     void bouton_dossier_clicked(QString nom);
     void bouton_reporter_clicked(QString nom);
-    void checkBox_vu_clicked(QString nom);
     void comboBox_etat_changed(QString nom);
     void majIndicateur();
     void chargementConfiguration();
@@ -56,6 +50,7 @@ private slots:
     void resizeEvent(QResizeEvent *);
     void redimensionnerTableau();
     void loadImage();
+    void fermetureFenetre();
     // MENU
     void on_menuFichierAccueil_triggered();
     void on_menuFichierHistoriqueRechercher_triggered();
@@ -148,7 +143,6 @@ private:
     QList<QMap<QString, QString> > listeGlobal;
     QList<QString> ficheSerie;
     QString dossierSerie;
-    Log* log;
     QString version;
     QDate dateVersion;
     QTime heureVersion;

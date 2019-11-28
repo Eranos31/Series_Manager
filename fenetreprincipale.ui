@@ -155,7 +155,7 @@
               <item>
                <widget class="QLineEdit" name="pageConfigurationLineEditSite">
                 <property name="text">
-                 <string>http://yggtorrent.</string>
+                 <string>http://www2.yggtorrent.</string>
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>
@@ -2392,7 +2392,7 @@ border-width: 1px;</string>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

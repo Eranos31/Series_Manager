@@ -1876,10 +1876,9 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
             champs.append(bdd->FICHE_SERIE_IMAGE + bdd->EGALE + bdd->entreQuotes(ficheSeriePhoto));
             champs.append(bdd->FICHE_SERIE_ADDICTED + bdd->EGALE + bdd->entreQuotes(ficheSerieAddicted));
             champs.append(bdd->FICHE_SERIE_TERMINE + bdd->EGALE + bdd->entreQuotes(QString::number(termine)));
-            champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID);
             champsType.append(bdd->TYPE_SERIE_ID);
             conditionsType.append(bdd->TYPE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(type));
-            champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID + bdd->EGALE + bdd->getRequeteSelect(champsType, bdd->TABLE_TYPE_SERIE, jointuresType, conditionsType, ordresType));
+            champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID + bdd->EGALE + bdd->entreParentheses(bdd->getRequeteSelect(champsType, bdd->TABLE_TYPE_SERIE, jointuresType, conditionsType, ordresType)));
             conditions.append(bdd->FICHE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(ficheSerieNom));
             retour = bdd->requeteUpdate(champs, bdd->TABLE_FICHE_SERIE, conditions);
             if(!retour.reussi) {
@@ -1918,20 +1917,20 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
                 champs.clear();
                 valeurs.clear();
                 champs.append(bdd->SAISON_ID);
-                valeurs.append(QString::number(ficheSerieID));
+                valeurs.append(bdd->entreQuotes(QString::number(ficheSerieID)));
                 champs.append(bdd->SAISON_SAISON);
-                valeurs.append(saisonSaison);
+                valeurs.append(bdd->entreQuotes(saisonSaison));
                 champs.append(bdd->SAISON_NB_EPISODE);
-                valeurs.append(saisonNbEpisode);
+                valeurs.append(bdd->entreQuotes(saisonNbEpisode));
                 champs.append(bdd->SAISON_EPISODE_COURANT);
-                valeurs.append("01");
+                valeurs.append(bdd->entreQuotes("01"));
                 champs.append(bdd->SAISON_DATE_SORTIE);
-                valeurs.append(saisonDateSortie);
+                valeurs.append(bdd->entreQuotes(saisonDateSortie));
                 champs.append(bdd->SAISON_DATE_MODIF);
-                valeurs.append(saisonDateModif);
+                valeurs.append(bdd->entreQuotes(saisonDateModif));
                 champs.append(bdd->SAISON_WIKI);
-                valeurs.append(saisonWiki);
-                bdd->requeteInsert(champs, valeurs, bdd->TABLE_SAISON);
+                valeurs.append(bdd->entreQuotes(saisonWiki));
+                retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_SAISON);
                 if(!retour.reussi) {
                     QString messageLog = "Impossible d'ajouter la saison de la série " + ficheSerieNom;
                     QMessageBox::critical(this, this->windowTitle(), messageLog);
@@ -2348,7 +2347,9 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
         }
     } else if(!liste.isEmpty() && ui->pageAjoutModifBoutonValider->text() == "Ajouter") {
         champs.clear();
+        jointures.clear();
         conditions.clear();
+        ordres.clear();
         champs.append(bdd->SAISON_ID);
         conditions.append(bdd->SAISON_ID + bdd->EGALE + bdd->entreQuotes(liste.at(0).value(bdd->FICHE_SERIE_ID)));
 
@@ -2370,11 +2371,7 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
             }
 
             if(arg1 != "") {
-                if(!ui->pageAjoutModifCheckBoxCreerSaison->isChecked()) {
-                    ui->pageAjoutModifBoutonValider->setEnabled(false);
-                } else {
-                    ui->pageAjoutModifBoutonValider->setEnabled(true);
-                }
+                ui->pageAjoutModifBoutonValider->setEnabled(ui->pageAjoutModifCheckBoxCreerSaison->isChecked());
             } else {
                 ui->pageAjoutModifBoutonValider->setEnabled(false);
             }

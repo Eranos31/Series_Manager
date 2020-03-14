@@ -1,0 +1,60 @@
+classDiagram
+  Fiche <|-- Serie
+  Fiche <|-- Film
+  Serie <|-- SerieTV
+  Serie <|-- Anime
+  Serie -- Saison
+  Saison -- Episode
+
+  Fiche : id
+  Fiche : nom
+  Fiche : wikipedia
+  Fiche : image
+  Fiche : id()
+  Fiche : setId()
+  Fiche : nom()
+  Fiche : setNom()
+  Fiche : wikipedia()
+  Fiche : setWikipedia()
+  Fiche : image()
+  Fiche : setImage()
+
+  Serie : termine
+  Serie : Saisons
+  Serie : termine()
+  Serie : setTermine()
+  Serie : saisons()
+  Serie : setSaisons()
+  Serie : addSaison()
+
+  Film : dateSortie
+  Film : dateSortie()
+  Film : setDateSortie()
+
+  SerieTV : addicted
+  SerieTV : addicted()
+  SerieTV : setAddicted()
+
+  Anime : alias
+  Anime : nomSaison
+  Anime : alias()
+  Anime : setAlias()
+  Anime : nomSaison()
+  Anime : setNomSaison()
+
+  Saison : id
+  Saison : ficheId
+  Saison : numero
+  Saison : nombreEpisode
+  Saison : dateDebut
+  Saison : wikipediaSaison
+  Saison : courant
+  Saison : episodeEnPlus
+  Saison : Episodes
+
+  Episode : id
+  Episode : saisonID
+  Episode : numero
+  Episode : dateDiffusion
+  Episode : etat
+  Episode : courant

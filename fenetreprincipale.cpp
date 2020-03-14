@@ -1826,7 +1826,7 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
         cheminFichier = "";
     }
 
-    QStringList champs, jointures, conditions, ordres;
+    QStringList champs, jointures, conditions, ordres, champsType, jointuresType, conditionsType, ordresType;
 
     if(ui->pageAjoutModifBoutonValider->text() == "Ajouter") {
         QStringList valeurs;
@@ -1843,7 +1843,6 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
             MethodeDiverses::ecrireLog("ERREUR - FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() : " + messageLog + " " + retour.erreur + " requete : " + retour.requete);
             throw new QException();
         }
-        QStringList champsType, jointuresType, conditionsType, ordresType;
         if(retour.liste.isEmpty()) {
             champs.clear();
             valeurs.clear();
@@ -1995,6 +1994,9 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
         champs.append(bdd->FICHE_SERIE_WIKI + bdd->EGALE + bdd->entreQuotes(ficheSerieWiki));
         champs.append(bdd->FICHE_SERIE_ADDICTED + bdd->EGALE + bdd->entreQuotes(ficheSerieAddicted));
         champs.append(bdd->FICHE_SERIE_TERMINE + bdd->EGALE + bdd->entreQuotes(QString::number(termine)));
+        champsType.append(bdd->TYPE_SERIE_ID);
+        conditionsType.append(bdd->TYPE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(type));
+        champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID + bdd->EGALE + bdd->entreParentheses(bdd->getRequeteSelect(champsType, bdd->TABLE_TYPE_SERIE, jointuresType, conditionsType, ordresType)));
         conditions.append(bdd->FICHE_SERIE_ID + bdd->EGALE + bdd->entreQuotes(QString::number(ficheSerieID)));
         bdd->requeteUpdate(champs, bdd->TABLE_FICHE_SERIE, conditions);
         if(!retour.reussi) {
@@ -2363,6 +2365,7 @@ void FenetrePrincipale::on_pageAjoutModifComboFicheSerieNom_currentTextChanged(c
         if(retour.liste.isEmpty()) {
             ui->pageAjoutModifLineEditFicheSerieWiki->setText(liste.at(0).value(bdd->FICHE_SERIE_WIKI));
             ui->pageAjoutModifLineEditAddicted->setText(liste.at(0).value(bdd->FICHE_SERIE_ADDICTED));
+            ui->pageAjoutModifComboBoxTypeSerie->setCurrentText(liste.at(0).value(bdd->TYPE_SERIE_NOM));
             if(liste.at(0).value(bdd->FICHE_SERIE_IMAGE) != "") {
                 ui->pageAjoutModifLabelPhoto->setPixmap(QPixmap(liste.at(0).value(bdd->FICHE_SERIE_IMAGE)).scaled(ui->pageAjoutModifLabelPhoto->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
                 ui->pageAjoutModifLabelCheminPhoto->setText(liste.at(0).value(bdd->FICHE_SERIE_IMAGE));

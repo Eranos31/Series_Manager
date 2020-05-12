@@ -1847,19 +1847,19 @@ void FenetrePrincipale::on_pageAjoutModifBoutonValider_clicked() {
             champs.clear();
             valeurs.clear();
             champs.append(bdd->FICHE_SERIE_NOM);
-            valeurs.append(ficheSerieNom);
+            valeurs.append(bdd->entreQuotes(ficheSerieNom));
             champs.append(bdd->FICHE_SERIE_WIKI);
-            valeurs.append(ficheSerieWiki);
+            valeurs.append(bdd->entreQuotes(ficheSerieWiki));
             champs.append(bdd->FICHE_SERIE_IMAGE);
-            valeurs.append(cheminFichier);
+            valeurs.append(bdd->entreQuotes(cheminFichier));
             champs.append(bdd->FICHE_SERIE_ADDICTED);
-            valeurs.append(ficheSerieAddicted);
+            valeurs.append(bdd->entreQuotes(ficheSerieAddicted));
             champs.append(bdd->FICHE_SERIE_TERMINE);
-            valeurs.append(QString::number(termine));
+            valeurs.append(bdd->entreQuotes(QString::number(termine)));
             champs.append(bdd->FICHE_SERIE_TYPE_SERIE_ID);
             champsType.append(bdd->TYPE_SERIE_ID);
             conditionsType.append(bdd->TYPE_SERIE_NOM + bdd->EGALE + bdd->entreQuotes(type));
-            valeurs.append(bdd->getRequeteSelect(champsType, bdd->TABLE_TYPE_SERIE, jointuresType, conditionsType, ordresType));
+            valeurs.append(bdd->entreParentheses(bdd->getRequeteSelect(champsType, bdd->TABLE_TYPE_SERIE, jointuresType, conditionsType, ordresType)));
 
             retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_FICHE_SERIE);
             if(!retour.reussi) {

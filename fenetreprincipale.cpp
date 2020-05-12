@@ -2973,20 +2973,20 @@ void FenetrePrincipale::on_pageHistoriqueImporterPushButtonImporter_clicked() {
         QStringList champs, valeurs;
 
         champs.append(bdd->HISTORIQUE_NOM);
-        valeurs.append(nom);
+        valeurs.append(bdd->entreQuotes(nom));
         champs.append(bdd->HISTORIQUE_SAISON);
-        valeurs.append(saison);
+        valeurs.append(bdd->entreQuotes(saison));
         champs.append(bdd->HISTORIQUE_EPISODE);
-        valeurs.append(episode);
+        valeurs.append(bdd->entreQuotes(episode));
         champs.append(bdd->HISTORIQUE_DATE_AJOUT);
-        valeurs.append(methodeDiverses.jmaToDate(dateDiffusion).toString("yyyy-MM-dd"));
+        valeurs.append(bdd->entreQuotes(methodeDiverses.jmaToDate(dateDiffusion).toString("yyyy-MM-dd")));
         champs.append(bdd->HISTORIQUE_ETAT);
-        if(etat.toLower() == "vu") {
-            valeurs.append("V");
-        } else if(etat.toLower() == "téléchargé" || etat.toLower() == "telecharge") {
-            valeurs.append("T");
+        if(etat.toLower() == "vu" || etat.toLower() == "v") {
+            valeurs.append(bdd->entreQuotes("V"));
+        } else if(etat.toLower() == "téléchargé" || etat.toLower() == "telecharge" || etat.toLower() == "t") {
+            valeurs.append(bdd->entreQuotes("T"));
         } else {
-            valeurs.append("NV");
+            valeurs.append(bdd->entreQuotes("NV"));
         }
 
         BaseDeDonnees::Retour retour = bdd->requeteInsert(champs, valeurs, bdd->TABLE_HISTORIQUE);
